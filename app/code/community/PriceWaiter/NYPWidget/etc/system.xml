@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright 2012 PriceWaiter, LLC
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<config>
+    <sections>
+        <pricewaiter>
+            <label>PriceWaiter</label>
+            <tab>sales</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>100</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <class>pricewaiter-tab</class>
+            <header_css>pricewaiter-header</header_css>
+            <groups>
+                <configuration translate="label">
+                    <label>Configuration</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <enabled translate="label comment">
+                            <label>Enabled</label>
+                            <comment>
+                                <![CDATA[Disabling the widget will hide it on
+                                         all product pages.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enabled>
+                        <api_key translate="label comment">
+                            <label>API Key</label>
+                            <comment>
+                                <![CDATA[The API Key you were given when signing
+                                         up for PriceWaiter. If you do not have one,
+                                         sign up <a href="http://www.pricewaiter.com/">here</a>.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_key>
+                        <log translate="label comment">
+                            <label>Log Callback Information</label>
+                            <comment>
+                                <![CDATA[Log information about order
+                                         notifications from PriceWaiter. For
+                                         information about setting up the
+                                         callback function, go <a
+                                         href="http://www.pricewaiter.com/">here</a>.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </log>
+                    </fields>
+                </configuration>
+                <appearance translate="label">
+                    <label>Appearance</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <preview translate="label comment"><!--#pricewaiter_appearance_preview-->
+                            <label>Preview</label>
+                            <comment>
+                                <![CDATA[What the "Name Your Price" widget will
+                                         look like on your product pages.]]>
+                            </comment>
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </preview>
+                    </fields>
+                    <fields>
+                        <display_type translate="label comment"><!--#pricewaiter_appearance_display_type-->
+                            <label>Display Type</label>
+                            <comment>
+                                <![CDATA[Should the PriceWaiter "Name Your
+                                         Price" Widget display as a button, or
+                                         as text?]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>nypwidget/display_type</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_type>
+                    </fields>
+                    <fields>
+                        <display_size translate="label comment"><!--#pricewaiter_appearance_display_size-->
+                            <label>Display Size</label>
+                            <comment></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>nypwidget/display_size</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_size>
+                    </fields>
+                    <fields>
+                        <display_color translate="label comment"><!--#pricewaiter_appearance_button_color-->
+                            <label>Color</label>
+                            <comment>
+                                <![CDATA[The button background color, or the
+                                         text color in hexadecimal notation.]]>
+
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>color</validate>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_color>
+                        <display_hover_color translate="label comment"><!--#pricewaiter_appearance_button_hover_color-->
+                            <label>Hover Color</label>
+                            <comment>
+                                <![CDATA[The button background color, or text
+                                         color, in hexadecimal notation, when it
+                                         is being hovered over.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>color</validate>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_hover_color>
+                    </fields>
+                </appearance>
+            </groups>
+        </pricewaiter>
+    </sections>
+</config>
