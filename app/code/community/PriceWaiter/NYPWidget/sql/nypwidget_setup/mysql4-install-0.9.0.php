@@ -47,64 +47,16 @@ $installer->addAttribute('catalog_product', 'nypwidget_enabled',
     )
 );
 
-// Add an attribute to all categories to toggle the Widget on/off
-$installer->addAttribute('catalog_category', 'nypwidget_enabled',
-    array(
-        'group'             => 'General',
-        'label'             => 'PriceWaiter Widget Enabled',
-        'type'              => 'int',
-        'input'             => 'select',
-        'default'           => '1',
-        'class'             => '',
-        'backend'           => '',
-        'frontend'          => '',
-        'source'            => 'eav/entity_attribute_source_boolean',
-        'global'            => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,
-        'visible'           => true,
-        'required'          => true,
-        'user_defined'      => false,
-        'searchable'        => true,
-        'filterable'        => true,
-        'comparable'        => true,
-        'visible_on_front'  => true,
-        'visible_in_advanced_search' => false,
-        'unique'            => false,
-    )
-);
-
-$entityTypeId = $installer->getEntityTypeId('catalog_category');
-$attributeSetId = $installer->getDefaultAttributeSetId($entityTypeId);
-$attributeGroupId = $installer->getDefaultAttributeGroupId($entityTypeId, $attributeSetId);
-
-$installer->addAttributeToGroup(
-    $entityTypeId,
-    $attributeSetId,
-    $attributeGroupId,
-    'nypwidget_enabled',
-    '11'
-);
-
-$attributeId = $installer->getAttributeId($entityTypeId, 'nypwidget_enabled');
+// Create a table to store category information --
+// Magento's Category attributes are not stable enough to bolt onto,
+// especially in bigger stores.
 $installer->run("
-    INSERT INTO `{$installer->getTable('catalog_category_entity_int')}` (
-        `entity_type_id`, `attribute_id`, `entity_id`, `value`
-    )
-    SELECT '{$entityTypeId}', '{$attributeId}', `entity_id`, '1'
-        FROM `{$installer->getTable('catalog_category_entity')}`;
+DROP TABLE IF EXISTS {$this->getTable('nypwidget')}_categories;
+CREATE TABLE {$this->getTable('nypwidget')}_categories (
+	`category_id` int(11) unsigned NOT NULL,
+	`nypwidget_enabled` tinyint(1) NOT NULL default '1'
+);
 ");
-
-// Apply to root and default category
-Mage::getModel('catalog/category')
-    ->load(1)
-    ->setImportedCatId(0)
-    ->setInitialSetupFlag(true)
-    ->save();
-Mage::getModel('catalog/category')
-    ->load(2)
-    ->setImportedCatId(0)
-    ->setInitialSetupFlag(true)
-    ->save();
-$installer->endSetup();
 
 // Create a new "Pending - PriceWaiter" status for orders
 // that have been pulled from PriceWaiter back into Magento
