@@ -51,8 +51,8 @@ $installer->addAttribute('catalog_product', 'nypwidget_enabled',
 // Magento's Category attributes are not stable enough to bolt onto,
 // especially in bigger stores.
 $installer->run("
-DROP TABLE IF EXISTS {$this->getTable('nypwidget')}_categories;
-CREATE TABLE {$this->getTable('nypwidget')}_categories (
+DROP TABLE IF EXISTS {$this->getTable('nypwidget_category')};
+CREATE TABLE {$this->getTable('nypwidget_category')} (
 	`category_id` int(11) unsigned NOT NULL,
 	`nypwidget_enabled` tinyint(1) NOT NULL default '1'
 );

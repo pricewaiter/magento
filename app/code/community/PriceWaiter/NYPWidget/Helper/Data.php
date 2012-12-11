@@ -34,10 +34,12 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             // Is the pricewaiter widget enabled for this category
             $category = Mage::registry('current_category');
             if (is_object($category)) {
-                if ($category->getId() && !$category->getData('nypwidget_enabled')) {
+                $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
+                if (!$nypcategory->isActive()) {
                     return false;
-                }
+                } 
             }
+
         } else {
             return false;
         }

@@ -26,16 +26,23 @@
         <models>
             <nypwidget>
                 <class>PriceWaiter_NYPWidget_Model</class>
-                <resourceModel>NYPWidget_mysql4</resourceModel>
+                <resourceModel>nypwidget_mysql4</resourceModel>
             </nypwidget>
             <nypwidget_mysql4>
             	<class>PriceWaiter_NYPWidget_Model_Mysql4</class>
-            	<entities>
-            		<nypwidget>
-            			<table>nypwidget</table>
-            		</nypwidget>
-            	</entities>
+                <entities>
+                    <category>
+                        <table>nypwidget_category</table>
+                    </category>
+                </entities>
             </nypwidget_mysql4>
+            <nypwidget_category>
+                <class>PriceWaiter_NYPWidget_Model_Category</class>
+                <resourceModel>nypwidget_mysql4_category</resourceModel>
+            </nypwidget_category>
+            <nypwidget_mysql4_category>
+                <class>PriceWaiter_NYPWidget_Model_Mysql4_Category</class>
+            </nypwidget_mysql4_category>
         </models>
         <helpers>
             <nypwidget>
