@@ -32,7 +32,9 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
 
 	public function isActive()
 	{
-		if ($this->getData('nypwidget_enabled') == 1) {
+		// If the category isn't yet set in the table, default to true.
+		// Otherwise, check the nypwidget_enabled field.
+		if (is_null($this->getData('category_id')) or $this->getData('nypwidget_enabled') == 1) {
 			return true;
 		}
 

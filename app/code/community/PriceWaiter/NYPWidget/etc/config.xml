@@ -18,7 +18,7 @@
 
     <modules>
         <PriceWaiter_NYPWidget>
-            <version>0.9.2</version>
+            <version>1.0.0</version>
         </PriceWaiter_NYPWidget>
     </modules>
 
@@ -117,6 +117,9 @@
                 <display_color>5F82D4</display_color>
                 <display_hover_color>739DFF</display_hover_color>
             </appearance>
+            <categories>
+                <disable_by_category>1</disable_by_category>
+            </categories>
         </pricewaiter>
         <payment>
             <nypwidget>

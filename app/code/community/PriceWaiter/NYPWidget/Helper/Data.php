@@ -167,7 +167,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return "PriceWaiterOptions.product = {
             sku: " . json_encode($product->getSku()) . ",
             name: " . json_encode($product->getName()) . ",
-            price: " . json_encode($product->getPrice()) . ",
+            price: " . json_encode($product->getFinalPrice()) . ",
             image: " . json_encode($product->getImageUrl()) . "
         };";
     }
@@ -177,7 +177,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return "PriceWaiterOptions.product = {
             sku: " . json_encode($product->getSku()) . ",
             name: " . json_encode($product->getName()) . ",
-            price: " . json_encode($product->getPrice()) . ",
+            price: " . json_encode($product->getFinalPrice()) . ",
             image: " . json_encode($product->getImageUrl()) . "
         };
 

@@ -136,7 +136,6 @@
                             <comment>
                                 <![CDATA[The button background color, or the
                                          text color in hexadecimal notation.]]>
-
                             </comment>
                             <frontend_type>text</frontend_type>
                             <validate>color</validate>
@@ -162,25 +161,29 @@
                     </fields>
                 </appearance>
                 <categories>
-                <label>Categories</label>
+                    <label>Categories</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>15</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
-                    <expanded>0</expanded>
-                    <!--
+                    <expanded>1</expanded>
                     <fields>
-                    	<active_categories>
-                    		<label>Active Categories</label>
-                    		<frontend_model>nypwidget/category</frontend_model>
-                    		<sort_order>10</sort_order>
+                        <disable_by_category>
+                            <label>Disable the PriceWaiter Widget by Category?</label>
+                            <comment>
+                                <![CDATA[With this enabled, you can disable the PriceWaiter Name Your Price Widget by Category.
+                                    Visit the "General Information" tab for the category you want to adjust by going to
+                                    "Catalog"->"Manage Categories".]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                    	</active_categories>
+                        </disable_by_category>
                     </fields>
-                    -->
                 </categories>
             </groups>
         </pricewaiter>

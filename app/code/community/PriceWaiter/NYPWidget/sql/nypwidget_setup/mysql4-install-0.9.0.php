@@ -54,6 +54,7 @@ $installer->run("
 DROP TABLE IF EXISTS {$this->getTable('nypwidget_category')};
 CREATE TABLE {$this->getTable('nypwidget_category')} (
 	`category_id` int(11) unsigned NOT NULL,
+	`store_id` int(11) unsigned NOT NULL,
 	`nypwidget_enabled` tinyint(1) NOT NULL default '1'
 );
 ");
