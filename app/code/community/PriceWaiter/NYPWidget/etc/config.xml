@@ -75,6 +75,18 @@
                 </connection>
             </nypwidget_read>
         </resources>
+        <events>
+        	<adminhtml_catalog_category_tabs>
+        		<observers>
+        			<adminhtml_catalog_category_tabs_pricewaiter>
+        				<type>model</type>
+        				<class>nypwidget/observer</class>
+        				<method>addTab</method>
+        				<args></args>
+        			</adminhtml_catalog_category_tabs_pricewaiter>
+        		</observers>
+        	</adminhtml_catalog_category_tabs>
+        </events>
     </global>
 
     <frontend>
