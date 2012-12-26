@@ -173,7 +173,7 @@
                             <label>Disable the PriceWaiter Widget by Category?</label>
                             <comment>
                                 <![CDATA[With this enabled, you can disable the PriceWaiter Name Your Price Widget by Category.
-                                    Visit the "General Information" tab for the category you want to adjust by going to
+                                    Visit the "PriceWaiter" tab for the category you want to adjust by going to
                                     "Catalog"->"Manage Categories".]]>
                             </comment>
                             <frontend_type>select</frontend_type>

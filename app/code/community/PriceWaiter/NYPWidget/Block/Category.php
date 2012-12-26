@@ -23,6 +23,14 @@ implements Mage_Adminhtml_Block_Widget_Tab_Interface
 		$this->setTemplate('pricewaiter/categorytab.phtml');
 	}
 
+	public function getIsEnabled()
+	{
+		$category = Mage::registry('category');
+		$nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category, $category->getStore()->getId());
+
+		return $nypcategory->isActive();
+	}
+
 	public function getTabLabel()
 	{
 		return $this->__('PriceWaiter Widget');

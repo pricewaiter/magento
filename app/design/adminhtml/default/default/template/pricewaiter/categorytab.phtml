@@ -16,7 +16,9 @@
  *
  */
 ?>
-
+<?php 
+$enabled = $this->getIsEnabled();
+?>
 <div class="entry-edit">
 	<div class="entry-edit-head">
 		<h4 class="icon-head head-edit-form fieldset-legend">PriceWaiter Widget</h4>
@@ -30,8 +32,8 @@
 						<td class="label"><label for="group_pricewaiter_enabled">Enabled</label></td>
 						<td class="value">
 							<select id="group_pricewaiter_enabled" name="pricewaiter[enabled]" class=" select">
-								<option value="1">Yes</option>
-								<option value="0">No</option>
+								<option value="1" <?php if ($enabled):?>selected="selected"<?php endif;?>>Yes</option>
+								<option value="0" <?php if (!$enabled):?>selected="selected"<?php endif;?>>No</option>
 							</select>            
 						</td>
 						<td class="scope-label">

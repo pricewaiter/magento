@@ -52,6 +52,10 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
 			return true;
 		}
 
+		if (is_null($this->getData('nypwidget_enabled'))) {
+			return true;
+		}
+
 		return false;
 	}
 }
