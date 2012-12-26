@@ -86,6 +86,16 @@
         			</adminhtml_catalog_category_tabs_pricewaiter>
         		</observers>
         	</adminhtml_catalog_category_tabs>
+        	<catalog_category_prepare_save>
+        		<observers>
+        			<catalog_category_prepare_save_pricewaiter>
+        				<type>model</type>
+        				<class>nypwidget/observer</class>
+        				<method>saveCategory</method>
+        				<args></args>
+        			</catalog_category_prepare_save_pricewaiter>
+        		</observers>
+        	</catalog_category_prepare_save>
         </events>
     </global>
 
