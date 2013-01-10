@@ -169,7 +169,13 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             name: " . json_encode($product->getName()) . ",
             price: " . json_encode($product->getFinalPrice()) . ",
             image: " . json_encode($product->getImageUrl()) . "
-        };";
+        };
+
+        PriceWaiterOptions.onLoad =	
+        	function(PriceWaiter) {
+        		PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
+        	};
+        ";
     }
 
     private function _getConfigurableProductOptions($product)
@@ -183,6 +189,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         PriceWaiterOptions.onload = 
             function(PriceWaiter) {
+            	PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
                 // Bind to each configurable options 'change' event
                 spConfig.settings.each(function(setting){
                     var attributeId = $(setting).id;
