@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2012 PriceWaiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,16 +25,15 @@ class PriceWaiter_NYPWidget_Model_Carrier_ShippingMethod
     public function collectRates(Mage_Shipping_Model_Rate_Request $request)
     {
         $result = Mage::getModel('shipping/rate_result');
-        $method = Mage::getModel('shipping/rate_result_method');
-        $method->setCarrier($this->_code);
-        $method->setCarrierTitle($this->getConfigData('title'));
-        $method->setMethod($this->_code);
-        $method->setMethodTitle($this->getConfigData('name'));
-        $shippingPrice = '0.00';
-        $method->setPrice($shippingPrice);
-        $method->setCost($shippingPrice);
-        $result->append($method);
- 
+        // $method = Mage::getModel('shipping/rate_result_method');
+        // $method->setCarrier($this->_code);
+        // $method->setCarrierTitle($this->getConfigData('title'));
+        // $method->setMethod($this->_code);
+        // $method->setMethodTitle($this->getConfigData('name'));
+        // $shippingPrice = '0.00';
+        // $method->setPrice($shippingPrice);
+        // $method->setCost($shippingPrice);
+        // $result->append($method);
         return $result;
     }
 
