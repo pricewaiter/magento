@@ -19,7 +19,7 @@ class PriceWaiter_NYPWidget_Block_Checkout_Multishipping_Shipping extends Mage_C
 {
     public function getShippingRates($address)
     {
-        $groups = $address->getGroupedAllShippingRates();
+        $groups = parent::getShippingRates($address);
         unset($groups['nypwidget']);
         return $groups;
     }

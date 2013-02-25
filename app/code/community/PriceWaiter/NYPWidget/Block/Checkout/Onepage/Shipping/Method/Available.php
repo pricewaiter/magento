@@ -19,15 +19,8 @@ class PriceWaiter_NYPWidget_Block_Checkout_Onepage_Shipping_Method_Available ext
 {
 	public function getShippingRates()
 	{
-		if (empty($this->_rates)) {
-			$this->getAddress()->collectShippingRates()->save();
-			$groups = $this->getAddress()->getGroupedAllShippingRates();
-
-			unset($groups['nypwidget']);
-			return $this->_rates = $groups;
-		}
-
-		unset($groups['nypwidget']);
-		return $this->_rates;
+        $groups = parent::getShippingRates();
+        unset($groups['nypwidget']);
+        return $groups;
 	}
 }
