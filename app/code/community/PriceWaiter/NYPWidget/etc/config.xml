@@ -53,6 +53,11 @@
             <nypwidget>
                 <class>PriceWaiter_NYPWidget_Block</class>
             </nypwidget>
+            <checkout>
+            	<rewrite>
+            		<onepage_shipping_method_available>PriceWaiter_NYPWidget_Block_Checkout_Onepage_Shipping_Method_Available</onepage_shipping_method_available>
+            	</rewrite>
+            </checkout>
         </blocks>
         <resources>
             <nypwidget_setup>
