@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2012 PriceWaiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,12 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
     private $_testing = false;
-    
+
+    public function isTesting()
+    {
+    	return $this->_testing;
+    }
+
     public function isEnabled()
     {
         // Is the pricewaiter widget enabled for this store
@@ -37,7 +42,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
                 if (!$nypcategory->isActive()) {
                     return false;
-                } 
+                }
             }
 
         } else {
@@ -46,37 +51,37 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return true;
     }
-  
+
     public function getPriceWaiterOptions()
     {
         $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
-        
+
         $displayType       = !Mage::getStoreConfig('pricewaiter/appearance/display_type') ? 'button' : 'text';
         $displaySize       = !Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'lg' : 'sm';
         $displayColor      = Mage::getStoreConfig('pricewaiter/appearance/display_color');
         $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
-        
+
         $pwOptions = "
             var PriceWaiterOptions = {
                 apiKey: '" . $apiKey . "',
                 button: {
                     type: " . json_encode($displayType) . ",
                     size: " . json_encode($displaySize) . ",";
-        
+
         if ($displayColor) {
             $pwOptions .= "
                     color: " . json_encode($displayColor) . ",";
         }
-        
+
         if ($displayHoverColor) {
             $pwOptions .= "
                     hoverColor: " . json_encode($displayHoverColor) . ",";
         }
-        
+
         $pwOptions .= "
                 },
             };\n";
-        
+
        return $pwOptions;
     }
 
@@ -105,7 +110,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             };";
         }
 
-        $product = $this->_getProduct(); 
+        $product = $this->_getProduct();
 
         if ($product->getId()) {
 
@@ -171,7 +176,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             image: " . json_encode($product->getImageUrl()) . "
         };
 
-        PriceWaiterOptions.onLoad =	
+        PriceWaiterOptions.onLoad =
         	function(PriceWaiter) {
         		PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
         	};
@@ -187,7 +192,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             image: " . json_encode($product->getImageUrl()) . "
         };
 
-        PriceWaiterOptions.onload = 
+        PriceWaiterOptions.onload =
             function(PriceWaiter) {
             	PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
                 // Bind to each configurable options 'change' event
@@ -213,7 +218,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 });
             };";
     }
-  
+
     private function _getProduct()
     {
         if (!$this->_product) {

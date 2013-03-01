@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2012 PriceWaiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,36 +21,38 @@ class PriceWaiter_NYPWidget_Model_Callback
     private $_storeId = '1';
     private $_groupId = '1';
     private $_sendConfirmation = '0';
-     
+
     private $orderData = array();
     private $_product;
-     
+
     private $_sourceCustomer;
     private $_sourceOrder;
 
     public function processRequest($request)
     {
-        // Build URL to check validity of order notification.
-        $url = Mage::helper('nypwidget')->getApiUrl();
+        // If the PriceWaiter extension is in testing mode, skip request validation
+    	if (!Mage::helper('nypwidget')->isTesting()) {
+	        // Build URL to check validity of order notification.
+    		$url = Mage::helper('nypwidget')->getApiUrl();
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-        
-        // If PriceWaiter returns an invalid response
-        if (curl_exec($ch) == "1") {
-            $message = "The Name Your Price Widget has received a valid order notification.";
-            Mage::log($message);
-            $this->_log($message);
-        } else {
-            $message = "An invalid PriceWaiter order notification has been received.";
-            Mage::log($message);
-            $this->_log($message);
-            return;
-        }
+    		$ch = curl_init($url);
+    		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    		curl_setopt($ch, CURLOPT_POST, true);
+    		curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
 
-        // --
+	        // If PriceWaiter returns an invalid response
+    		if (curl_exec($ch) == "1") {
+    			$message = "The Name Your Price Widget has received a valid order notification.";
+    			Mage::log($message);
+    			$this->_log($message);
+    		} else {
+    			$message = "An invalid PriceWaiter order notification has been received.";
+    			Mage::log($message);
+    			$this->_log($message);
+    			return;
+    		}
+    	}
+
         // Notification has been verified. Create an order from request data.
 
         // Is this an existing customer?
@@ -66,7 +68,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             $customer->reset();
             $passwordLength = 10;
             $passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $password = '';    
+            $password = '';
             for ($p = 0; $p < $passwordLength; $p++) {
                 $password .= $passwordCharacters[mt_rand(0, strlen($passwordCharacters))];
             }
@@ -88,7 +90,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $this->_log("The Name Your Price Widget has created order #"
             . $order->getIncrementId() . " with order ID " . $order->getId());
     }
- 
+
     private function _log($message)
     {
         if (Mage::getStoreConfig('pricewaiter/configuration/log')) {
@@ -150,7 +152,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             $parentProduct = $this->_product;
             $this->_product = $this->_product->getTypeInstance()->getProductByAttributes($requestOptions, $this->_product);
             $this->_product->load($this->_product->getId());
-        } 
+        }
 
         $itemDiscount = ($this->_product->getPrice() - $request['unit_price']);
 
@@ -216,7 +218,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             ),
         );
     }
- 
+
     /**
     * Retrieve order create model
     *
@@ -226,7 +228,7 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         return Mage::getSingleton('adminhtml/sales_order_create');
     }
- 
+
     /**
     * Retrieve session object
     *
@@ -236,7 +238,7 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         return Mage::getSingleton('adminhtml/session_quote');
     }
- 
+
     /**
     * Initialize order creation session data
     *
@@ -257,7 +259,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         return $this;
     }
- 
+
     /**
     * Creates order
     */
@@ -287,7 +289,7 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $orderTotal = $orderData['order']['shipping_address']['shipping_amount']
                     + $this->_getOrderCreateModel()->getQuote()->getGrandTotal()
                     + $orderData['item_tax'] - $orderData['item_discount'];
-                
+
                 $_order = $this->_getOrderCreateModel()
                     ->importPostData($orderData['order'])
                     ->createOrder();
@@ -318,7 +320,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         return null;
     }
- 
+
     protected function _processQuote($data = array())
     {
         /* Saving order data */
