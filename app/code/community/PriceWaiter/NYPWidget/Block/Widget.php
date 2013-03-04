@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2012 PriceWaiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,10 +26,5 @@ class PriceWaiter_NYPWidget_Block_Widget extends Mage_Core_Block_Template
     public function getPriceWaiterOptions()
     {
         $product = Mage::registry('current_product');
-    }
-
-    public function _productIsExcluded()
-    {
-        return false;
     }
 }
