@@ -16,6 +16,9 @@
 -->
 <layout>
     <catalog_product_view>
+    	<reference name="head">
+    		<action method="addJs"><name>pricewaiter/product-pages.js</name></action>
+    	</reference>
         <reference name="product.info.addtocart">
             <block type="nypwidget/widget" name="pricewaiter_widget" template="pricewaiter/widget.phtml" as="pricewaiter.widget" />
         </reference>

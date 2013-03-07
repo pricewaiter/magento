@@ -85,20 +85,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
        return $pwOptions;
     }
 
-    public function getPriceWaiterWidget()
-    {
-        return "(function() {
-            var pw = document.createElement('script');
-            pw.type = 'text/javascript';
-            pw.src = \"" . $this->getWidgetUrl() . "\";
-            pw.async = true;
-
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(pw, s);
-
-        })();";
-    }
-
     public function getProductOptions($admin = false)
     {
         if ($admin) {
@@ -116,10 +102,14 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
             switch ($product->getTypeId()) {
                 case "simple":
-                    return $this->_getSimpleProductOptions($product);
+					return $this->_pwBoilerPlate($product) . "
+						var PriceWaiterProductType = 'simple';
+					";
                     break;
                 case "configurable":
-                    return $this->_getConfigurableProductOptions($product);
+					return $this->_pwBoilerPlate($product) . "
+						var PriceWaiterProductType = 'configurable';
+					";
                     break;
                 case "grouped":
                     // Grouped products aren't allowed, PriceWaiter only works for single products.
@@ -130,8 +120,9 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                     return false;
                     break;
                 case "bundle":
-                    // Bundled products aren't allowed, PriceWaiter only works for single products.
-                    return false;
+					return $this->_pwBoilerPlate($product) . "
+						var PriceWaiterProductType = 'bundle';
+					";
                     break;
                 case "downloadable":
                     // Downloadable products are not yet supported
@@ -167,56 +158,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    private function _getSimpleProductOptions($product)
+    private function _pwBoilerPlate($product)
     {
-        return "PriceWaiterOptions.product = {
+    	return "
+    	PriceWaiterOptions.product = {
             sku: " . json_encode($product->getSku()) . ",
             name: " . json_encode($product->getName()) . ",
             price: " . json_encode($product->getFinalPrice()) . ",
             image: " . json_encode($product->getImageUrl()) . "
         };
-
-        PriceWaiterOptions.onLoad =
-        	function(PriceWaiter) {
-        		PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
-        	};
+        var PriceWaiterRegularPrice = " . $product->getPrice() . ";
         ";
-    }
-
-    private function _getConfigurableProductOptions($product)
-    {
-        return "PriceWaiterOptions.product = {
-            sku: " . json_encode($product->getSku()) . ",
-            name: " . json_encode($product->getName()) . ",
-            price: " . json_encode($product->getFinalPrice()) . ",
-            image: " . json_encode($product->getImageUrl()) . "
-        };
-
-        PriceWaiterOptions.onload =
-            function(PriceWaiter) {
-            	PriceWaiter.setRegularPrice('" . $product->getPrice() . "');
-                // Bind to each configurable options 'change' event
-                spConfig.settings.each(function(setting){
-                    var attributeId = $(setting).id;
-                    attributeId = attributeId.replace(/attribute/,'');
-                    var optionName = spConfig.config.attributes[attributeId].label;
-                    // If this option is required, tell the PriceWaiter widget about the requirement
-                    if ($(setting).hasClassName('required-entry') && (typeof PriceWaiter.setProductOptionRequired == 'function')) {
-                        PriceWaiter.setProductOptionRequired(optionName, true);
-                    }
-                    Event.observe(setting, 'change', function(event){
-                        // Update PriceWaiter's price and options when changes are made
-                        PriceWaiter.setPrice(Number(spConfig.config.basePrice) + Number(spConfig.reloadPrice()));
-                        var optionValue = setting.value != \"\" ? setting.options[setting.selectedIndex].innerHTML : undefined;
-                        // if the option value is undefined, clear the option. Otherwise, set the newly selected option.
-                        if (optionValue == undefined) {
-                            PriceWaiter.clearProductOption(optionName);
-                        } else {
-                            PriceWaiter.setProductOption(optionName, optionValue);
-                        }
-                    });
-                });
-            };";
     }
 
     private function _getProduct()
