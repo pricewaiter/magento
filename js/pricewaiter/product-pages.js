@@ -51,7 +51,7 @@ $(document).observe('dom:loaded', function() {
 
 			switch(PriceWaiterProductType) {
 				case 'simple':
-				handleSimples();
+				//handleSimples();
 				break;
 				case 'configureable':
 				handleConfigurables();
@@ -75,9 +75,16 @@ $(document).observe('dom:loaded', function() {
 					});
 				}
 
-				// Find the required options
-				var requiredOptions = [];
-				console.log(opConfig);
+				// Bind to all options
+				$$('.product-custom-option').each(function(currentOption) {
+					Event.observe(currentOption, 'change', function() {
+						var price = $$('.product-options-bottom span.price')[0].innerHTML;
+						// Set the price
+						PriceWaiter.setPrice(price);
+						// Set the option name and value
+						console.log(currentOption.value);
+					});
+				});
 			}
 
 			function handleConfigurables() {
@@ -131,10 +138,30 @@ $(document).observe('dom:loaded', function() {
 				// Bind to event fired when price is changed on bundle
 				document.observe("bundle:reload-price", function(event) {
 						PriceWaiter.setPrice(event.memo.priceInclTax);
-						console.log(event.memo.bundle.config.selected);
+						var bSelected = event.memo.bundle.config.selected;
+						var bOptions = event.memo.bundle.config.options;
+						for (var current in bSelected) {
+							// Find which value is selected
+							var currentSelected = bSelected[current];
+							if (currentSelected.length === 0) {
+								// If none, unset the Product option
+								PriceWaiter.clearProductOption(bOptions[current].title);
+							} else {
+								// Otherwise, find the quantity of the selection
+								var qty = bOptions[current].selections[currentSelected].qty;
+								// Now find the value of the selected option, and set priceInclTax
+								var selectedValue = bOptions[current].selections[currentSelected].name;
+								if (qty > 1) {
+									selectedValue += " - Quantity: " + qty;
+								}
+								PriceWaiter.setProductOption(bOptions[current].title, selectedValue);
+							}
+						}
+
+						console.log(event.memo);
 				});
 			}
-		};
+	};
 
 	(function() {
 		var pw = document.createElement('script');
