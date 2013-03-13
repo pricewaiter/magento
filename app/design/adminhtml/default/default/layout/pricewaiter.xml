@@ -19,6 +19,7 @@
         <reference name="head">
             <action method="addCss"><name>pricewaiter.css</name></action>
             <action method="addJs"><name>jscolor-pw/jscolor.js</name></action>
+    		<action method="addJs"><name>pricewaiter/product-pages.js</name></action>
         </reference>
         <reference name="content">
             <block type="nypwidget/adminhtml_widget" name="widget_preview" as="widget_preview" template="pricewaiter/admin_widget.phtml"></block>

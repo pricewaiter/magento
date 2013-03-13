@@ -19,8 +19,39 @@ $(document).observe('dom:loaded', function() {
 		function(PriceWaiter) {
 			PriceWaiter.setRegularPrice(PriceWaiterRegularPrice);
 
+			// define indexof, needed for older versions of IE
+			if(!Array.prototype.indexof) {
+				Array.prototype.indexof = function(needle) {
+					for(var i = 0; i < this.length; i++) {
+						if(this[i] === needle) {
+							return i;
+						}
+					}
+					return -1;
+				};
+			}
+
+			// define getElementsByRegex to find required bundle options
+			document['getElementsByRegex'] = function(pattern) {
+				var arrelements = [];   // to accumulate matching elements
+				var re = new RegExp(pattern);   // the regex to match with
+
+				function findRecursively(aNode) { // recursive function to traverse dom
+					if (!aNode)
+						return;
+					if (aNode.id !== undefined && aNode.id.search(re) != -1)
+						arrelements.push(aNode);  // found one!
+						for (var idx in aNode.childnodes) // search children...
+							findrecursively(aNode.childnodes[idx]);
+				}
+
+				findRecursively(document); // initiate recursive matching
+				return arrelements; // return matching elements
+			};
+
 			switch(PriceWaiterProductType) {
 				case 'simple':
+				handleSimples();
 				break;
 				case 'configureable':
 				handleConfigurables();
@@ -28,6 +59,25 @@ $(document).observe('dom:loaded', function() {
 				case 'bundle':
 				handleBundles();
 				break;
+			}
+
+			function handleSimples() {
+				// if there are no custom options, we don't have anything to do
+				if (typeof(opConfig) == 'undefined')
+					return;
+
+				// If this product has an upload file option, we can't use the NYP widget
+				var productForm = $('product_addtocart_form');
+				if (productForm.getInputs('file').length !== 0) {
+					console.log("The PriceWaiter Name Your Price Widget does not support upload file options.");
+					$$('div.name-your-price-widget').each(function(pww){
+						pww.setStyle({display: 'none'});
+					});
+				}
+
+				// Find the required options
+				var requiredOptions = [];
+				console.log(opConfig);
 			}
 
 			function handleConfigurables() {
@@ -55,40 +105,6 @@ $(document).observe('dom:loaded', function() {
 			}
 
 			function handleBundles() {
-				if(!Array.prototype.indexOf) {
-					Array.prototype.indexOf = function(needle) {
-						for(var i = 0; i < this.length; i++) {
-							if(this[i] === needle) {
-								return i;
-							}
-						}
-						return -1;
-					};
-				}
-
-				document['getElementsByRegex'] = function(pattern){
-					var arrElements = [];   // to accumulate matching elements
-					var re = new RegExp(pattern);   // the regex to match with
-
-					function findRecursively(aNode) { // recursive function to traverse DOM
-						if (!aNode)
-							return;
-						if (aNode.id !== undefined && aNode.id.search(re) != -1)
-							arrElements.push(aNode);  // FOUND ONE!
-							for (var idx in aNode.childNodes) // search children...
-								findRecursively(aNode.childNodes[idx]);
-					}
-
-					findRecursively(document); // initiate recursive matching
-					return arrElements; // return matching elements
-				};
-
-				// Bind to event fired when price is changed on bundle
-				document.observe("bundle:reload-price", function(event) {
-						PriceWaiter.setPrice(event.memo.priceInclTax);
-						console.log(event.memo.bundle.config.selected);
-				});
-
 				// Find options that are marked as required
 				var requiredOptions = [];
 				var bundleElements = document.getElementsByRegex('^bundle-option-');
@@ -111,6 +127,12 @@ $(document).observe('dom:loaded', function() {
 						PriceWaiter.setProductOptionRequired(opt.title, true);
 					}
 				}
+
+				// Bind to event fired when price is changed on bundle
+				document.observe("bundle:reload-price", function(event) {
+						PriceWaiter.setPrice(event.memo.priceInclTax);
+						console.log(event.memo.bundle.config.selected);
+				});
 			}
 		};
 
@@ -123,6 +145,4 @@ $(document).observe('dom:loaded', function() {
 		var s = document.getElementsByTagName('script')[0];
 		s.parentNode.insertBefore(pw, s);
     })();
-
-	}
-);
+});

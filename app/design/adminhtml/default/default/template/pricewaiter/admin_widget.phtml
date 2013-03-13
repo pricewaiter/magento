@@ -30,7 +30,7 @@ Event.observe(window, 'load', function() {
         + '<span> What the "Name Your Price" widget will look like on your product pages. </span>'
         + '</p>';
 
-	  <?php echo $helper->getPriceWaiterWidget(); ?>
+	  var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
     }
 })
 //]]>
