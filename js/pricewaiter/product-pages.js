@@ -157,8 +157,6 @@ $(document).observe('dom:loaded', function() {
 								PriceWaiter.setProductOption(bOptions[current].title, selectedValue);
 							}
 						}
-
-						console.log(event.memo);
 				});
 			}
 	};
