@@ -56,8 +56,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
 
-        $displayType       = !Mage::getStoreConfig('pricewaiter/appearance/display_type') ? 'button' : 'text';
-        $displaySize       = !Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'lg' : 'sm';
+        $displayPhrase     = Mage::getStoreConfig('pricewaiter/appearance/display_type') ? 'button_nyp' : 'button_mo';
+        $displaySize       = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
         $displayColor      = Mage::getStoreConfig('pricewaiter/appearance/display_color');
         $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
 
@@ -65,7 +65,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             var PriceWaiterOptions = {
                 apiKey: '" . $apiKey . "',
                 button: {
-                    type: " . json_encode($displayType) . ",
+                    type: " . json_encode($displayPhrase) . ",
                     size: " . json_encode($displaySize) . ",";
 
         if ($displayColor) {
