@@ -66,8 +66,9 @@ $(document).observe('dom:loaded', function() {
 
 			function handleSimples() {
 				// if there are no custom options, we don't have anything to do
-				if (typeof(opConfig) == 'undefined')
+				if (typeof(opConfig) == 'undefined') {
 					return;
+				}
 
 				// If this product has an upload file option, we can't use the NYP widget
 				var productForm = $('product_addtocart_form');
@@ -161,6 +162,11 @@ $(document).observe('dom:loaded', function() {
 							}
 						}
 				});
+
+				// Reload the bundle's price, to pull the initial options into PriceWaiter
+				if (typeof(bundle) != 'undefined') {
+					bundle.reloadPrice();
+				}
 			}
 
 			function handleGrouped() {
