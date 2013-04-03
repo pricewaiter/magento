@@ -59,6 +59,9 @@ $(document).observe('dom:loaded', function() {
 				case 'bundle':
 				handleBundles();
 				break;
+				case 'grouped':
+				handleGrouped();
+				break;
 			}
 
 			function handleSimples() {
@@ -159,7 +162,42 @@ $(document).observe('dom:loaded', function() {
 						}
 				});
 			}
-	};
+
+			function handleGrouped() {
+				// Get the Grouped product table rows
+				var productTable = $$('table.grouped-items-table')[0];
+				var productRows = productTable.select('tbody')[0];
+				productRows = productRows.childElements();
+
+				for (var row in productRows) {
+					if (!isNaN(parseInt(row, 10))) {
+						// Bind to the Quantity change
+						productRows[row].select('input.qty')[0].observe('change', function(event){
+							var qty = this.value;
+							// Get the Product's name
+							var productName = this.up('tr').firstDescendant().innerHTML;
+							// Get the Product's price
+							var productPrice = this.up('tr').select('span.price')[0].innerHTML;
+							// The user changed the quantity field. We need to find the previous quantity and price
+							var previousQuantity = PriceWaiter.getProductOptions()[productName + " (" + productPrice + ")"];
+							var amountToRemove = Number(previousQuantity * productPrice.substring(1));
+							if (!isNaN(amountToRemove)) {
+								// then strip them out before potentially changing the price
+								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) - amountToRemove);
+							}
+							if (qty > 0) {
+								// Entered a quantity, set product name as option name, add quantity as value
+								PriceWaiter.setProductOption(productName + " (" + productPrice + ")", qty);
+								// Add the price to the product's total
+								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) + Number(productPrice.substring(1) * qty));
+							} else {
+								PriceWaiter.clearProductOption(productName + " (" + productPrice + ")");
+							}
+						});
+					}
+				}
+			}
+		};
 
 	(function() {
 		var pw = document.createElement('script');

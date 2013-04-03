@@ -112,7 +112,9 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 					";
                     break;
                 case "grouped":
-                    // Grouped products aren't allowed, PriceWaiter only works for single products.
+					return $this->_pwBoilerPlate($product) . "
+					 	var PriceWaiterProductType = 'grouped';
+					";
                     return false;
                     break;
                 case "virtual":
