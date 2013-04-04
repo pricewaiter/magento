@@ -51,7 +51,7 @@ $(document).observe('dom:loaded', function() {
 
 			switch(PriceWaiterProductType) {
 				case 'simple':
-				//handleSimples();
+				handleSimples();
 				break;
 				case 'configureable':
 				handleConfigurables();
@@ -62,6 +62,33 @@ $(document).observe('dom:loaded', function() {
 				case 'grouped':
 				handleGrouped();
 				break;
+			}
+
+			function simplesSelect(select, name) {
+				select.observe('change', function(){
+					PriceWaiter.setProductOption(name, select.options[select.selectedIndex].text);
+					setSimplesPrice();
+				});
+			}
+
+			function simplesInput(select, name) {
+				if (select.type == "text" || select.tagName == 'TEXTAREA') {
+					select.observe('change', function(){
+						PriceWaiter.setProductOption(name, select.value);
+						setSimplesPrice();
+					});
+				} else {
+					select.observe('change', function(){
+						var optionValue = select.next('span').select('label')[0].innerHTML;
+						optionValue = optionValue.replace(/\s*<span.*\/span>/, '');
+						PriceWaiter.setProductOption(name, optionValue);
+						setSimplesPrice();
+					});
+				}
+			}
+
+			function setSimplesPrice() {
+				PriceWaiter.setPrice($$('span.price')[0].innerHTML);
 			}
 
 			function handleSimples() {
@@ -79,16 +106,31 @@ $(document).observe('dom:loaded', function() {
 					});
 				}
 
-				// Bind to all options
-				$$('.product-custom-option').each(function(currentOption) {
-					Event.observe(currentOption, 'change', function() {
-						var price = $$('.product-options-bottom span.price')[0].innerHTML;
-						// Set the price
-						PriceWaiter.setPrice(price);
-						// Set the option name and value
-						console.log(currentOption.value);
-					});
-				});
+				// Find the available options, and bind to them
+				var productCustomOptions = $$('.product-custom-option');
+				for (var current in productCustomOptions) {
+					if (!isNaN(parseInt(current, 10))) {
+						console.log(productCustomOptions[current]);
+						console.log(productCustomOptions[current].tagName);
+						// Find the option label
+						var optionLabel = productCustomOptions[current].up('dd').previous('dt').select('label')[0];
+						var optionName = optionLabel.innerHTML.replace(/^<em.*\/em>/, '');
+						// Check if this is a required option
+						if (optionLabel.hasClassName('required')) {
+							PriceWaiter.setProductOptionRequired(optionName);
+						}
+						// we have to handle different inputs a bit differently.
+						switch (productCustomOptions[current].tagName) {
+							case 'SELECT':
+							simplesSelect(productCustomOptions[current], optionName);
+							break;
+							case 'INPUT':
+							case 'TEXTAREA':
+							simplesInput(productCustomOptions[current], optionName);
+							break;
+						}
+					}
+				}
 			}
 
 			function handleConfigurables() {
