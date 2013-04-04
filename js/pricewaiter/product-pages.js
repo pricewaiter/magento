@@ -110,8 +110,6 @@ $(document).observe('dom:loaded', function() {
 				var productCustomOptions = $$('.product-custom-option');
 				for (var current in productCustomOptions) {
 					if (!isNaN(parseInt(current, 10))) {
-						console.log(productCustomOptions[current]);
-						console.log(productCustomOptions[current].tagName);
 						// Find the option label
 						var optionLabel = productCustomOptions[current].up('dd').previous('dt').select('label')[0];
 						var optionName = optionLabel.innerHTML.replace(/^<em.*\/em>/, '');
