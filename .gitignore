@@ -6,5 +6,4 @@ app/code/community/PriceWaiter/NYPWidget/Block/Adminhtml/.DS_Store
 app/code/community/PriceWaiter/NYPWidget/controllers/.DS_Store
 
 *.sublime-workspace
-
-pricewaiter-magento-extension.sublime-workspace
+testing.sh
