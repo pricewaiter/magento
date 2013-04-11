@@ -83,7 +83,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         $order = $this->setOrderInfo($request, $customer);
-        $order = $this->create();
+        $order = $this->create($request);
 
         Mage::log("The Name Your Price Widget has created order #"
             . $order->getIncrementId() . " with order ID " . $order->getId());
@@ -119,20 +119,30 @@ class PriceWaiter_NYPWidget_Model_Callback
         //Load full product data to product object
         $this->_product->load($this->_product->getId());
 
+        // If we have product options, split them out of the request
+        $requestOptions = array();
+
+        for ($i = $request['product_option_count']; $i > 0; $i--) {
+        	$requestOptions[$request['product_option_name' . $i]] = $request['product_option_value' . $i];
+        }
+
+        // If this is a simple product, but the request has custom options, tack all of the options.
+        // 1. Determine if necessary
+        // 2. Find all of the possible options on the product
+        // 3. Find matching options in the request
+        // 4. Set each on the product
+        // 5. Validate (make sure we have all required options set)
+        // PSEUDO CODE
+        // if ($this->_product->getTypeId() == 'simple' && array_key_exists('product_option_name1', $request)) {
+        //
+        // }
+        // ELSEIF this is a bundle product, repeat same as simple with custom options, basically
+        // ELSEIF this is a grouped product, ''
+        // ELSIF configurable...
         // If this is a configurable product, find the corresponding simple
         if ($this->_product->getTypeId() == 'configurable') {
             // Do configurable product specific stuff
             $attrs  = $this->_product->getTypeInstance(true)->getConfigurableAttributesAsArray($this->_product);
-            $requestOptions = array();
-
-            // Split out all of the product options from the request
-            for ($i = 1; $i < 100; $i++) {
-                if (array_key_exists("product_option_name" . $i, $request)) {
-                    $requestOptions[$request['product_option_name' . $i]] = $request['product_option_value' . $i];
-                } else {
-                    break;
-                }
-            }
 
             foreach ($attrs as $attr) {
                 if (array_key_exists($attr['label'], $requestOptions)) {
@@ -263,9 +273,16 @@ class PriceWaiter_NYPWidget_Model_Callback
     /**
     * Creates order
     */
-    public function create()
+    public function create($request)
     {
         $orderData = $this->orderData;
+
+	    // If we have product options, split them out of the request
+        $requestOptions = array();
+
+        for ($i = $request['product_option_count']; $i > 0; $i--) {
+        	$requestOptions[$request['product_option_name' . $i]] = $request['product_option_value' . $i];
+        }
 
         if (!empty($orderData)) {
 
@@ -279,6 +296,39 @@ class PriceWaiter_NYPWidget_Model_Callback
                 }
 
                 $item = $this->_getOrderCreateModel()->getQuote()->getItemByProduct($this->_product);
+
+                // Add custom options to simple product items, if any are set in the request
+                if ($this->_product->getTypeId() == 'simple' && count($requestOptions) > 0) {
+
+                	$productOptions = $this->_product->getProductOptionsCollection();
+                	foreach ($productOptions as $productOption) {
+                		// Get the name of this option
+                		$optionTitle = $productOption->getData('default_title');
+                		if (array_key_exists($optionTitle, $requestOptions)) {
+							// see if this option has a value collection
+	                		$valuesCollection = $productOption->getValuesCollection();
+	                		$valueCode = false;
+	                		foreach($valuesCollection as $currentValue) {
+	                			// If this value matches our request, grab the option_type_id
+	                			$valueCode = $currentValue->getData('option_id');
+	                		}
+
+	                		// $this->_log($productOption->getValues());
+	                		// $this->_log($productOption->getValues());
+
+	                		// $this->_log($valueCode . " -- " . $productOption->getData('option_id'));
+
+                			$item->addOption(new Varien_Object(
+                				array(
+                					'product'	=> $this->_product,
+                					'code'		=> 'option_id' . $valueCode,
+                					'value'		=> $requestOptions[$optionTitle]
+                					)
+                				));
+                		}
+                	}
+    			}
+    			$item->save();
                 $item->setTaxAmount($orderData['item_tax']);
                 $item->setDiscountAmount($orderData['item_discount']);
                 $item->setBaseTaxAmount($orderData['item_tax']);
