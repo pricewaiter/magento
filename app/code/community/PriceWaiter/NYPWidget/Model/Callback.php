@@ -53,7 +53,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 			}
 		}
 
-	// Is this an existing customer?
+		// Is this an existing customer?
 		$customer = Mage::getModel('customer/customer');
 		$customer->setWebsiteId(Mage::app()->getStore()->getWebsiteId());
 		$customer->loadByEmail($request['buyer_email']);
@@ -62,7 +62,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 		$request['buyer_last_name'] = $name[3];
 
 		if (!$customer->getId()) {
-	    // Create a new customer with this email
+		    // Create a new customer with this email
 			$customer->reset();
 			$passwordLength = 10;
 			$passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -92,7 +92,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 		->setStore_currency_code('USD')
 		->setOrder_currency_code('USD');
 
-	// set Customer data
+		// set Customer data
 		$order->setCustomer_email($customer->getEmail())
 		->setCustomerFirstname($customer->getFirstname())
 		->setCustomerLastname($customer->getLastname())
@@ -100,14 +100,14 @@ class PriceWaiter_NYPWidget_Model_Callback
 		->setCustomer_is_guest(0)
 		->setCustomer($customer);
 
-	//Get a phone number, or make a dummy one
+		//Get a phone number, or make a dummy one
 		if ($request['buyer_shipping_phone']) {
 			$telephone = $request['buyer_shipping_phone'];
 		} else {
 			$telephone = "000-000-0000";
 		}
 
-	// set Billing Address
+		// set Billing Address
 		$billing = $customer->getDefaultBillingAddress();
 		$billingAddress = Mage::getModel('sales/order_address')
 		->setStoreId($this->_storeId)
@@ -129,6 +129,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 		->setFax('');
 		$order->setBillingAddress($billingAddress);
 
+		// set Shipping Address
 		$shipping = $customer->getDefaultShippingAddress();
 		$shippingAddress = Mage::getModel('sales/order_address')
 		->setStoreId($this->_storeId)
@@ -149,33 +150,29 @@ class PriceWaiter_NYPWidget_Model_Callback
 		->setTelephone($telephone)
 		->setFax('');
 
+		// Apply shipping address to order, add PriceWaiter shipping method
 		$order->setShippingAddress($shippingAddress)
 		->setShipping_method('nypwidget_nypwidget')
 		->setShipping_amount($request['shipping'])
 		->setShippingDescription('PriceWaiter');
 
+		// Add PriceWaiter payment method
 		$orderPayment = Mage::getModel('sales/order_payment')
 		->setStoreId($this->_storeId)
 		->setCustomerPaymentId(0)
 		->setMethod('nypwidget');
 		$order->setPayment($orderPayment);
 
-		$subTotal = 0;
+		// Find the Product from the request
 		$this->_product = Mage::getModel('catalog/product')->getCollection()
 		->addAttributeToFilter('sku', $request['product_sku'])
 		->addAttributeToSelect('*')
 		->getFirstItem();
 
+		// Build the pricing information of the product
+		$subTotal = 0;
 		$rowTotal = ($request['unit_price'] * $request['quantity']) + $request['tax'];
 		$itemDiscount = ($this->_product->getPrice() - $request['unit_price']);
-
-        $additionalOptions = array();
-		for ($i = $request['product_option_count']; $i > 0; $i--) {
-			$additionalOptions[] = array(
-				'label' => $request['product_option_name' . $i],
-				'value' => $request['product_option_value' . $i]
-				);
-        }
 
 		$orderItem = Mage::getModel('sales/order_item')
 		->setStoreId($this->_storeId)
@@ -196,10 +193,22 @@ class PriceWaiter_NYPWidget_Model_Callback
 		->setRowTotal($rowTotal)
 		->setBaseRowTotal($rowTotal);
 
+		// Do we have a simple product with custom options (additional_options)?
 		if ($this->_product->getTypeId() == 'simple' && count($additionalOptions) > 0) {
+			// Grab the options from the request, build $additionalOptions array
+			$additionalOptions = array();
+			for ($i = $request['product_option_count']; $i > 0; $i--) {
+				$additionalOptions[] = array(
+					'label' => $request['product_option_name' . $i],
+					'value' => $request['product_option_value' . $i]
+					);
+			}
+
+			// Apply the $additionalOptions array to the simple product
 			$orderItem->setProductOptions(array('additional_options' => $additionalOptions));
 		}
 
+		// Build and apply the order totals
 		$subTotal += $rowTotal;
 		$order->addItem($orderItem);
 
@@ -210,16 +219,17 @@ class PriceWaiter_NYPWidget_Model_Callback
 
 		$order->addStatusHistoryComment("This order has been programmatically created by the PriceWaiter Name Your Price Widget.");
 
+		// Ok, done with the order.
 		$transaction->addObject($order);
 		$transaction->addCommitCallback(array($order, 'place'));
 		$transaction->addCommitCallback(array($order, 'save'));
 		$transaction->save();
 
+		// Capture the invoice
 		$invoiceId = Mage::getModel('sales/order_invoice_api')
 		->create($order->getIncrementId(), array());
 		$invoice = Mage::getModel('sales/order_invoice')
 		->loadByIncrementId($invoiceId);
-
 		$invoice->capture()->save();
 
 	}
