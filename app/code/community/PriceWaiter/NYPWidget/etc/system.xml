@@ -133,8 +133,7 @@
                         <display_color translate="label comment"><!--#pricewaiter_appearance_button_color-->
                             <label>Color</label>
                             <comment>
-                                <![CDATA[The button background color, or the
-                                         text color in hexadecimal notation.]]>
+                                <![CDATA[The button background color in hexadecimal notation.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <validate>color</validate>
@@ -146,8 +145,7 @@
                         <display_hover_color translate="label comment"><!--#pricewaiter_appearance_button_hover_color-->
                             <label>Hover Color</label>
                             <comment>
-                                <![CDATA[The button background color, or text
-                                         color, in hexadecimal notation, when it
+                                <![CDATA[The button background color, in hexadecimal notation, when it
                                          is being hovered over.]]>
                             </comment>
                             <frontend_type>text</frontend_type>

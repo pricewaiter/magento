@@ -21,17 +21,12 @@
 //<![CDATA[
 <?php echo $helper->getPriceWaiterOptions(); ?>
 <?php echo $helper->getProductOptions(true); ?>
-Event.observe(window, 'load', function() {
-    if ($('pricewaiter_appearance_preview')) {
 
-      $('pricewaiter_appearance_preview').up().innerHTML =
-        '<span id="pricewaiter"></span>'
-        + '<p class="note">'
-        + '<span> What the "Name Your Price" widget will look like on your product pages. </span>'
-        + '</p>';
+var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
 
-	  var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
-    }
-})
+function adminPW() {
+	$('pricewaiter_appearance_preview').up().innerHTML = '<span id="pricewaiter"></span><p class="note"><span> What the "Name Your Price" widget will look like on your product pages. </span></p>';
+}
+
 //]]>
 </script>

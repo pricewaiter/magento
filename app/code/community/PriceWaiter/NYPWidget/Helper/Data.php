@@ -93,7 +93,9 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 name: 'Test Name',
                 price: 19.99,
                 image: 'http://placekitten.com/220/220'
-            };";
+            };
+            var PriceWaiterProductType = 'simple';
+            var PriceWaiterRegularPrice = 19.99";
         }
 
         $product = $this->_getProduct();

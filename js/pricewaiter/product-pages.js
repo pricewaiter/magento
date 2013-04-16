@@ -15,6 +15,9 @@
  *
  */
 $(document).observe('dom:loaded', function() {
+	if (typeof adminPW == 'function') {
+		adminPW();
+	}
 	PriceWaiterOptions.onload =
 		function(PriceWaiter) {
 			PriceWaiter.setRegularPrice(PriceWaiterRegularPrice);
