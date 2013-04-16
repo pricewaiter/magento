@@ -227,10 +227,6 @@ $(document).observe('dom:loaded', function() {
 							// The user changed the quantity field. We need to find the previous quantity and price
 							var previousQuantity = PriceWaiter.getProductOptions()[productName + " (" + productPrice + ")"];
 							var amountToRemove = Number(previousQuantity * productPrice.substring(1));
-							if (!isNaN(amountToRemove)) {
-								// then strip them out before potentially changing the price
-								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) - amountToRemove);
-							}
 							if (qty > 0) {
 								// Entered a quantity, set product name as option name, add quantity as value
 								PriceWaiter.setProductOption(productName + " (" + productPrice + ")", qty);
