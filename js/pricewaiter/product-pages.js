@@ -53,7 +53,7 @@ $(document).observe('dom:loaded', function() {
 				case 'simple':
 				handleSimples();
 				break;
-				case 'configureable':
+				case 'configurable':
 				handleConfigurables();
 				break;
 				case 'bundle':
