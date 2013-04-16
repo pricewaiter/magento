@@ -163,11 +163,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     private function _pwBoilerPlate($product)
     {
+    	if ($product->getTypeId() == 'grouped') {
+    		$productPrice = 0;
+    	} else {
+    		$productPrice = $product->getFinalPrice();
+    	}
+
     	return "
     	PriceWaiterOptions.product = {
             sku: " . json_encode($product->getSku()) . ",
             name: " . json_encode($product->getName()) . ",
-            price: " . json_encode($product->getFinalPrice()) . ",
+            price: " . json_encode($productPrice) . ",
             image: " . json_encode($product->getImageUrl()) . "
         };
         var PriceWaiterRegularPrice = " . $product->getPrice() . ";

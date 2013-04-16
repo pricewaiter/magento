@@ -238,6 +238,7 @@ $(document).observe('dom:loaded', function() {
 								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) + Number(productPrice.substring(1) * qty));
 							} else {
 								PriceWaiter.clearProductOption(productName + " (" + productPrice + ")");
+								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) - (Number(productPrice.substring(1) * previousQuantity)));
 							}
 						});
 					}
