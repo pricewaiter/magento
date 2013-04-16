@@ -225,8 +225,11 @@ class PriceWaiter_NYPWidget_Model_Callback
 			->setRowTotal($rowTotal)
 			->setBaseRowTotal($rowTotal);
 
-			// Do we have a simple product with custom options (additional_options)?
-			if ($this->_product->getTypeId() == 'simple' && $request['product_option_count'] > 0) {
+			// Do we have a simple product with custom options, a bundle product, or a grouped product?
+			if (($this->_product->getTypeId() == 'simple'
+				|| $this->_product->getTypeId() == 'bundle'
+				|| $this->_product->getTypeId() == 'grouped')
+				&& $request['product_option_count'] > 0) {
 				// Grab the options from the request, build $additionalOptions array
 				$additionalOptions = array();
 				for ($i = $request['product_option_count']; $i > 0; $i--) {
