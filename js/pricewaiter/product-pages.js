@@ -36,21 +36,28 @@ $(document).observe('dom:loaded', function() {
 
 			// define getElementsByRegex to find required bundle options
 			document['getElementsByRegex'] = function(pattern) {
-				var arrelements = [];   // to accumulate matching elements
+				var arrElements = [];   // to accumulate matching elements
 				var re = new RegExp(pattern);   // the regex to match with
 
 				function findRecursively(aNode) { // recursive function to traverse dom
 					if (!aNode)
 						return;
 					if (aNode.id !== undefined && aNode.id.search(re) != -1)
-						arrelements.push(aNode);  // found one!
-						for (var idx in aNode.childnodes) // search children...
-							findrecursively(aNode.childnodes[idx]);
+						arrElements.push(aNode);  // found one!
+					for (var idx in aNode.childNodes) // search children...
+						findRecursively(aNode.childNodes[idx]);
 				}
 
 				findRecursively(document); // initiate recursive matching
-				return arrelements; // return matching elements
+				return arrElements; // return matching elements
 			};
+
+			// Bind to Qty: input
+			if ($('qty') !== null) {
+				$('qty').observe('change', function(){
+					PriceWaiter.setQuantity($('qty').value);
+				});
+			}
 
 			switch(PriceWaiterProductType) {
 				case 'simple':
@@ -70,7 +77,6 @@ $(document).observe('dom:loaded', function() {
 			function simplesSelect(select, name) {
 				select.observe('change', function(){
 					PriceWaiter.setProductOption(name, select.options[select.selectedIndex].text);
-					setSimplesPrice();
 				});
 			}
 
@@ -78,21 +84,16 @@ $(document).observe('dom:loaded', function() {
 				if (select.type == "text" || select.tagName == 'TEXTAREA') {
 					select.observe('change', function(){
 						PriceWaiter.setProductOption(name, select.value);
-						setSimplesPrice();
 					});
 				} else {
 					select.observe('change', function(){
 						var optionValue = select.next('span').select('label')[0].innerHTML;
 						optionValue = optionValue.replace(/\s*<span.*\/span>/, '');
 						PriceWaiter.setProductOption(name, optionValue);
-						setSimplesPrice();
 					});
 				}
 			}
 
-			function setSimplesPrice() {
-				PriceWaiter.setPrice($$('span.price')[0].innerHTML);
-			}
 
 			function handleSimples() {
 				// if there are no custom options, we don't have anything to do
@@ -108,6 +109,21 @@ $(document).observe('dom:loaded', function() {
 						pww.setStyle({display: 'none'});
 					});
 				}
+
+				// Grab the updated price before opening the PriceWaiter window
+				PriceWaiter.originalOpen = PriceWaiter.open;
+				PriceWaiter.open = function() {
+					var productPrice = 0;
+					var priceElement = document.getElementsByRegex('^product-price-');
+					var innerSpan = priceElement[0].select('span');
+					if (typeof(innerSpan[0]) == 'undefined') {
+						productPrice = priceElement[0].innerHTML;
+					} else {
+						productPrice = innerSpan[0].innerHTML;
+					}
+					PriceWaiter.setPrice(productPrice);
+					PriceWaiter.originalOpen();
+				};
 
 				// Find the available options, and bind to them
 				var productCustomOptions = $$('.product-custom-option');
