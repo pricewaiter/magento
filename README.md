@@ -16,7 +16,7 @@ also need a PriceWaiter® account and API key to enable the widget. Signup for a
 
 1. Navigate to the root directory of your Magento installation
 2. If you have not initiallized modman, execute `modman init`.
-3. Navigate to '.modman' and execute `modman clone git://github.com/pricewaiter/magento-extension.git`. This will
+3. Navigate to '.modman' and execute `modman clone git://github.com/pricewaiter/magento.git`. This will
 clone the git repo into your Magento install, and create the necessary symlinks.
 4. Clear your Magento Cache, and log into your Magento Admin Panel. If you are logged in now, you may
 need to log out and back in to trigger the installation process.
