@@ -24,19 +24,25 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
 
 	public function loadByCategory($category, $storeId = null)
 	{
+		if (is_object($category)) {
+			$categoryID = $category->getId();
+		} else {
+			$categoryID = $category;
+		}
+
 		if (is_null($storeId)) {
 			$storeId = Mage::app()->getStore()->getId();
 		}
 
 		$collection = Mage::getModel('nypwidget/category')
 			->getCollection()
-			->addFieldToFilter('category_id', $category->getId())
+			->addFieldToFilter('category_id', $categoryID)
 			->addFieldToFilter('store_id', $storeId);
 
 		if (count($collection)) {
 			$this->load($collection->getFirstItem()->getEntityId());
 		} else {
-			$this->setData('category_id', $category->getId());
+			$this->setData('category_id', $categoryID);
 			$this->setData('store_id', $storeId);
 			$this->save();
 		}
@@ -46,6 +52,15 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
 
 	public function isActive()
 	{
+		// First, check the "All Store Views" store (0)
+		if ($this->getStoreId() != 0) {
+			$allStoresCategory = Mage::getModel('nypwidget/category')
+				->loadByCategory($this->getCategoryId(), 0);
+			if (!$allStoresCategory->isActive()) {
+				return false;
+			}
+		}
+
 		// If the category isn't yet set in the table, default to true.
 		// Otherwise, check the nypwidget_enabled field.
 		if (is_null($this->getData('category_id')) or $this->getData('nypwidget_enabled') == 1) {
