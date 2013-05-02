@@ -17,7 +17,7 @@
  */
 
 // Product types supported by the Name Your Price Widget
-$supportTypeIds = array('simple', 'configurable');
+$supportTypeIds = array('simple', 'configurable', 'grouped', 'bundle');
 $installer = $this;
 $installer->startSetup();
 

@@ -124,7 +124,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                     return false;
                     break;
                 case "bundle":
-                	// Bundle products support is still in beta
 					return $this->_pwBoilerPlate($product) . "
 					 	var PriceWaiterProductType = 'bundle';
 					";
