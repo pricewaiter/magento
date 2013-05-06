@@ -28,7 +28,7 @@ implements Mage_Adminhtml_Block_Widget_Tab_Interface
 		$category = Mage::registry('category');
 		$nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category, $category->getStore()->getId());
 
-		return $nypcategory->isActive();
+		return $nypcategory->isActive(true);
 	}
 
 	public function getTabLabel()

@@ -50,14 +50,29 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
 		return $this;
 	}
 
-	public function isActive()
+	public function isActive($admin = false)
 	{
-		// First, check the "All Store Views" store (0)
-		if ($this->getStoreId() != 0) {
-			$allStoresCategory = Mage::getModel('nypwidget/category')
+		// If we are in the admin, we want to skip all this, so that we return
+		// the info on this specific category, not parents
+		if (!$admin) {
+			// First, check the "All Store Views" store (0)
+			if ($this->getStoreId() != 0) {
+				$allStoresCategory = Mage::getModel('nypwidget/category')
 				->loadByCategory($this->getCategoryId(), 0);
-			if (!$allStoresCategory->isActive()) {
-				return false;
+				if (!$allStoresCategory->isActive()) {
+					return false;
+				}
+			}
+
+			// Check the parent category if we already have a category_id and have a parent
+			if (!is_null($this->getData('category_id'))) {
+				$category = Mage::getModel('catalog/category')->load($this->getData('category_id'));
+				if ($category->getParentId() != 0) {
+					$parentCategory = Mage::getModel('nypwidget/category')->loadByCategory($category->getParentId());
+					if (!$parentCategory->isActive()) {
+						return false;
+					}
+				}
 			}
 		}
 
