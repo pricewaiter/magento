@@ -6,46 +6,46 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
 // Product types supported by the Name Your Price Widget
-$supportTypeIds = array('simple', 'configurable', 'grouped', 'bundle');
+// $supportTypeIds = array('simple', 'configurable');
 $installer = $this;
 $installer->startSetup();
 
 // Add an attribute to all prodcuts to toggle the Widget on/off
-$installer->addAttribute('catalog_product', 'nypwidget_enabled',
-    array(
-        'group'             => 'General',
-        'label'             => 'PriceWaiter Widget Enabled',
-        'type'              => 'int',
-        'input'             => 'boolean',
-        'default'           => '1',
-        'class'             => '',
-        'backend'           => '',
-        'frontend'          => '',
-        'source'            => '',
-        'global'            => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,
-        'visible'           => true,
-        'required'          => true,
-        'user_defined'      => false,
-        'searchable'        => true,
-        'filterable'        => true,
-        'comparable'        => true,
-        'visible_on_front'  => true,
-        'visible_in_advanced_search' => false,
-        'unique'            => false,
-        'apply_to'          => $supportTypeIds,
-    )
-);
+// $installer->addAttribute('catalog_product', 'nypwidget_enabled',
+//     array(
+//         'group'             => 'General',
+//         'label'             => 'PriceWaiter Widget Enabled',
+//         'type'              => 'int',
+//         'input'             => 'boolean',
+//         'default'           => '1',
+//         'class'             => '',
+//         'backend'           => '',
+//         'frontend'          => '',
+//         'source'            => '',
+//         'global'            => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,
+//         'visible'           => true,
+//         'required'          => true,
+//         'user_defined'      => false,
+//         'searchable'        => true,
+//         'filterable'        => true,
+//         'comparable'        => true,
+//         'visible_on_front'  => true,
+//         'visible_in_advanced_search' => false,
+//         'unique'            => false,
+//         'apply_to'          => $supportTypeIds,
+//     )
+// );
 
 // Create a table to store category information --
 // Magento's Category attributes are not stable enough to bolt onto,
@@ -79,15 +79,15 @@ $installer->run("
 // The default value above only applies to new products.
 // Build a collection of products, and set 'nypwidget_enabled' to the default value
 // This part can take a bit of time.
-Mage::app()->setUpdateMode(false);
-Mage::app()->setCurrentStore(0);
+// Mage::app()->setUpdateMode(false);
+// Mage::app()->setCurrentStore(0);
 
-$products = Mage::getModel('catalog/product')->getCollection()
-    ->addAttributeToFilter('type_id', array('in' => $supportTypeIds));
+// $products = Mage::getModel('catalog/product')->getCollection()
+//     ->addAttributeToFilter('type_id', array('in' => $supportTypeIds));
 
-foreach ($products as $product) {
-    Mage::getSingleton('catalog/product_action')
-        ->updateAttributes(array($product->getId()), array('nypwidget_enabled' => 1), 0);
-}
+// foreach ($products as $product) {
+//     Mage::getSingleton('catalog/product_action')
+//         ->updateAttributes(array($product->getId()), array('nypwidget_enabled' => 1), 0);
+// }
 
 ?>

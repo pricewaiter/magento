@@ -32,7 +32,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
             // Is the pricewaiter widget enabled for this product
             $product = $this->_getProduct();
-            if (!is_object($product) or ($product->getId() and !$product->getData('nypwidget_enabled'))) {
+            if (!is_object($product) or ($product->getId() and $product->getData('nypwidget_disabled'))) {
                 return false;
             }
 
