@@ -57,6 +57,7 @@
             	<rewrite>
             		<onepage_shipping_method_available>PriceWaiter_NYPWidget_Block_Checkout_Onepage_Shipping_Method_Available</onepage_shipping_method_available>
             		<multishipping_shipping>PriceWaiter_NYPWidget_Block_Checkout_Multishipping_Shipping</multishipping_shipping>
+            		<cart_shipping>PriceWaiter_NYPWidget_Block_Checkout_Cart_Shipping</cart_shipping>
             	</rewrite>
             </checkout>
         </blocks>
