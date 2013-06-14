@@ -118,7 +118,7 @@
                         </display_phrase>
                     </fields>
                     <fields>
-                        <button_phrase translate="label comment"><!--#pricewaiter_appearance_display_size-->
+                        <display_size translate="label comment"><!--#pricewaiter_appearance_display_size-->
                             <label>Display Size</label>
                             <comment></comment>
                             <frontend_type>select</frontend_type>
@@ -127,7 +127,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </button_phrase>
+                        </display_size>
                     </fields>
                     <fields>
                         <display_color translate="label comment"><!--#pricewaiter_appearance_button_color-->
