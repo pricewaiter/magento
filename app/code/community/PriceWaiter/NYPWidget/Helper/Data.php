@@ -177,7 +177,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             price: " . json_encode($productPrice) . ",
             image: " . json_encode($product->getImageUrl()) . "
         };
-        var PriceWaiterRegularPrice = " . $product->getPrice() . ";
+        var PriceWaiterRegularPrice = '" . $product->getPrice() . "';
         ";
     }
 
