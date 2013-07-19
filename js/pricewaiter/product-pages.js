@@ -200,26 +200,26 @@ $(document).observe('dom:loaded', function() {
 
 				// Bind to event fired when price is changed on bundle
 				document.observe("bundle:reload-price", function(event) {
-						PriceWaiter.setPrice(event.memo.priceInclTax);
-						var bSelected = event.memo.bundle.config.selected;
-						var bOptions = event.memo.bundle.config.options;
-						for (var current in bSelected) {
-							// Find which value is selected
-							var currentSelected = bSelected[current];
-							if (currentSelected.length === 0) {
-								// If none, unset the Product option
-								PriceWaiter.clearProductOption(bOptions[current].title);
-							} else {
-								// Otherwise, find the quantity of the selection
-								var qty = bOptions[current].selections[currentSelected].qty;
-								// Now find the value of the selected option, and set priceInclTax
-								var selectedValue = bOptions[current].selections[currentSelected].name;
-								if (qty > 1) {
-									selectedValue += " - Quantity: " + qty;
-								}
-								PriceWaiter.setProductOption(bOptions[current].title, selectedValue);
+					PriceWaiter.setPrice(event.memo.priceInclTax);
+					var bSelected = event.memo.bundle.config.selected;
+					var bOptions = event.memo.bundle.config.options;
+					for (var current in bSelected) {
+						// Find which value is selected
+						var currentSelected = bSelected[current];
+						if (currentSelected.length === 0) {
+							// If none, unset the Product option
+							PriceWaiter.clearProductOption(bOptions[current].title);
+						} else {
+							// Otherwise, find the quantity of the selection
+							var qty = bOptions[current].selections[currentSelected].qty;
+							// Now find the value of the selected option, and set priceInclTax
+							var selectedValue = bOptions[current].selections[currentSelected].name;
+							if (qty > 1) {
+								selectedValue += " - Quantity: " + qty;
 							}
+							PriceWaiter.setProductOption(bOptions[current].title, selectedValue);
 						}
+					}
 				});
 
 				// Reload the bundle's price, to pull the initial options into PriceWaiter
@@ -253,7 +253,10 @@ $(document).observe('dom:loaded', function() {
 								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) + Number(productPrice.substring(1) * qty));
 							} else {
 								PriceWaiter.clearProductOption(productName + " (" + productPrice + ")");
-								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) - (Number(productPrice.substring(1) * previousQuantity)));
+							}
+							// If they previously had a quantity for this option, remove it from the total
+							if (previousQuantity > 0) {
+								PriceWaiter.setPrice(Number(PriceWaiter.getPrice() - amountToRemove));
 							}
 						});
 					}
