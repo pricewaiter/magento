@@ -56,7 +56,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 					$currentCategory = Mage::getModel('catalog/category')->load($categoryId);
 					$nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($currentCategory);
 					if ($nypcategory->isActive()) {
-					Mage::log('Category Name: ' . $currentCategory->getName());
 						$categoryActive = true;
 						break;
 					}
