@@ -21,32 +21,6 @@
 $installer = $this;
 $installer->startSetup();
 
-// Add an attribute to all prodcuts to toggle the Widget on/off
-// $installer->addAttribute('catalog_product', 'nypwidget_enabled',
-//     array(
-//         'group'             => 'General',
-//         'label'             => 'PriceWaiter Widget Enabled',
-//         'type'              => 'int',
-//         'input'             => 'boolean',
-//         'default'           => '1',
-//         'class'             => '',
-//         'backend'           => '',
-//         'frontend'          => '',
-//         'source'            => '',
-//         'global'            => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,
-//         'visible'           => true,
-//         'required'          => true,
-//         'user_defined'      => false,
-//         'searchable'        => true,
-//         'filterable'        => true,
-//         'comparable'        => true,
-//         'visible_on_front'  => true,
-//         'visible_in_advanced_search' => false,
-//         'unique'            => false,
-//         'apply_to'          => $supportTypeIds,
-//     )
-// );
-
 // Create a table to store category information --
 // Magento's Category attributes are not stable enough to bolt onto,
 // especially in bigger stores.
