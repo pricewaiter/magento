@@ -26,7 +26,7 @@ CREATE TABLE {$this->getTable('nypwidget_orders')} (
 	PRIMARY KEY (`entity_id`),
 	`entity_id` int(11) unsigned NOT NULL auto_increment,
 	`store_id` int(11) unsigned NOT NULL,
-	`pricewaiter_id` int(11) unsigned NOT NULL,
+	`pricewaiter_id` varchar(100)  NOT NULL,
 	`order_id` int(11) unsigned NOT NULL
 );
 ");
