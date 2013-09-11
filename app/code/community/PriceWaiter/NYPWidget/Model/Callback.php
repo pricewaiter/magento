@@ -276,6 +276,14 @@ class PriceWaiter_NYPWidget_Model_Callback
 			->loadByIncrementId($invoiceId);
 			$invoice->capture()->save();
 
+			// Add this order to the list of received callback orders
+			$pricewaiterOrder->setData(array(
+				'store_id' => $order->getStoreId(),
+				'pricewaiter_id' => $request['pricewaiter_id'],
+				'order_id' => $order->getId()
+			));
+			$pricewaiterOrder->save();
+
 			Mage::log("The Name Your Price Widget has created order #"
 				. $order->getIncrementId() . " with order ID " . $order->getId());
 			$this->_log("The Name Your Price Widget has created order #"
