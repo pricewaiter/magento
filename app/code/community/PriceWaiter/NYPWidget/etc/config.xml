@@ -34,9 +34,9 @@
                     <category>
                         <table>nypwidget_category</table>
                     </category>
-                    <orders>
+                    <order>
                         <table>nypwidget_orders</table>
-                    </orders>
+                    </order>
                 </entities>
             </nypwidget_mysql4>
             <nypwidget_category>
