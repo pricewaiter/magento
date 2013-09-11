@@ -53,6 +53,15 @@ class PriceWaiter_NYPWidget_Model_Callback
 			}
 		}
 
+		// Verify that we have not already received this callback based on the `pricewaiter_id` field
+		$pricewaiterOrder = Mage::getModel('nypwidget/order');
+		$pricewaiterOrder->loadByPriceWaiterId($request['pricewaiter_id']);
+		if ($pricewaiterOrder->getId()) {
+			$message = "Received a duplicate order from the PriceWaiter Callback API. Ignoring.";
+			$this->_log($message);
+			return;
+		}
+
 		try {
 
 			// Is this an existing customer?
