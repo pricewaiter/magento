@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2013 Price Waiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
- 
+
 class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Method_Abstract
 {
     protected $_code = 'nypwidget';
@@ -44,5 +44,10 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
     public function void(Varien_Object $payment)
     {
         return $this;
-    }
+	}
+
+	public function isAvailable($quote = null)
+	{
+		return false;
+	}
 }
