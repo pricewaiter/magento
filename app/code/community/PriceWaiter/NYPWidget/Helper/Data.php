@@ -211,4 +211,18 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->_product;
 	}
 
+	public function getStoreByApiKey($apiKey) {
+		$stores = Mage::app()->getStores();
+
+		// Find the store with the matching API key by checking the key for each store
+		// in Magento
+		foreach ($stores as $store) {
+			if ($apiKey == Mage::getStoreConfig('pricewaiter/configuration/api_key', $store->getId())) {
+				return $store;
+			}
+		}
+
+		return Mage::app()->getStore();
+	}
+
 }
