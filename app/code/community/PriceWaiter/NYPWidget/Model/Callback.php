@@ -18,7 +18,7 @@
 class PriceWaiter_NYPWidget_Model_Callback
 {
 
-	private $_storeId = '1';
+	private $_store;
 	private $_groupId = '1';
 	private $_sendConfirmation = '0';
 
@@ -30,9 +30,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 
 	public function processRequest($request)
 	{
-        // If the PriceWaiter extension is in testing mode, skip request validation
+		// If the PriceWaiter extension is in testing mode, skip request validation
 		if (!Mage::helper('nypwidget')->isTesting()) {
-	        // Build URL to check validity of order notification.
+			// Build URL to check validity of order notification.
 			$url = Mage::helper('nypwidget')->getApiUrl();
 
 			$ch = curl_init($url);
@@ -40,7 +40,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 			curl_setopt($ch, CURLOPT_POST, true);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
 
-	        // If PriceWaiter returns an invalid response
+			// If PriceWaiter returns an invalid response
 			if (curl_exec($ch) == "1") {
 				$message = "The Name Your Price Widget has received a valid order notification.";
 				Mage::log($message);
@@ -64,16 +64,28 @@ class PriceWaiter_NYPWidget_Model_Callback
 
 		try {
 
+			// First, determine the store that this order corresponds to.
+			// This is a new feature as of 1.2.2, so we need to make sure the API
+			// is compatible first.
+			if (array_key_exists('api_key', $request)
+				&& $request['api_key'] != '') {
+					$store = Mage::helper('nypwidget')->getStoreByApiKey($request['api_key']);
+					$this->_store = $store;
+				} else {
+					// Fallback for when the API key isn't found
+					$this->_store = Mage::app()->getStore();
+				}
+
 			// Is this an existing customer?
-			$customer = Mage::getModel('customer/customer');
-			$customer->setWebsiteId(Mage::app()->getStore()->getWebsiteId());
+			$customer = Mage::getModel('customer/customer')
+				->setWebsiteId($this->_store->getWebsiteId());
 			$customer->loadByEmail($request['buyer_email']);
 			preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#',$request['buyer_name'] , $name);
 			$request['buyer_first_name'] = $name[2];
 			$request['buyer_last_name'] = $name[3];
 
 			if (!$customer->getId()) {
-			    // Create a new customer with this email
+				// Create a new customer with this email
 				$customer->reset();
 				$passwordLength = 10;
 				$passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -87,29 +99,30 @@ class PriceWaiter_NYPWidget_Model_Callback
 				$customer->setLastname($name[3]);
 				$customer->setPassword($password);
 				$customer->setConfirmation(null);
+				$customer->setWebsiteId($this->_store->getWebsiteId());
 				$customer->save();
 				$customer->load($customer->getId());
 			}
 
 			$transaction = Mage::getModel('core/resource_transaction');
-			$reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($this->_storeId);
+			$reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($this->_store->getId());
 
 			$order = Mage::getModel('sales/order')
-			->setIncrementId($reservedOrderId)
-			->setStoreId($this->_storeId)
-			->setQuoteId(0)
-			->setGlobal_currency_code('USD')
-			->setBase_currency_code('USD')
-			->setStore_currency_code('USD')
-			->setOrder_currency_code('USD');
+				->setIncrementId($reservedOrderId)
+				->setStoreId($this->_store->getId())
+				->setQuoteId(0)
+				->setGlobal_currency_code('USD')
+				->setBase_currency_code('USD')
+				->setStore_currency_code('USD')
+				->setOrder_currency_code('USD');
 
 			// set Customer data
 			$order->setCustomer_email($customer->getEmail())
-			->setCustomerFirstname($customer->getFirstname())
-			->setCustomerLastname($customer->getLastname())
-			->setCustomerGroupId($customer->getGroupId())
-			->setCustomer_is_guest(0)
-			->setCustomer($customer);
+				->setCustomerFirstname($customer->getFirstname())
+				->setCustomerLastname($customer->getLastname())
+				->setCustomerGroupId($customer->getGroupId())
+				->setCustomer_is_guest(0)
+				->setCustomer($customer);
 
 			//Get a phone number, or make a dummy one
 			if ($request['buyer_shipping_phone']) {
@@ -121,64 +134,64 @@ class PriceWaiter_NYPWidget_Model_Callback
 			// set Billing Address
 			$billing = $customer->getDefaultBillingAddress();
 			$billingAddress = Mage::getModel('sales/order_address')
-			->setStoreId($this->_storeId)
-			->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
-			->setCustomerId($customer->getId())
-			->setPrefix('')
-			->setFirstname($request['buyer_first_name'])
-			->setMiddlename('')
-			->setLastname($request['buyer_last_name'])
-			->setSuffix('')
-			->setCompany('')
-			->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
-			->setCity($request['buyer_shipping_city'])
-			->setCountry_id($request['buyer_shipping_country'])
-			->setRegion('')
-			->setRegion_id($request['buyer_shipping_state'])
-			->setPostcode($request['buyer_shipping_zip'])
-			->setTelephone($telephone)
-			->setFax('');
+				->setStoreId($this->_store->getId())
+				->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
+				->setCustomerId($customer->getId())
+				->setPrefix('')
+				->setFirstname($request['buyer_first_name'])
+				->setMiddlename('')
+				->setLastname($request['buyer_last_name'])
+				->setSuffix('')
+				->setCompany('')
+				->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
+				->setCity($request['buyer_shipping_city'])
+				->setCountry_id($request['buyer_shipping_country'])
+				->setRegion('')
+				->setRegion_id($request['buyer_shipping_state'])
+				->setPostcode($request['buyer_shipping_zip'])
+				->setTelephone($telephone)
+				->setFax('');
 			$order->setBillingAddress($billingAddress);
 
 			// set Shipping Address
 			$shipping = $customer->getDefaultShippingAddress();
 			$shippingAddress = Mage::getModel('sales/order_address')
-			->setStoreId($this->_storeId)
-			->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
-			->setCustomerId($customer->getId())
-			->setPrefix('')
-			->setFirstname($request['buyer_first_name'])
-			->setMiddlename('')
-			->setLastname($request['buyer_last_name'])
-			->setSuffix('')
-			->setCompany('')
-			->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
-			->setCity($request['buyer_shipping_city'])
-			->setCountry_id($request['buyer_shipping_country'])
-			->setRegion('')
-			->setRegion_id($request['buyer_shipping_state'])
-			->setPostcode($request['buyer_shipping_zip'])
-			->setTelephone($telephone)
-			->setFax('');
+				->setStoreId($this->_store->getId())
+				->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
+				->setCustomerId($customer->getId())
+				->setPrefix('')
+				->setFirstname($request['buyer_first_name'])
+				->setMiddlename('')
+				->setLastname($request['buyer_last_name'])
+				->setSuffix('')
+				->setCompany('')
+				->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
+				->setCity($request['buyer_shipping_city'])
+				->setCountry_id($request['buyer_shipping_country'])
+				->setRegion('')
+				->setRegion_id($request['buyer_shipping_state'])
+				->setPostcode($request['buyer_shipping_zip'])
+				->setTelephone($telephone)
+				->setFax('');
 
 			// Apply shipping address to order, add PriceWaiter shipping method
 			$order->setShippingAddress($shippingAddress)
-			->setShipping_method('nypwidget_nypwidget')
-			->setShipping_amount($request['shipping'])
-			->setShippingDescription('PriceWaiter');
+				->setShipping_method('nypwidget_nypwidget')
+				->setShipping_amount($request['shipping'])
+				->setShippingDescription('PriceWaiter');
 
 			// Add PriceWaiter payment method
 			$orderPayment = Mage::getModel('sales/order_payment')
-			->setStoreId($this->_storeId)
-			->setCustomerPaymentId(0)
-			->setMethod('nypwidget');
+				->setStoreId($this->_store->getId())
+				->setCustomerPaymentId(0)
+				->setMethod('nypwidget');
 			$order->setPayment($orderPayment);
 
 			// Find the Product from the request
 			$this->_product = Mage::getModel('catalog/product')->getCollection()
-			->addAttributeToFilter('sku', $request['product_sku'])
-			->addAttributeToSelect('*')
-			->getFirstItem();
+				->addAttributeToFilter('sku', $request['product_sku'])
+				->addAttributeToSelect('*')
+				->getFirstItem();
 
 			// If we have product options, split them out of the request
 			$requestOptions = array();
@@ -216,50 +229,50 @@ class PriceWaiter_NYPWidget_Model_Callback
 			$itemDiscount = ($this->_product->getPrice() - $request['unit_price']);
 
 			$orderItem = Mage::getModel('sales/order_item')
-			->setStoreId($this->_storeId)
-			->setQuoteItemId(0)
-			->setQuoteParentItemId(NULL)
-			->setProductId($this->_product->getId())
-			->setProductType($this->_product->getTypeId())
-			->setQtyBackordered(NULL)
-			->setTotalQtyOrdered($request['quantity'])
-			->setQtyOrdered($request['quantity'])
-			->setName($this->_product->getName())
-			->setSku($this->_product->getSku())
-			->setPrice($request['unit_price'])
-			->setBasePrice($request['unit_price'])
-			->setOriginalPrice($this->_product->getPrice())
-			// ->setDiscountAmount($itemDiscount)
-			->setTaxAmount($request['tax'])
-			->setRowTotal($rowTotal)
-			->setBaseRowTotal($rowTotal);
+				->setStoreId($this->_store->getId())
+				->setQuoteItemId(0)
+				->setQuoteParentItemId(NULL)
+				->setProductId($this->_product->getId())
+				->setProductType($this->_product->getTypeId())
+				->setQtyBackordered(NULL)
+				->setTotalQtyOrdered($request['quantity'])
+				->setQtyOrdered($request['quantity'])
+				->setName($this->_product->getName())
+				->setSku($this->_product->getSku())
+				->setPrice($request['unit_price'])
+				->setBasePrice($request['unit_price'])
+				->setOriginalPrice($this->_product->getPrice())
+				// ->setDiscountAmount($itemDiscount)
+				->setTaxAmount($request['tax'])
+				->setRowTotal($rowTotal)
+				->setBaseRowTotal($rowTotal);
 
 			// Do we have a simple product with custom options, a bundle product, or a grouped product?
 			if (($this->_product->getTypeId() == 'simple'
 				|| $this->_product->getTypeId() == 'bundle'
 				|| $this->_product->getTypeId() == 'grouped')
 				&& $request['product_option_count'] > 0) {
-				// Grab the options from the request, build $additionalOptions array
-				$additionalOptions = array();
-				for ($i = $request['product_option_count']; $i > 0; $i--) {
-					$additionalOptions[] = array(
-						'label' => $request['product_option_name' . $i],
-						'value' => $request['product_option_value' . $i]
+					// Grab the options from the request, build $additionalOptions array
+					$additionalOptions = array();
+					for ($i = $request['product_option_count']; $i > 0; $i--) {
+						$additionalOptions[] = array(
+							'label' => $request['product_option_name' . $i],
+							'value' => $request['product_option_value' . $i]
 						);
-				}
+					}
 
-				// Apply the $additionalOptions array to the simple product
-				$orderItem->setProductOptions(array('additional_options' => $additionalOptions));
-			}
+					// Apply the $additionalOptions array to the simple product
+					$orderItem->setProductOptions(array('additional_options' => $additionalOptions));
+				}
 
 			// Build and apply the order totals
 			$subTotal += $rowTotal;
 			$order->addItem($orderItem);
 
 			$order->setSubtotal($subTotal)
-			->setBaseSubtotal($subTotal)
-			->setGrandTotal($subTotal + $request['shipping'])
-			->setBaseGrandTotal($subTotal + $request['shipping']);
+				->setBaseSubtotal($subTotal)
+				->setGrandTotal($subTotal + $request['shipping'])
+				->setBaseGrandTotal($subTotal + $request['shipping']);
 
 			$order->addStatusHistoryComment("This order has been programmatically created by the PriceWaiter Name Your Price Widget.");
 
@@ -271,9 +284,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 
 			// Capture the invoice
 			$invoiceId = Mage::getModel('sales/order_invoice_api')
-			->create($order->getIncrementId(), array());
+				->create($order->getIncrementId(), array());
 			$invoice = Mage::getModel('sales/order_invoice')
-			->loadByIncrementId($invoiceId);
+				->loadByIncrementId($invoiceId);
 			$invoice->capture()->save();
 
 			// Add this order to the list of received callback orders
