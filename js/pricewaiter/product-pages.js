@@ -61,17 +61,17 @@ $(document).observe('dom:loaded', function() {
 
 			switch(PriceWaiterProductType) {
 				case 'simple':
-				handleSimples();
-				break;
+					handleSimples();
+					break;
 				case 'configurable':
-				handleConfigurables();
-				break;
+					handleConfigurables();
+					break;
 				case 'bundle':
-				handleBundles();
-				break;
+					handleBundles();
+					break;
 				case 'grouped':
-				handleGrouped();
-				break;
+					handleGrouped();
+					break;
 			}
 
 			function simplesSelect(select, name) {
@@ -233,6 +233,11 @@ $(document).observe('dom:loaded', function() {
 				var productTable = $$('table.grouped-items-table')[0];
 				var productRows = productTable.select('tbody')[0];
 				productRows = productRows.childElements();
+				// Prevent users from attempting to name a price on grouped products without
+				// setting any quantities
+				if (productRows.length > 0) {
+					PriceWaiter.setProductOptionRequired('Quantity of Products', true);
+				}
 
 				for (var row in productRows) {
 					if (!isNaN(parseInt(row, 10))) {
@@ -257,6 +262,13 @@ $(document).observe('dom:loaded', function() {
 							// If they previously had a quantity for this option, remove it from the total
 							if (previousQuantity > 0) {
 								PriceWaiter.setPrice(Number(PriceWaiter.getPrice() - amountToRemove));
+							}
+							// Test if any Product Options are set. If they are, we can disable
+							// our required option. Otherwise, ensure it is in place.
+							if (Object.keys(PriceWaiter.getProductOptions()).length > 0) {
+								PriceWaiter.clearRequiredProductOptions();
+							} else {
+								PriceWaiter.setProductOptionRequired('Quantity of Products', true);
 							}
 						});
 					}
