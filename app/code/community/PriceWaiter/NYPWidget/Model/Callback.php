@@ -101,6 +101,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 				$customer->setConfirmation(null);
 				$customer->setWebsiteId($this->_store->getWebsiteId());
 				$customer->save();
+				if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_welcome_email')) {
+					$customer->sendNewAccountEmail('registered', '', $this->_store->getId());
+				}
 				$customer->load($customer->getId());
 			}
 
@@ -281,6 +284,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 			$transaction->addCommitCallback(array($order, 'place'));
 			$transaction->addCommitCallback(array($order, 'save'));
 			$transaction->save();
+			if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_new_order_email')) {
+				$order->sendNewOrderEmail();
+			}
 
 			// Capture the invoice
 			$invoiceId = Mage::getModel('sales/order_invoice_api')

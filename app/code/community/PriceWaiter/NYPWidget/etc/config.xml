@@ -141,7 +141,11 @@
                 <display_size>1</display_size>
                 <display_color>5F82D4</display_color>
                 <display_hover_color>739DFF</display_hover_color>
-            </appearance>
+			</appearance>
+			<customer_interaction>
+				<send_welcome_email>0</send_welcome_email>
+				<send_new_order_email>0</send_new_order_email>
+			</customer_interaction>
             <categories>
                 <disable_by_category>1</disable_by_category>
             </categories>
