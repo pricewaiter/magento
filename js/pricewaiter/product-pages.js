@@ -18,7 +18,8 @@ $(document).observe('dom:loaded', function() {
 	if (typeof adminPW == 'function') {
 		adminPW();
 	}
-	PriceWaiterOptions.onload =
+	if (typeof PriceWaiterOptions == 'object') {
+		PriceWaiterOptions.onload =
 		function(PriceWaiter) {
 			PriceWaiter.setRegularPrice(PriceWaiterRegularPrice);
 
@@ -275,14 +276,17 @@ $(document).observe('dom:loaded', function() {
 				}
 			}
 		};
+	}
 
-	(function() {
-		var pw = document.createElement('script');
-		pw.type = 'text/javascript';
-		pw.src = window.PriceWaiterWidgetUrl;
-		pw.async = true;
+	if (window.PriceWaiterWidgetUrl) {
+		(function() {
+			var pw = document.createElement('script');
+			pw.type = 'text/javascript';
+			pw.src = window.PriceWaiterWidgetUrl;
+			pw.async = true;
 
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(pw, s);
-    })();
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(pw, s);
+    	})();
+	}
 });
