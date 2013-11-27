@@ -134,6 +134,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 				$telephone = "000-000-0000";
 			}
 
+			// Find Region ID
+			$regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_shipping_state'], $request['buyer_shipping_country']);
+
 			// set Billing Address
 			$billing = $customer->getDefaultBillingAddress();
 			$billingAddress = Mage::getModel('sales/order_address')
@@ -149,8 +152,8 @@ class PriceWaiter_NYPWidget_Model_Callback
 				->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
 				->setCity($request['buyer_shipping_city'])
 				->setCountry_id($request['buyer_shipping_country'])
-				->setRegion('')
-				->setRegion_id($request['buyer_shipping_state'])
+				->setRegion($request['buyer_shipping_state'])
+				->setRegion_id($regionModel->getId())
 				->setPostcode($request['buyer_shipping_zip'])
 				->setTelephone($telephone)
 				->setFax('');
@@ -171,8 +174,8 @@ class PriceWaiter_NYPWidget_Model_Callback
 				->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
 				->setCity($request['buyer_shipping_city'])
 				->setCountry_id($request['buyer_shipping_country'])
-				->setRegion('')
-				->setRegion_id($request['buyer_shipping_state'])
+				->setRegion($request['buyer_shipping_state'])
+				->setRegion_id($regionModel->getId())
 				->setPostcode($request['buyer_shipping_zip'])
 				->setTelephone($telephone)
 				->setFax('');
