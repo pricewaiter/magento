@@ -9,7 +9,7 @@ DONE_STRING=$(PASSED_COLOR)[Done]$(NO_COLOR)
 check_log_file = @if test -s temp.log; then echo "$(ERROR_STRING)" && cat temp.log && touch temp.errors; else echo "$(PASSED_STRING)"; fi;
 clear_no_syntax_errors = @sed -e '/^No syntax error/d' temp.log > temp.errs; mv temp.errs temp.log
 
-all: clean
+all: test clean
 	@printf "Building package... "
 	@php build.php &> temp.log
 	@echo "$(DONE_STRING)"
@@ -19,7 +19,7 @@ all: clean
 	@rm -rf var/ temp.log temp.errors
 	@echo "$(DONE_STRING)"
 
-clean: test
+clean:
 	@printf "Deleting existing package file and .un~ files created by vim... "
 	@find . -name "*.un~" -delete
 	@rm -f nypwidget-*tgz
