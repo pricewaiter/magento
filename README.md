@@ -60,3 +60,29 @@ padding around the button on your product page, add this CSS to your existing te
     padding: 20px;
 }
 ```
+
+## Building as a custom package
+
+As of version 1.2.5, you can now build the Extension as a custom package from source.
+
+Dependencies:
+
+* GNU make
+* find
+* xmllint
+* grep
+* [modman](https://github.com/colinmollenhour/modman)
+
+Build Instructions:
+
+1. Create a Magento store to use for development.
+2. Follow steps 1-4 of the installation instructions.
+3. In your Magento root, run `chmod +x mage`
+4. Make your desired modifications to extension in .modman/magento/
+5. Review the Makefile for available rules.
+6. When you are ready to build the new package, execute `make`
+
+You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
+
+Note: the `echo` shipped with Mac OS X does not support the -e option. If you are building on Linux, the output from `make` may not display colors correctly because of this incompatibility.
+

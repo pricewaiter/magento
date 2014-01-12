@@ -11,7 +11,7 @@
 PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
     <notes>New Features:&#xD;
 - Added new "Custom CSS" field in the admin to allow you to make CSS changes to the PriceWaiter button more easily.&#xD;
-- Newly received orders now use the status "Processing - PriceWaiter" to more closely Magento's Order Statuses.&#xD;
+- Newly received orders now use the status "Processing - PriceWaiter" to more closely mirror Magento's Order Statuses.&#xD;
 </notes>
     <authors><author><name>PriceWaiter</name><user>pricewaiter</user><email>bobby.b@pricewaiter.com</email></author></authors>
     <date>2014-01-12</date>
