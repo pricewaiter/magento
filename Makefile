@@ -16,7 +16,7 @@ all: clean
 	@printf "Checking for build problems... "
 	$(call check_log_file)
 	@printf "Cleaning up... "
-	@rm -rf var/ temp.log
+	@rm -rf var/ temp.log temp.errors
 	@echo "$(DONE_STRING)"
 
 clean: test
