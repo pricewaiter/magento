@@ -18,7 +18,7 @@
 
     <modules>
         <PriceWaiter_NYPWidget>
-            <version>1.2.4</version>
+            <version>1.2.5</version>
         </PriceWaiter_NYPWidget>
     </modules>
 
@@ -154,7 +154,7 @@
             <nypwidget>
                 <active>1</active>
                 <model>nypwidget/paymentMethod</model>
-                <order_status>pricewaiter_pending</order_status>
+                <order_status>pricewaiter_processing</order_status>
                 <title>PriceWaiter Payment</title>
                 <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>

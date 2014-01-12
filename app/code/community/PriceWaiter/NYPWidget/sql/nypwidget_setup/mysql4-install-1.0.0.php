@@ -35,20 +35,21 @@ CREATE TABLE {$this->getTable('nypwidget_category')} (
 );
 ");
 
+// NOTE: This is commented out since version 1.2.5
 // Create a new "Pending - PriceWaiter" status for orders
 // that have been pulled from PriceWaiter back into Magento
-$installer->run("
-    INSERT INTO  `{$this->getTable('sales/order_status')}` (
-        `status`, `label`
-    ) VALUES (
-        'pricewaiter_pending', 'Pending - PriceWaiter'
-    );
-    INSERT INTO  `{$this->getTable('sales/order_status_state')}` (
-        `status`, `state`, `is_default`
-    ) VALUES (
-        'pricewaiter_pending', 'pending', '0'
-    );
-");
+// $installer->run("
+//     INSERT INTO  `{$this->getTable('sales/order_status')}` (
+//         `status`, `label`
+//     ) VALUES (
+//         'pricewaiter_pending', 'Pending - PriceWaiter'
+//     );
+//     INSERT INTO  `{$this->getTable('sales/order_status_state')}` (
+//         `status`, `state`, `is_default`
+//     ) VALUES (
+//         'pricewaiter_pending', 'pending', '0'
+//     );
+// ");
 
 // The default value above only applies to new products.
 // Build a collection of products, and set 'nypwidget_enabled' to the default value
