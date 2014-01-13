@@ -77,10 +77,9 @@ Build Instructions:
 
 1. Create a Magento store to use for development.
 2. Follow steps 1-4 of the installation instructions.
-3. In your Magento root, run `chmod +x mage`
-4. Make your desired modifications to extension in .modman/magento/
-5. Review the Makefile for available rules.
-6. When you are ready to build the new package, execute `make`
+3. Make your desired modifications to extension in .modman/magento/
+4. Review the Makefile for available rules.
+5. When you are ready to build the new package, execute `make`
 
 You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
 
