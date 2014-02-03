@@ -80,9 +80,6 @@ class PriceWaiter_NYPWidget_Model_Callback
 			$customer = Mage::getModel('customer/customer')
 				->setWebsiteId($this->_store->getWebsiteId());
 			$customer->loadByEmail($request['buyer_email']);
-			preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#',$request['buyer_name'] , $name);
-			$request['buyer_first_name'] = $name[2];
-			$request['buyer_last_name'] = $name[3];
 
 			if (!$customer->getId()) {
 				// Create a new customer with this email
@@ -159,6 +156,16 @@ class PriceWaiter_NYPWidget_Model_Callback
 				->setFax('');
 			$order->setBillingAddress($billingAddress);
 
+			// Try to get the shipping name. If we fail, fall back on the buyer_first/last_name fields
+			preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#',$request['buyer_shipping_name'] , $name);
+			$request['buyer_shipping_first_name'] = $name[2];
+			$request['buyer_shipping_last_name'] = $name[3];
+
+			if ($request['buyer_shipping_first_name'] == '') {
+				$request['buyer_shipping_first_name'] = $request['buyer_first_name'];
+				$request['buyer_shipping_last_name'] = $request['buyer_last_name'];
+			}
+
 			// set Shipping Address
 			$shipping = $customer->getDefaultShippingAddress();
 			$shippingAddress = Mage::getModel('sales/order_address')
@@ -166,9 +173,9 @@ class PriceWaiter_NYPWidget_Model_Callback
 				->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
 				->setCustomerId($customer->getId())
 				->setPrefix('')
-				->setFirstname($request['buyer_first_name'])
+				->setFirstname($request['buyer_shipping_first_name'])
 				->setMiddlename('')
-				->setLastname($request['buyer_last_name'])
+				->setLastname($request['buyer_shipping_last_name'])
 				->setSuffix('')
 				->setCompany('')
 				->setStreet(array($request['buyer_shipping_address'],$request['buyer_shipping_address2']))
