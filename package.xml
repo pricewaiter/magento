@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>nypwidget</name>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
     <stability>stable</stability>
     <license uri="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</license>
     <channel>community</channel>
@@ -10,7 +10,7 @@
     <description>Sell more, immediately, with the PriceWaiter&#xAE; widget. Convert comparison shoppers you might have lost, increase sales and conversions, and stop "minimum advertised price" from preventing sales before they even start.&#xD;
 PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
     <notes>Bug Fixes:&#xD;
-- Fixed problem that allowed orders to be created without customer name..&#xD;
+- Improved compatibility with grouped products.&#xD;
 </notes>
     <authors><author><name>PriceWaiter</name><user>pricewaiter</user><email>bobby.b@pricewaiter.com</email></author></authors>
     <date>2014-02-03</date>
