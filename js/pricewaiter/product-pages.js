@@ -245,18 +245,24 @@ $(document).observe('dom:loaded', function() {
 						// Bind to the Quantity change
 						productRows[row].select('input.qty')[0].observe('change', function(event){
 							var qty = this.value;
-							// Get the Product's name
-							var productName = this.up('tr').firstDescendant().innerHTML;
-							// Get the Product's price
-							var productPrice = this.up('tr').select('span.price')[0].innerHTML;
+                            // Find the name and price based on the input's product ID
+                            // The product ID is found in the input's name inside the square brackets
+                            var pattern = /\[(.*)\]/;
+                            var inputName = this.name;
+                            var productID = pattern.exec(inputName);
+                            productID = productID[1];
+
+							var productName = window.PriceWaiterGroupedProductInfo[productID][0];
+							var productPrice = window.PriceWaiterGroupedProductInfo[productID][1];
+
 							// The user changed the quantity field. We need to find the previous quantity and price
 							var previousQuantity = PriceWaiter.getProductOptions()[productName + " (" + productPrice + ")"];
-							var amountToRemove = Number(previousQuantity * productPrice.substring(1));
+							var amountToRemove = Number(previousQuantity * productPrice);
 							if (qty > 0) {
 								// Entered a quantity, set product name as option name, add quantity as value
 								PriceWaiter.setProductOption(productName + " (" + productPrice + ")", qty);
 								// Add the price to the product's total
-								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) + Number(productPrice.substring(1) * qty));
+								PriceWaiter.setPrice(Number(PriceWaiter.getPrice()) + Number(productPrice * qty));
 							} else {
 								PriceWaiter.clearProductOption(productName + " (" + productPrice + ")");
 							}

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2013 Price Waiter, LLC
  *
@@ -15,6 +16,7 @@
  * limitations under the License.
  *
  */
+
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	private $_product = false;
@@ -77,9 +79,9 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
 
-		$displayPhrase     = Mage::getStoreConfig('pricewaiter/appearance/display_phrase') ? 'button_mo' : 'button_nyp';
-		$displaySize       = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
-		$displayColor      = Mage::getStoreConfig('pricewaiter/appearance/display_color');
+		$displayPhrase = Mage::getStoreConfig('pricewaiter/appearance/display_phrase') ? 'button_mo' : 'button_nyp';
+		$displaySize = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
+		$displayColor = Mage::getStoreConfig('pricewaiter/appearance/display_color');
 		$displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
 
 		$pwOptions = "
@@ -89,21 +91,21 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 						type: " . json_encode($displayPhrase) . ",
 							size: " . json_encode($displaySize) . ",";
 
-						if ($displayColor) {
-							$pwOptions .= "
+		if ($displayColor) {
+			$pwOptions .= "
 								color: " . json_encode($displayColor) . ",";
-						}
+		}
 
-						if ($displayHoverColor) {
-							$pwOptions .= "
+		if ($displayHoverColor) {
+			$pwOptions .= "
 								hoverColor: " . json_encode($displayHoverColor) . ",";
-						}
+		}
 
-						$pwOptions .= "
+		$pwOptions .= "
 	},
 	};\n";
 
-	return $pwOptions;
+		return $pwOptions;
 	}
 
 	public function getProductOptions($admin = false)
@@ -124,38 +126,37 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 		if ($product->getId()) {
 
 			switch ($product->getTypeId()) {
-			case "simple":
-				return $this->_pwBoilerPlate($product) . "
+				case "simple":
+					return $this->_pwBoilerPlate($product) . "
 					var PriceWaiterProductType = 'simple';
 				";
-				break;
-			case "configurable":
-				return $this->_pwBoilerPlate($product) . "
+					break;
+				case "configurable":
+					return $this->_pwBoilerPlate($product) . "
 					var PriceWaiterProductType = 'configurable';
 				";
-				break;
-			case "grouped":
-				return $this->_pwBoilerPlate($product) . "
-					var PriceWaiterProductType = 'grouped';
-				";
-				return false;
-				break;
-			case "virtual":
-				// Virtual products are not yet supported
-				return false;
-				break;
-			case "bundle":
-				return $this->_pwBoilerPlate($product) . "
+					break;
+				case "grouped":
+					return $this->_pwBoilerPlate($product) . "
+					var PriceWaiterProductType = 'grouped';\n"
+					. $this->_getGroupedProductInfo() ."\n";
+					break;
+				case "virtual":
+					// Virtual products are not yet supported
+					return false;
+					break;
+				case "bundle":
+					return $this->_pwBoilerPlate($product) . "
 					var PriceWaiterProductType = 'bundle';
 				";
-				break;
-			case "downloadable":
-				// Downloadable products are not yet supported
-				return false;
-				break;
-			default:
-				return false;
-				break;
+					break;
+				case "downloadable":
+					// Downloadable products are not yet supported
+					return false;
+					break;
+				default:
+					return false;
+					break;
 			}
 		} else {
 			return false;
@@ -175,11 +176,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		if ($this->_testing) {
 			return "https://api-testing.pricewaiter.com/1/order/verify?"
-				. "api_key="
-				. Mage::getStoreConfig('pricewaiter/configuration/api_key');
+			. "api_key="
+			. Mage::getStoreConfig('pricewaiter/configuration/api_key');
 		} else {
 			return "https://api.pricewaiter.com/1/order/verify?api_key="
-				. Mage::getStoreConfig('pricewaiter/configuration/api_key');
+			. Mage::getStoreConfig('pricewaiter/configuration/api_key');
 		}
 	}
 
@@ -194,11 +195,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 		return "
 			PriceWaiterOptions.product = {
 				sku: " . json_encode($product->getSku()) . ",
-					name: " . json_encode($product->getName()) . ",
-					price: " . json_encode($productPrice) . ",
-					image: " . json_encode($product->getImageUrl()) . "
-	};
-	var PriceWaiterRegularPrice = '" . (float) $product->getPrice() . "';
+				name: " . json_encode($product->getName()) . ",
+				price: " . json_encode($productPrice) . ",
+				image: " . json_encode($product->getImageUrl()) . "
+			};
+			var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
 	";
 	}
 
@@ -211,7 +212,23 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->_product;
 	}
 
-	public function getStoreByApiKey($apiKey) {
+	private function _getGroupedProductInfo()
+	{
+		$product = $this->_getProduct();
+		$javascript = "var PriceWaiterGroupedProductInfo =  new Array();\n";
+
+		$associatedProducts = $product->getTypeInstance(true)->getAssociatedProducts($product);
+		foreach ($associatedProducts as $simpleProduct) {
+			$javascript .= "PriceWaiterGroupedProductInfo[" . $simpleProduct->getId() . "] = ";
+			$javascript .= "new Array('" . htmlentities($simpleProduct->getName()) . "', '"
+				. number_format($simpleProduct->getPrice(), 2) . "')\n";
+		}
+
+		return $javascript;
+	}
+
+	public function getStoreByApiKey($apiKey)
+	{
 		$stores = Mage::app()->getStores();
 
 		// Find the store with the matching API key by checking the key for each store
@@ -224,5 +241,4 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
 		return Mage::app()->getStore();
 	}
-
 }
