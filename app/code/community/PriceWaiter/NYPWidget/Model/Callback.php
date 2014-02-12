@@ -92,8 +92,8 @@ class PriceWaiter_NYPWidget_Model_Callback
 				}
 
 				$customer->setEmail($request['buyer_email']);
-				$customer->setFirstname($name[2]);
-				$customer->setLastname($name[3]);
+				$customer->setFirstname($request['buyer_first_name']);
+				$customer->setLastname($request['buyer_last_name']);
 				$customer->setPassword($password);
 				$customer->setConfirmation(null);
 				$customer->setWebsiteId($this->_store->getWebsiteId());
