@@ -20,8 +20,9 @@ all: test clean
 	@echo "$(DONE_STRING)"
 
 clean:
-	@printf "Deleting existing package file and .un~ files created by vim... "
+	@printf "Deleting existing package file, .DS_Stores,  and .un~ files created by vim... "
 	@find . -name "*.un~" -delete
+	@find . -name ".DS_Store" -delete
 	@rm -f nypwidget-*tgz
 	@echo "$(DONE_STRING)"
 
