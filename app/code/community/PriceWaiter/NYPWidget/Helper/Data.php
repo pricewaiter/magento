@@ -166,7 +166,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getWidgetUrl()
 	{
 		if ($this->_testing) {
-			return "https://testing.pricewaiter.com/nyp/script/widget.js";
+			return "https://widget-staging.pricewaiter.com/nyp/script/widget.js";
 		} else {
 			return "https://widget.pricewaiter.com/nyp/script/widget.js";
 		}
@@ -175,7 +175,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getApiUrl()
 	{
 		if ($this->_testing) {
-			return "https://api-testing.pricewaiter.com/1/order/verify?"
+			return "https://api-staging.pricewaiter.com/1/order/verify?"
 			. "api_key="
 			. Mage::getStoreConfig('pricewaiter/configuration/api_key');
 		} else {
