@@ -157,11 +157,12 @@ class PriceWaiter_NYPWidget_Model_Callback
 			$order->setBillingAddress($billingAddress);
 
 			// Try to get the shipping name. If we fail, fall back on the buyer_first/last_name fields
-			preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#',$request['buyer_shipping_name'] , $name);
-			$request['buyer_shipping_first_name'] = $name[2];
-			$request['buyer_shipping_last_name'] = $name[3];
+			preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#', $request['buyer_shipping_name'], $name);
 
-			if ($request['buyer_shipping_first_name'] == '') {
+			if (array_key_exists(2, $name)) {
+				$request['buyer_shipping_first_name'] = $name[2];
+				$request['buyer_shipping_last_name'] = $name[3];
+			} else {
 				$request['buyer_shipping_first_name'] = $request['buyer_first_name'];
 				$request['buyer_shipping_last_name'] = $request['buyer_last_name'];
 			}
