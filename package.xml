@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>nypwidget</name>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
     <stability>stable</stability>
     <license uri="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</license>
     <channel>community</channel>
@@ -11,7 +11,7 @@
 &#xD;
 PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
     <notes>Bug Fixes:&#xD;
-- Fixed problem that allowed customer to be created without name.</notes>
+- Fixed problem that caused an "Undefined offset" PHP warning during order creation.</notes>
     <authors><author><name>PriceWaiter</name><user>pricewaiter</user><email>bobby.b@pricewaiter.com</email></author></authors>
     <date>2014-02-17</date>
     <time>21:05:35</time>
