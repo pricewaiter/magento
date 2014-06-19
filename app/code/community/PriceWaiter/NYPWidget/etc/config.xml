@@ -29,7 +29,7 @@
                 <resourceModel>nypwidget_mysql4</resourceModel>
             </nypwidget>
             <nypwidget_mysql4>
-            	<class>PriceWaiter_NYPWidget_Model_Mysql4</class>
+                <class>PriceWaiter_NYPWidget_Model_Mysql4</class>
                 <entities>
                     <category>
                         <table>nypwidget_category</table>
@@ -79,26 +79,26 @@
             </nypwidget_read>
         </resources>
         <events>
-        	<adminhtml_catalog_category_tabs>
-        		<observers>
-        			<adminhtml_catalog_category_tabs_pricewaiter>
-        				<type>model</type>
-        				<class>nypwidget/observer</class>
-        				<method>addTab</method>
-        				<args></args>
-        			</adminhtml_catalog_category_tabs_pricewaiter>
-        		</observers>
-        	</adminhtml_catalog_category_tabs>
-        	<catalog_category_prepare_save>
-        		<observers>
-        			<catalog_category_prepare_save_pricewaiter>
-        				<type>model</type>
-        				<class>nypwidget/observer</class>
-        				<method>saveCategory</method>
-        				<args></args>
-        			</catalog_category_prepare_save_pricewaiter>
-        		</observers>
-        	</catalog_category_prepare_save>
+            <adminhtml_catalog_category_tabs>
+                <observers>
+                    <adminhtml_catalog_category_tabs_pricewaiter>
+                        <type>model</type>
+                        <class>nypwidget/observer</class>
+                        <method>addTab</method>
+                        <args></args>
+                    </adminhtml_catalog_category_tabs_pricewaiter>
+                </observers>
+            </adminhtml_catalog_category_tabs>
+            <catalog_category_prepare_save>
+                <observers>
+                    <catalog_category_prepare_save_pricewaiter>
+                        <type>model</type>
+                        <class>nypwidget/observer</class>
+                        <method>saveCategory</method>
+                        <args></args>
+                    </catalog_category_prepare_save_pricewaiter>
+                </observers>
+            </catalog_category_prepare_save>
         </events>
     </global>
 
@@ -141,11 +141,11 @@
                 <display_size>1</display_size>
                 <display_color>5F82D4</display_color>
                 <display_hover_color>739DFF</display_hover_color>
-			</appearance>
-			<customer_interaction>
-				<send_welcome_email>0</send_welcome_email>
-				<send_new_order_email>0</send_new_order_email>
-			</customer_interaction>
+            </appearance>
+            <customer_interaction>
+                <send_welcome_email>0</send_welcome_email>
+                <send_new_order_email>0</send_new_order_email>
+            </customer_interaction>
             <categories>
                 <disable_by_category>1</disable_by_category>
             </categories>

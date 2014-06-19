@@ -17,21 +17,22 @@
  */
 ?>
 <?php $_product = Mage::registry('current_product'); ?>
-<?php if($_product->isSaleable()): ?>
-<?php
-$customCss = Mage::getStoreConfig('pricewaiter/appearance/display_custom_css');
-$helper = $this->_getHelper();
-if ($helper->isEnabled()):
-?>
-<script type="text/javascript">
-//<![CDATA[
-<?php echo $helper->getPriceWaiterOptions(); ?>
-<?php echo $helper->getProductOptions(); ?>
-var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
-//]]>
-</script>
-<div class="name-your-price-widget" style='display: block; clear: both; padding-top: 10px; <?php echo $customCss; ?>'>
-    <span id="pricewaiter"></span>
-</div>
-<?php endif; ?>
+<?php if ($_product->isSaleable()): ?>
+    <?php
+    $customCss = Mage::getStoreConfig('pricewaiter/appearance/display_custom_css');
+    $helper = $this->_getHelper();
+    if ($helper->isEnabled()):
+        ?>
+        <script type="text/javascript">
+            //<![CDATA[
+            <?php echo $helper->getPriceWaiterOptions(); ?>
+            <?php echo $helper->getProductOptions(); ?>
+            var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
+            //]]>
+        </script>
+        <div class="name-your-price-widget"
+             style='display: block; clear: both; padding-top: 10px; <?php echo $customCss; ?>'>
+            <span id="pricewaiter"></span>
+        </div>
+    <?php endif; ?>
 <?php endif; ?>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  Copyright 2013-2014 Price Waiter, LLC
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,6 +19,6 @@
         <PriceWaiter_NYPWidget>
             <active>true</active>
             <codePool>community</codePool>
-	    </PriceWaiter_NYPWidget>
+        </PriceWaiter_NYPWidget>
     </modules>
 </config>

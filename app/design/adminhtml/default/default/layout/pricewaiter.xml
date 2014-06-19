@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  Copyright 2013-2014 Price Waiter, LLC
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -17,9 +17,15 @@
 <layout>
     <adminhtml_system_config_edit>
         <reference name="head">
-            <action method="addCss"><name>pricewaiter.css</name></action>
-            <action method="addJs"><name>jscolor-pw/jscolor.js</name></action>
-    		<action method="addJs"><name>pricewaiter/product-pages.js</name></action>
+            <action method="addCss">
+                <name>pricewaiter.css</name>
+            </action>
+            <action method="addJs">
+                <name>jscolor-pw/jscolor.js</name>
+            </action>
+            <action method="addJs">
+                <name>pricewaiter/product-pages.js</name>
+            </action>
         </reference>
         <reference name="content">
             <block type="nypwidget/adminhtml_widget" name="widget_preview" as="widget_preview" template="pricewaiter/admin_widget.phtml"></block>

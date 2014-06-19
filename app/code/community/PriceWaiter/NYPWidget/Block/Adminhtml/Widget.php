@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Copyright 2013-2014 Price Waiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,9 +16,11 @@
  *  limitations under the License.
  *
  */
+
 class PriceWaiter_NYPWidget_Block_Adminhtml_Widget extends Mage_Adminhtml_Block_Abstract
 {
-    public function _getHelper() {
+    public function _getHelper()
+    {
         $helper = Mage::helper('nypwidget');
         return $helper;
     }

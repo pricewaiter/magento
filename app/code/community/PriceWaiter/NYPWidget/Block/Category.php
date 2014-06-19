@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Copyright 2013-2014 Price Waiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,40 +16,41 @@
  * limitations under the License.
  *
  */
+
 class PriceWaiter_NYPWidget_Block_Category extends Mage_Adminhtml_Block_Template
-implements Mage_Adminhtml_Block_Widget_Tab_Interface
+    implements Mage_Adminhtml_Block_Widget_Tab_Interface
 {
-	public function __construct()
-	{
-		$this->setTemplate('pricewaiter/categorytab.phtml');
-	}
+    public function __construct()
+    {
+        $this->setTemplate('pricewaiter/categorytab.phtml');
+    }
 
-	public function getIsEnabled()
-	{
-		$category = Mage::registry('category');
-		$nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category, $category->getStore()->getId());
+    public function getIsEnabled()
+    {
+        $category = Mage::registry('category');
+        $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category, $category->getStore()->getId());
 
-		return $nypcategory->isActive(true);
-	}
+        return $nypcategory->isActive(true);
+    }
 
-	public function getTabLabel()
-	{
-		return $this->__('PriceWaiter Widget');
-	}
+    public function getTabLabel()
+    {
+        return $this->__('PriceWaiter Widget');
+    }
 
-	public function getTabTitle()
-	{
-		return $this->__('PriceWaiter');
-	}
+    public function getTabTitle()
+    {
+        return $this->__('PriceWaiter');
+    }
 
-	public function canShowTab()
-	{
-		return true;
-	}
+    public function canShowTab()
+    {
+        return true;
+    }
 
-	public function isHidden()
-	{
-		return false;
-	}
+    public function isHidden()
+    {
+        return false;
+    }
 
 }

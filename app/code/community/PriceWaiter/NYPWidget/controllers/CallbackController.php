@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2013-2014 Price Waiter, LLC
  *
@@ -15,6 +16,7 @@
  * limitations under the License.
  *
  */
+
 class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Front_Action
 {
 

@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Copyright 2013-2014 Price Waiter, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +16,11 @@
  * limitations under the License.
  *
  */
+
 class PriceWaiter_NYPWidget_Model_Mysql4_Category_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract
 {
-	public function _construct()
-	{
-		$this->_init('nypwidget/category', 'entity_id');
-	}
+    public function _construct()
+    {
+        $this->_init('nypwidget/category', 'entity_id');
+    }
 }

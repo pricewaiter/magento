@@ -158,7 +158,7 @@
                         <display_custom_css translate="label comment">
                             <label>Custom CSS</label>
                             <comment>
-								<![CDATA[Add custom CSS that will be added to the container that holds
+                                <![CDATA[Add custom CSS that will be added to the container that holds
 								the PriceWaiter button. This field is not validated.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
@@ -181,7 +181,7 @@
                         <send_welcome_email>
                             <label>Send Welcome Email to New Customers?</label>
                             <comment>
-								<![CDATA[With this enabled, new customers created when Magento receives a new
+                                <![CDATA[With this enabled, new customers created when Magento receives a new
 								order notification will receive your store's Welcome email in addition to
 								PriceWaiter's.]]>
                             </comment>
@@ -195,7 +195,7 @@
                         <send_new_order_email>
                             <label>Send New Order Email to Customers?</label>
                             <comment>
-								<![CDATA[With this enabled, new orders created when Magento receives a new
+                                <![CDATA[With this enabled, new orders created when Magento receives a new
 								order notification will trigger your store's New Order email in addition to
 								PriceWaiter's.]]>
                             </comment>
