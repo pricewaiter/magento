@@ -89,6 +89,15 @@
                     <show_in_store>1</show_in_store>
                     <expanded>1</expanded>
                     <fields>
+                        <group_select translate="label comment">
+                            <label>Customer Groups</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>customer/resource_group_collection</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </group_select>
                         <disable_enable translate="label comment">
                             <label>Disable or Enable?</label>
                             <comment>
@@ -97,7 +106,7 @@
                             </comment>
                             <frontend_type>select</frontend_type>
                             <source_model>nypwidget/customer_enable</source_model>
-                            <sort_order>1</sort_order>
+                            <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
