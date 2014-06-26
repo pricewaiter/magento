@@ -137,6 +137,10 @@
                 <enabled>0</enabled>
                 <log>1</log>
             </configuration>
+            <customer_groups>
+                <disable>0</disable>
+                <group_select>0</group_select>
+            </customer_groups>
             <appearance>
                 <display_size>1</display_size>
                 <display_color>5F82D4</display_color>

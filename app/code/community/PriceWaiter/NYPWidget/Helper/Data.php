@@ -67,6 +67,18 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 }
             }
 
+            // Is PriceWaiter enabled for this Customer Group
+            $disable = Mage::getStoreConfig('pricewaiter/customer_groups/disable');
+            if ($disable) {
+                // An admin has chosen to disable the PriceWaiter widget by customer group.
+                $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
+                $customerGroups = Mage::getStoreConfig('pricewaiter/customer_groups/group_select');
+                $customerGroups = preg_split('/,/', $customerGroups);
+
+                if (in_array($customerGroupId, $customerGroups)) {
+                    return false;
+                }
+            }
         } else {
             // We end up here if PriceWaiter is disabled for this store
             return false;
