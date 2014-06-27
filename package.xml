@@ -8,7 +8,7 @@
     <extends/>
     <summary>PriceWaiter&#xAE; let's buyers make offers on your products that you can easily accept, counter offer or reject.</summary>
     <description>Sell more, immediately, with the PriceWaiter&#xAE; widget. Convert comparison shoppers you might have lost, increase sales and conversions, and stop "minimum advertised price" from preventing sales before they even start.&#xD;&#xD; PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
-    <notes>Bug Fixes:&#xD;- Fixed problem that caused an "Undefined offset" PHP warning during order creation.</notes>
+    <notes>Features:&#xD;- This release adds the ability to disable the PriceWaiter widget by Customer Group.</notes>
     <authors>
         <author>
             <name>PriceWaiter</name>
