@@ -97,25 +97,25 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
 
         $pwOptions = "
-			var PriceWaiterOptions = {
-				apiKey: '" . $apiKey . "',
-					button: {
-						type: " . json_encode($displayPhrase) . ",
-							size: " . json_encode($displaySize) . ",";
+            var PriceWaiterOptions = {
+                apiKey: '" . $apiKey . "',
+                button: {
+                type: " . json_encode($displayPhrase) . ",
+                size: " . json_encode($displaySize) . ",";
 
         if ($displayColor) {
             $pwOptions .= "
-								color: " . json_encode($displayColor) . ",";
+                color: " . json_encode($displayColor) . ",";
         }
 
         if ($displayHoverColor) {
             $pwOptions .= "
-								hoverColor: " . json_encode($displayHoverColor) . ",";
+                hoverColor: " . json_encode($displayHoverColor) . ",";
         }
 
         $pwOptions .= "
-	},
-	};\n";
+            },
+        };\n";
 
         return $pwOptions;
     }
@@ -125,14 +125,14 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         if ($admin) {
             return "
             PriceWaiterOptions.product = {
-				sku: 'TEST-SKU',
-				name: 'Test Name',
-				price: 19.99,
-				image: 'http://placekitten.com/220/220'
-		    };
-		    var PriceWaiterProductType = 'simple';
-		    var PriceWaiterRegularPrice = 19.99
-		    ";
+                sku: 'TEST-SKU',
+                name: 'Test Name',
+                price: 19.99,
+                image: 'http://placekitten.com/220/220'
+            };
+            var PriceWaiterProductType = 'simple';
+            var PriceWaiterRegularPrice = 19.99
+            ";
         }
 
         $product = $this->_getProduct();
@@ -142,17 +142,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             switch ($product->getTypeId()) {
                 case "simple":
                     return $this->_pwBoilerPlate($product) . "
-					var PriceWaiterProductType = 'simple';
-				";
+                    var PriceWaiterProductType = 'simple';
+                ";
                     break;
                 case "configurable":
                     return $this->_pwBoilerPlate($product) . "
-					var PriceWaiterProductType = 'configurable';
-				";
+                    var PriceWaiterProductType = 'configurable';
+                ";
                     break;
                 case "grouped":
                     return $this->_pwBoilerPlate($product) . "
-					var PriceWaiterProductType = 'grouped';\n"
+                    var PriceWaiterProductType = 'grouped';\n"
                     . $this->_getGroupedProductInfo() . "\n";
                     break;
                 case "virtual":
@@ -161,8 +161,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                     break;
                 case "bundle":
                     return $this->_pwBoilerPlate($product) . "
-					var PriceWaiterProductType = 'bundle';
-				";
+                    var PriceWaiterProductType = 'bundle';
+                ";
                     break;
                 case "downloadable":
                     // Downloadable products are not yet supported
@@ -207,14 +207,14 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return "
-			PriceWaiterOptions.product = {
-				sku: " . json_encode($product->getSku()) . ",
-				name: " . json_encode($product->getName()) . ",
-				price: " . json_encode($productPrice) . ",
-				image: " . json_encode($product->getImageUrl()) . "
-			};
-			var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
-	    ";
+            PriceWaiterOptions.product = {
+                sku: " . json_encode($product->getSku()) . ",
+                name: " . json_encode($product->getName()) . ",
+                price: " . json_encode($productPrice) . ",
+                image: " . json_encode($product->getImageUrl()) . "
+            };
+            var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
+        ";
     }
 
     private function _getProduct()
