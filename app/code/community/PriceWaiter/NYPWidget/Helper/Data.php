@@ -206,7 +206,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             $productPrice = $product->getFinalPrice();
         }
 
-        return "
+        $options = "
             PriceWaiterOptions.product = {
                 sku: " . json_encode($product->getSku()) . ",
                 name: " . json_encode($product->getName()) . ",
@@ -215,6 +215,15 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             };
             var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
         ";
+
+        // Get the "brand" attribute if one exists
+        $brand = $product->getData('brand');
+
+        if ($brand) {
+            $options .= "PriceWaiterOptions['product']['brand'] = " . json_encode($brand) . ";";
+        }
+
+        return $options;
     }
 
     private function _getProduct()
