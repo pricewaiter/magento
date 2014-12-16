@@ -21,11 +21,27 @@
     <?php
     $customCss = Mage::getStoreConfig('pricewaiter/appearance/display_custom_css');
     $helper = $this->_getHelper();
-    if ($helper->isEnabled()):
+
+    $displayPhrase =  Mage::getStoreConfig('pricewaiter/appearance/display_phrase') ? 'button_mo' : 'button_nyp';
+    $displaySize = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
+    $displayColor = Mage::getStoreConfig('pricewaiter/appearance/display_color');
+    $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
+    if ($helper->isEnabledForStore()):
         ?>
         <script type="text/javascript">
             //<![CDATA[
-            <?php echo $helper->getPriceWaiterOptions(); ?>
+            var PriceWaiterOptions = {
+                button: {
+                    type: <?php echo json_encode($displayPhrase); ?>,
+                    size: <?php echo json_encode($displaySize); ?>,
+                    <?php if ($displayColor): ?>
+                    color: <?php echo json_encode($displayColor); ?>,
+                    <?php endif; ?>
+                    <?php if ($displayHoverColor): ?>
+                    hoverColor: <?php echo json_encode($displayHoverColor); ?>
+                    <?php endif; ?>
+                }
+            };
             <?php echo $helper->getProductOptions(); ?>
             var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
             //]]>

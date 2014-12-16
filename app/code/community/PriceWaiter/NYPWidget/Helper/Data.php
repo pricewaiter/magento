@@ -27,9 +27,20 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_testing;
     }
 
+    public function isEnabledForStore()
+    {
+        // Is the pricewaiter widget enabled for this store and an API Key has been set.
+        if (Mage::getStoreConfig('pricewaiter/configuration/enabled')
+            && Mage::getStoreConfig('pricewaiter/configuration/api_key')
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function isEnabled()
     {
-        // Is the pricewaiter widget enabled for this store
         if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
 
             // Is the pricewaiter widget enabled for this product
@@ -87,6 +98,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
+    /*
     public function getPriceWaiterOptions()
     {
         $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
@@ -119,6 +131,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $pwOptions;
     }
+    */
 
     public function getProductOptions($admin = false)
     {
