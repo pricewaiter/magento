@@ -39,7 +39,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return false;
     }
 
-    public function isEnabled()
+    public function isButtonEnabled()
     {
         if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
 
