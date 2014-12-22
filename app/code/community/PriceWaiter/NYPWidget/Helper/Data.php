@@ -98,63 +98,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    public function getProductOptions($admin = false)
-    {
-        if ($admin) {
-            return "
-            PriceWaiterOptions.product = {
-                sku: 'TEST-SKU',
-                name: 'Test Name',
-                price: 19.99,
-                image: 'http://placekitten.com/220/220'
-            };
-            var PriceWaiterProductType = 'simple';
-            var PriceWaiterRegularPrice = 19.99
-            ";
-        }
-
-        $product = $this->_getProduct();
-
-        if ($product->getId()) {
-
-            switch ($product->getTypeId()) {
-                case "simple":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'simple';
-                ";
-                    break;
-                case "configurable":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'configurable';
-                ";
-                    break;
-                case "grouped":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'grouped';\n"
-                    . $this->_getGroupedProductInfo() . "\n";
-                    break;
-                case "virtual":
-                    // Virtual products are not yet supported
-                    return false;
-                    break;
-                case "bundle":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'bundle';
-                ";
-                    break;
-                case "downloadable":
-                    // Downloadable products are not yet supported
-                    return false;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        } else {
-            return false;
-        }
-    }
-
     public function getWidgetUrl()
     {
         if ($this->_testing) {
