@@ -98,41 +98,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    /*
-    public function getPriceWaiterOptions()
-    {
-        $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
-
-        $displayPhrase = Mage::getStoreConfig('pricewaiter/appearance/display_phrase') ? 'button_mo' : 'button_nyp';
-        $displaySize = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
-        $displayColor = Mage::getStoreConfig('pricewaiter/appearance/display_color');
-        $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
-
-        $pwOptions = "
-            var PriceWaiterOptions = {
-                apiKey: '" . $apiKey . "',
-                button: {
-                type: " . json_encode($displayPhrase) . ",
-                size: " . json_encode($displaySize) . ",";
-
-        if ($displayColor) {
-            $pwOptions .= "
-                color: " . json_encode($displayColor) . ",";
-        }
-
-        if ($displayHoverColor) {
-            $pwOptions .= "
-                hoverColor: " . json_encode($displayHoverColor) . ",";
-        }
-
-        $pwOptions .= "
-            },
-        };\n";
-
-        return $pwOptions;
-    }
-    */
-
     public function getProductOptions($admin = false)
     {
         if ($admin) {
@@ -194,9 +159,13 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if ($this->_testing) {
             return "https://widget-staging.pricewaiter.com/nyp/script/widget.js";
-        } else {
-            return "https://widget.pricewaiter.com/nyp/script/widget.js";
+        } elseif ($this->isEnabledForStore()) {
+            return "https://widget.pricewaiter.com/script/"
+            . Mage::getStoreConfig('pricewaiter/configuration/api_key')
+            . ".js";
         }
+
+        return "https://widget.pricewaiter.com/nyp/script/widget.js";
     }
 
     public function getApiUrl()
