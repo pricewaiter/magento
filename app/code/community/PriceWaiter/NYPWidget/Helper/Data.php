@@ -180,32 +180,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    private function _pwBoilerPlate($product)
+    public function getProductPrice($product)
     {
-        if ($product->getTypeId() == 'grouped') {
-            $productPrice = 0;
-        } else {
-            $productPrice = $product->getFinalPrice();
+        $productPrice = 0;
+
+        if ($product->getId()) {
+            if ($product->getTypeId() != 'grouped') {
+                $productPrice = $product->getFinalPrice();
+            }
         }
 
-        $options = "
-            PriceWaiterOptions.product = {
-                sku: " . json_encode($product->getSku()) . ",
-                name: " . json_encode($product->getName()) . ",
-                price: " . json_encode($productPrice) . ",
-                image: " . json_encode($product->getImageUrl()) . "
-            };
-            var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
-        ";
-
-        // Get the "brand" attribute if one exists
-        $brand = $product->getData('brand');
-
-        if ($brand) {
-            $options .= "PriceWaiterOptions['product']['brand'] = " . json_encode($brand) . ";";
-        }
-
-        return $options;
+        return $productPrice;
     }
 
     private function _getProduct()

@@ -26,6 +26,8 @@
     $displaySize = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
     $displayColor = Mage::getStoreConfig('pricewaiter/appearance/display_color');
     $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
+    $brand = $_product->getData('brand');
+    $image = $_product->getImageUrl();
     if ($helper->isEnabledForStore()):
         ?>
         <script type="text/javascript">
@@ -40,9 +42,23 @@
                     <?php if ($displayHoverColor): ?>
                     hoverColor: <?php echo json_encode($displayHoverColor); ?>
                     <?php endif; ?>
+                },
+
+                product: {
+                <?php if ($brand): ?>
+                    brand: <?php json_encode($brand); ?>,
+                <?php endif; ?>
+                    sku: <?php echo json_encode($_product->getSku()); ?>,
+                    name: <?php echo json_encode($_product->getName()); ?>,
+                    price: <?php echo json_encode($helper->getProductPrice($_product)); ?>,
+                    <?php if ($image != ''): ?>
+                    image: <?php echo json_encode($image); ?>
+                    <?php endif; ?>
                 }
             };
-            <?php echo $helper->getProductOptions(); ?>
+
+            var PriceWaiterRegularPrice = '<?php echo (float) $_product->getPrice(); ?>';
+            var PriceWaiterProductType = '<?php echo $_product->getTypeId(); ?>';
             var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
             //]]>
         </script>
