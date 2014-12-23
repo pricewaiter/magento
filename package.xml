@@ -91,7 +91,6 @@
                         </dir>
                         <dir name="template">
                             <dir name="pricewaiter">
-                                <file name="admin_widget.phtml" hash="daae86cfa34fbe5e786715c0c579e398"/>
                                 <file name="categorytab.phtml" hash="43f8af9feca6775e4a1e8a149a86268e"/>
                             </dir>
                         </dir>

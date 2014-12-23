@@ -27,9 +27,20 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_testing;
     }
 
-    public function isEnabled()
+    public function isEnabledForStore()
     {
-        // Is the pricewaiter widget enabled for this store
+        // Is the pricewaiter widget enabled for this store and an API Key has been set.
+        if (Mage::getStoreConfig('pricewaiter/configuration/enabled')
+            && Mage::getStoreConfig('pricewaiter/configuration/api_key')
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isButtonEnabled()
+    {
         if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
 
             // Is the pricewaiter widget enabled for this product
@@ -87,103 +98,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    public function getPriceWaiterOptions()
-    {
-        $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
-
-        $displayPhrase = Mage::getStoreConfig('pricewaiter/appearance/display_phrase') ? 'button_mo' : 'button_nyp';
-        $displaySize = Mage::getStoreConfig('pricewaiter/appearance/display_size') ? 'sm' : 'lg';
-        $displayColor = Mage::getStoreConfig('pricewaiter/appearance/display_color');
-        $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
-
-        $pwOptions = "
-            var PriceWaiterOptions = {
-                apiKey: '" . $apiKey . "',
-                button: {
-                type: " . json_encode($displayPhrase) . ",
-                size: " . json_encode($displaySize) . ",";
-
-        if ($displayColor) {
-            $pwOptions .= "
-                color: " . json_encode($displayColor) . ",";
-        }
-
-        if ($displayHoverColor) {
-            $pwOptions .= "
-                hoverColor: " . json_encode($displayHoverColor) . ",";
-        }
-
-        $pwOptions .= "
-            },
-        };\n";
-
-        return $pwOptions;
-    }
-
-    public function getProductOptions($admin = false)
-    {
-        if ($admin) {
-            return "
-            PriceWaiterOptions.product = {
-                sku: 'TEST-SKU',
-                name: 'Test Name',
-                price: 19.99,
-                image: 'http://placekitten.com/220/220'
-            };
-            var PriceWaiterProductType = 'simple';
-            var PriceWaiterRegularPrice = 19.99
-            ";
-        }
-
-        $product = $this->_getProduct();
-
-        if ($product->getId()) {
-
-            switch ($product->getTypeId()) {
-                case "simple":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'simple';
-                ";
-                    break;
-                case "configurable":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'configurable';
-                ";
-                    break;
-                case "grouped":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'grouped';\n"
-                    . $this->_getGroupedProductInfo() . "\n";
-                    break;
-                case "virtual":
-                    // Virtual products are not yet supported
-                    return false;
-                    break;
-                case "bundle":
-                    return $this->_pwBoilerPlate($product) . "
-                    var PriceWaiterProductType = 'bundle';
-                ";
-                    break;
-                case "downloadable":
-                    // Downloadable products are not yet supported
-                    return false;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        } else {
-            return false;
-        }
-    }
-
     public function getWidgetUrl()
     {
         if ($this->_testing) {
             return "https://widget-staging.pricewaiter.com/nyp/script/widget.js";
-        } else {
-            return "https://widget.pricewaiter.com/nyp/script/widget.js";
+        } elseif ($this->isEnabledForStore()) {
+            return "https://widget.pricewaiter.com/script/"
+            . Mage::getStoreConfig('pricewaiter/configuration/api_key')
+            . ".js";
         }
+
+        return "https://widget.pricewaiter.com/nyp/script/widget.js";
     }
 
     public function getApiUrl()
@@ -198,32 +123,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    private function _pwBoilerPlate($product)
+    public function getProductPrice($product)
     {
-        if ($product->getTypeId() == 'grouped') {
-            $productPrice = 0;
-        } else {
-            $productPrice = $product->getFinalPrice();
+        $productPrice = 0;
+
+        if ($product->getId()) {
+            if ($product->getTypeId() != 'grouped') {
+                $productPrice = $product->getFinalPrice();
+            }
         }
 
-        $options = "
-            PriceWaiterOptions.product = {
-                sku: " . json_encode($product->getSku()) . ",
-                name: " . json_encode($product->getName()) . ",
-                price: " . json_encode($productPrice) . ",
-                image: " . json_encode($product->getImageUrl()) . "
-            };
-            var PriceWaiterRegularPrice = '" . (float)$product->getPrice() . "';
-        ";
-
-        // Get the "brand" attribute if one exists
-        $brand = $product->getData('brand');
-
-        if ($brand) {
-            $options .= "PriceWaiterOptions['product']['brand'] = " . json_encode($brand) . ";";
-        }
-
-        return $options;
+        return $productPrice;
     }
 
     private function _getProduct()
