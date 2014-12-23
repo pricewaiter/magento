@@ -1,7 +1,25 @@
+language: php
+cache: composer
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential libxml2-util
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install libxml2 libxml2-utils
+  - composer self-update
+
+install:
+  - composer install
+
+before_script:
+  - script/install-magerun.sh
+  - script/install-modman.sh
+  - script/install-magento.sh
+  - script/run-modman.sh
 
 script:
-  - make
+  - php make.php clean --ansi
+  - php make.php check --ansi
+  - php make.php build --ansi
 
+after_script:
+  - vendor/bin/phpunit
+  - vendor/bin/coveralls
