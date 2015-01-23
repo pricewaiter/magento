@@ -1,5 +1,7 @@
 # PriceWaiter® Name Your Price Widget Extension
 
+[![Build Status](https://api.travis-ci.org/pricewaiter/magento.svg)](https://travis-ci.org/pricewaiter/magento)
+
 The PriceWaiter Name Your Price Widget Extension integrates the Name Your Price button available
 from [PriceWaiter](http://pricewaiter.com) into your Magento store.
 
@@ -67,21 +69,19 @@ As of version 1.2.5, you can now build the Extension as a custom package from so
 
 Dependencies:
 
-* GNU make
 * find
 * xmllint
 * grep
 * [modman](https://github.com/colinmollenhour/modman)
+* [composer](https://getcomposer.org/)
 
 Build Instructions:
 
 1. Create a Magento store to use for development.
 2. Follow steps 1-4 of the installation instructions.
-3. Make your desired modifications to extension in .modman/magento/
-4. Review the Makefile for available rules.
-5. When you are ready to build the new package, execute `make`
+3. Make your desired modifications to the extension in `.modman/magento/`
+4. Run `composer install` in `.modman/magento`.
+5. Run `php make.php list` to review all subcommands of the make tool.
+6. When you are ready to build the new package, execute `php make.php build`
 
 You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
-
-Note: the `echo` shipped with Mac OS X does not support the -e option. If you are building on Linux, the output from `make` may not display colors correctly because of this incompatibility.
-

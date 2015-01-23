@@ -1,4 +1,7 @@
 *.sublime-workspace
-TODO
-testing.sh
+/build/*
+/vendor/
 nypwidget-*
+phpunit.xml
+testing.sh
+TODO
