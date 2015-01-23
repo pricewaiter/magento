@@ -20,12 +20,6 @@
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
-    private $_testing = false;
-
-    public function isTesting()
-    {
-        return $this->_testing;
-    }
 
     public function isEnabledForStore()
     {
@@ -100,12 +94,10 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getWidgetUrl()
     {
-        if ($this->_testing) {
-            return "https://widget-staging.pricewaiter.com/nyp/script/widget.js";
-        } elseif ($this->isEnabledForStore()) {
+        if ($this->isEnabledForStore()) {
             return "https://widget.pricewaiter.com/script/"
-            . Mage::getStoreConfig('pricewaiter/configuration/api_key')
-            . ".js";
+                . Mage::getStoreConfig('pricewaiter/configuration/api_key')
+                . ".js";
         }
 
         return "https://widget.pricewaiter.com/nyp/script/widget.js";
@@ -113,14 +105,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getApiUrl()
     {
-        if ($this->_testing) {
-            return "https://api-staging.pricewaiter.com/1/order/verify?"
-            . "api_key="
+        return "https://api.pricewaiter.com/1/order/verify?api_key="
             . Mage::getStoreConfig('pricewaiter/configuration/api_key');
-        } else {
-            return "https://api.pricewaiter.com/1/order/verify?api_key="
-            . Mage::getStoreConfig('pricewaiter/configuration/api_key');
-        }
     }
 
     public function getProductPrice($product)

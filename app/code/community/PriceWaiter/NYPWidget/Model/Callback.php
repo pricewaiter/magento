@@ -32,27 +32,24 @@ class PriceWaiter_NYPWidget_Model_Callback
 
     public function processRequest($request)
     {
-        // If the PriceWaiter extension is in testing mode, skip request validation
-        if (!Mage::helper('nypwidget')->isTesting()) {
-            // Build URL to check validity of order notification.
-            $url = Mage::helper('nypwidget')->getApiUrl();
+        // Build URL to check validity of order notification.
+        $url = Mage::helper('nypwidget')->getApiUrl();
 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
 
-            // If PriceWaiter returns an invalid response
-            if (curl_exec($ch) == "1") {
-                $message = "The Name Your Price Widget has received a valid order notification.";
-                Mage::log($message);
-                $this->_log($message);
-            } else {
-                $message = "An invalid PriceWaiter order notification has been received.";
-                Mage::log($message);
-                $this->_log($message);
-                return;
-            }
+        // If PriceWaiter returns an invalid response
+        if (curl_exec($ch) == "1") {
+            $message = "The Name Your Price Widget has received a valid order notification.";
+            Mage::log($message);
+            $this->_log($message);
+        } else {
+            $message = "An invalid PriceWaiter order notification has been received.";
+            Mage::log($message);
+            $this->_log($message);
+            return;
         }
 
         // Verify that we have not already received this callback based on the `pricewaiter_id` field
