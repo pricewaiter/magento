@@ -1,8 +1,6 @@
 # PriceWaiter® Name Your Price Widget Extension
 
 [![Build Status](https://api.travis-ci.org/pricewaiter/magento.svg)](https://travis-ci.org/pricewaiter/magento)
-[![Coverage Status](https://img.shields.io/coveralls/pricewaiter/magento.svg)](https://coveralls.io/r/pricewaiter/magento)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pricewaiter/magento/badges/quality-score.png)](https://scrutinizer-ci.com/g/pricewaiter/magento/)
 
 The PriceWaiter® Name Your Price Widget Extension integrates the Name Your Price button available
 from [PriceWaiter®](http://pricewaiter.com) into your Magento store.
