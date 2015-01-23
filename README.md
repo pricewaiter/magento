@@ -1,7 +1,7 @@
 # PriceWaiter® Name Your Price Widget Extension
 
-The PriceWaiter® Name Your Price Widget Extension integrates the Name Your Price button available
-from [PriceWaiter®](http://pricewaiter.com) into your Magento store.
+The PriceWaiter Name Your Price Widget Extension integrates the Name Your Price button available
+from [PriceWaiter](http://pricewaiter.com) into your Magento store.
 
 For more information about this extension's features, or to install through the Magento Connect
 Manager, visit our page on [Magento Connect](http://www.magentocommerce.com/magento-connect/).
@@ -10,7 +10,7 @@ Manager, visit our page on [Magento Connect](http://www.magentocommerce.com/mage
 
 We recommend installing this extension through the Magento Connect Manager. If you prefer to
 install via git, we suggest using [modman](https://github.com/colinmollenhour/modman). You will
-also need a PriceWaiter® account and API key to enable the widget. Signup for a PriceWaiter® account
+also need a PriceWaiter account and API key to enable the widget. Signup for a PriceWaiter account
 [here](http://www.pricewaiter.com/) and get your API key by logging into your account and selecting
 'Name Your Price Button' from the left navigation. The API key is in the second block of JavaScript.
 
@@ -22,12 +22,12 @@ clone the git repo into your Magento install, and create the necessary symlinks.
 need to log out and back in to trigger the installation process.
 5. In Magento, navigate to System -> Configuration. Under the 'Advanced' tab, click 'Developer', and
 under the 'Template Settings' heading set 'Allow Symlinks' to 'Yes'.
-6. Under the 'Sales' tab, click 'PriceWaiter®'. Enter your API Key into the 'API Key' field.
-7. Log into your PriceWaiter® account, and click the 'Name Your Price Button' link. In the 'New Order
+6. Under the 'Sales' tab, click 'PriceWaiter'. Enter your API Key into the 'API Key' field.
+7. Log into your PriceWaiter account, and click the 'Name Your Price Button' link. In the 'New Order
 Notification API' field, enter 'http://yourmagentostoreurl.com/pricewaiter/callback'. Be sure to
 reploace 'yourmagentostoreurl.com' with the Base URL of your Magento Store.
 
-The PriceWaiter® Name Your Price Extension is now installed in your Magento store.
+The PriceWaiter Name Your Price Extension is now installed in your Magento store.
 
 ## Controlling the Widget
 
