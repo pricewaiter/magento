@@ -21,17 +21,16 @@ class PriceWaiter_NYPWidget_Model_Callback
 {
 
     private $_store;
-    private $_groupId = '1';
-    private $_sendConfirmation = '0';
-
-    private $orderData = array();
     private $_product;
 
-    private $_sourceCustomer;
-    private $_sourceOrder;
+    private $_test = false;
 
     public function processRequest($request)
     {
+        if ($request['test'] == 1) {
+            $this->_test = true;
+        }
+
         // Build URL to check validity of order notification.
         $url = Mage::helper('nypwidget')->getApiUrl();
 
@@ -43,6 +42,9 @@ class PriceWaiter_NYPWidget_Model_Callback
         // If PriceWaiter returns an invalid response
         if (curl_exec($ch) == "1") {
             $message = "The Name Your Price Widget has received a valid order notification.";
+            if ($this->_test) {
+                $message .= ' This is a TEST order that will be created and canceled.';
+            }
             Mage::log($message);
             $this->_log($message);
         } else {
@@ -298,6 +300,13 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction->save();
             if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_new_order_email')) {
                 $order->sendNewOrderEmail();
+            }
+
+            // If this is a test order, cancel it to prevent it from any further processing.
+            if ($this->_test) {
+                $order->cancel();
+                $order->save();
+                return;
             }
 
             // Capture the invoice
