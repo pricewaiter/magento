@@ -21,6 +21,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
     private $_testing = false;
+    private $_buttonEnabled = null;
+    private $_conversionToolsEnabled = null;
 
     public function isTesting()
     {
@@ -39,14 +41,23 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return false;
     }
 
-    public function isButtonEnabled()
+    // Set the values of $_buttonEnabled and $_conversionToolsEnabled
+    private function _setEnabledStatus()
     {
+        if ($this->_buttonEnabled != null && $this->_conversionToolsEnabled != null) {
+            return true;
+        }
+
         if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
+
+            $this->_buttonEnabled = true;
+            $this->_conversionToolsEnabled = true;
 
             // Is the pricewaiter widget enabled for this product
             $product = $this->_getProduct();
             if (!is_object($product) or ($product->getId() and $product->getData('nypwidget_disabled'))) {
-                return false;
+                $this->_buttonEnabled = false;
+                $this->_conversionToolsEnabled = false;
             }
 
             // Is the PriceWaiter widget enabled for this category
@@ -54,7 +65,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             if (is_object($category)) {
                 $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
                 if (!$nypcategory->isActive()) {
-                    return false;
+                    $this->_buttonEnabled = false;
+                    $this->_conversionToolsEnabled = false;
+                }
+                if (!$nypcategory->isConversionToolsEnabled()) {
+                    $this->_conversionToolsEnabled = false;
                 }
             } else {
                 // We end up here if we are visiting the product page without being
@@ -63,19 +78,29 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 // product belongs to that enable the PriceWaiter widget. If not, return false.
                 $categories = $product->getCategoryIds();
                 $categoryActive = false;
+                $categoryCTActive = false;
                 foreach ($categories as $categoryId) {
                     unset($currentCategory);
                     unset($nypcategory);
                     $currentCategory = Mage::getModel('catalog/category')->load($categoryId);
                     $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($currentCategory);
                     if ($nypcategory->isActive()) {
+                        if ($nypcategory->isConversionToolsEnabled()) {
+                            $categoryCTActive = true;
+                        }
                         $categoryActive = true;
                         break;
                     }
                 }
                 if (!$categoryActive) {
-                    return false;
+                    $this->_buttonEnabled = false;
+                    $this->_conversionToolsEnabled = false;
                 }
+
+                if (!$categoryCTActive) {
+                    $this->_conversionToolsEnabled = false;
+                }
+
             }
 
             // Is PriceWaiter enabled for this Customer Group
@@ -87,15 +112,29 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
                 $customerGroups = preg_split('/,/', $customerGroups);
 
                 if (in_array($customerGroupId, $customerGroups)) {
+                    $this->_buttonEnabled = false;
                     return false;
                 }
             }
         } else {
             // We end up here if PriceWaiter is disabled for this store
-            return false;
+            $this->_buttonEnabled = false;
+            $this->_conversionToolsEnabled = false;
         }
+    }
 
-        return true;
+    public function isConversionToolsEnabled()
+    {
+        $this->_setEnabledStatus();
+
+        return $this->_conversionToolsEnabled;
+    }
+
+    public function isButtonEnabled()
+    {
+        $this->_setEnabledStatus();
+
+        return $this->_buttonEnabled;
     }
 
     public function getWidgetUrl()

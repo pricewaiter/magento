@@ -38,6 +38,11 @@
                 <?php else: ?>
                 enableButton: false,
                 <?php endif; ?>
+                <?php if ($helper->isConversionToolsEnabled()): ?>
+                enableConversionTools: true,
+                <?php else: ?>
+                enableConversionTools: false,
+                <?php endif; ?>
                 button: {
                     type: <?php echo json_encode($displayPhrase); ?>,
                     size: <?php echo json_encode($displaySize); ?>,
