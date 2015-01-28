@@ -57,24 +57,8 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
         // If we are in the admin, we want to skip all this, so that we return
         // the info on this specific category, not parents
         if (!$admin) {
-            // First, check the "All Store Views" store (0)
-            if ($this->getStoreId() != 0) {
-                $allStoresCategory = Mage::getModel('nypwidget/category')
-                    ->loadByCategory($this->getCategoryId(), 0);
-                if (!$allStoresCategory->isActive()) {
-                    return false;
-                }
-            }
-
-            // Check the parent category if we already have a category_id and have a parent
-            if (!is_null($this->getData('category_id'))) {
-                $category = Mage::getModel('catalog/category')->load($this->getData('category_id'));
-                if ($category->getParentId() != 0) {
-                    $parentCategory = Mage::getModel('nypwidget/category')->loadByCategory($category->getParentId());
-                    if (!$parentCategory->isActive()) {
-                        return false;
-                    }
-                }
+            if (!$this->_checkParents('isActive')) {
+                return false;
             }
         }
 
@@ -89,5 +73,53 @@ class PriceWaiter_NYPWidget_Model_Category extends Mage_Core_Model_Abstract
         }
 
         return false;
+    }
+
+    public function isConversionToolsEnabled($admin = false)
+    {
+        // If we are in the admin, we want to skip all this, so that we return
+        // the info on this specific category, not parents
+        if (!$admin) {
+            if (!$this->_checkParents('isConversionToolsEnabled')) {
+                return false;
+            }
+        }
+
+        // If the category isn't yet set in the table, default to true.
+        // Otherwise, check the nypwidget_enabled field.
+        if (is_null($this->getData('category_id')) or $this->getData('nypwidget_ct_enabled') == 1) {
+            return true;
+        }
+
+        if (is_null($this->getData('nypwidget_ct_enabled'))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function _checkParents($func)
+    {
+        // First, check the "All Store Views" store (0)
+        if ($this->getStoreId() != 0) {
+            $allStoresCategory = Mage::getModel('nypwidget/category')
+                ->loadByCategory($this->getCategoryId(), 0);
+            if (!call_user_func(array($allStoresCategory, $func))) {
+                return false;
+            }
+        }
+
+        // Check the parent category if we already have a category_id and have a parent
+        if (!is_null($this->getData('category_id'))) {
+            $category = Mage::getModel('catalog/category')->load($this->getData('category_id'));
+            if ($category->getParentId() != 0) {
+                $parentCategory = Mage::getModel('nypwidget/category')->loadByCategory($category->getParentId());
+                if (!call_user_func(array($parentCategory, $func))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
