@@ -49,77 +49,88 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
-
             $this->_buttonEnabled = true;
-            $this->_conversionToolsEnabled = true;
+        }
 
-            // Is the pricewaiter widget enabled for this product
-            $product = $this->_getProduct();
-            if (!is_object($product) or ($product->getId() and $product->getData('nypwidget_disabled'))) {
+        if (Mage::getStoreConfig('pricewaiter/conversion_tools/enabled')) {
+            $this->_conversionToolsEnabled = true;
+        }
+
+        // Is the pricewaiter widget enabled for this product
+        $product = $this->_getProduct();
+        if (!is_object($product) or ($product->getId() and $product->getData('nypwidget_disabled'))) {
+            $this->_buttonEnabled = false;
+        }
+
+        if (!is_object($product) or ($product->getId() and $product->getData('nypwidget_ct_disabled'))) {
+            $this->_conversionToolsEnabled = false;
+        }
+
+        // Is the PriceWaiter widget enabled for this category
+        $category = Mage::registry('current_category');
+        if (is_object($category)) {
+            $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
+            if (!$nypcategory->isActive()) {
                 $this->_buttonEnabled = false;
+            }
+            if (!$nypcategory->isConversionToolsEnabled()) {
+                $this->_conversionToolsEnabled = false;
+            }
+        } else {
+            // We end up here if we are visiting the product page without being
+            // "in a category". Basically, we arrived via a search page.
+            // The logic here checks to see if there are any categories that this
+            // product belongs to that enable the PriceWaiter widget. If not, return false.
+            $categories = $product->getCategoryIds();
+            $categoryActive = false;
+            $categoryCTActive = false;
+            foreach ($categories as $categoryId) {
+                unset($currentCategory);
+                unset($nypcategory);
+                $currentCategory = Mage::getModel('catalog/category')->load($categoryId);
+                $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($currentCategory);
+                if ($nypcategory->isActive()) {
+                    if ($nypcategory->isConversionToolsEnabled()) {
+                        $categoryCTActive = true;
+                    }
+                    $categoryActive = true;
+                    break;
+                }
+            }
+            if (!$categoryActive) {
+                $this->_buttonEnabled = false;
+            }
+
+            if (!$categoryCTActive) {
                 $this->_conversionToolsEnabled = false;
             }
 
-            // Is the PriceWaiter widget enabled for this category
-            $category = Mage::registry('current_category');
-            if (is_object($category)) {
-                $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
-                if (!$nypcategory->isActive()) {
-                    $this->_buttonEnabled = false;
-                    $this->_conversionToolsEnabled = false;
-                }
-                if (!$nypcategory->isConversionToolsEnabled()) {
-                    $this->_conversionToolsEnabled = false;
-                }
-            } else {
-                // We end up here if we are visiting the product page without being
-                // "in a category". Basically, we arrived via a search page.
-                // The logic here checks to see if there are any categories that this
-                // product belongs to that enable the PriceWaiter widget. If not, return false.
-                $categories = $product->getCategoryIds();
-                $categoryActive = false;
-                $categoryCTActive = false;
-                foreach ($categories as $categoryId) {
-                    unset($currentCategory);
-                    unset($nypcategory);
-                    $currentCategory = Mage::getModel('catalog/category')->load($categoryId);
-                    $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($currentCategory);
-                    if ($nypcategory->isActive()) {
-                        if ($nypcategory->isConversionToolsEnabled()) {
-                            $categoryCTActive = true;
-                        }
-                        $categoryActive = true;
-                        break;
-                    }
-                }
-                if (!$categoryActive) {
-                    $this->_buttonEnabled = false;
-                    $this->_conversionToolsEnabled = false;
-                }
+        }
 
-                if (!$categoryCTActive) {
-                    $this->_conversionToolsEnabled = false;
-                }
+        // Is PriceWaiter enabled for this Customer Group
+        $disable = Mage::getStoreConfig('pricewaiter/customer_groups/disable');
+        if ($disable) {
+            // An admin has chosen to disable the PriceWaiter widget by customer group.
+            $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
+            $customerGroups = Mage::getStoreConfig('pricewaiter/customer_groups/group_select');
+            $customerGroups = preg_split('/,/', $customerGroups);
 
+            if (in_array($customerGroupId, $customerGroups)) {
+                $this->_buttonEnabled = false;
             }
+        }
 
-            // Is PriceWaiter enabled for this Customer Group
-            $disable = Mage::getStoreConfig('pricewaiter/customer_groups/disable');
-            if ($disable) {
-                // An admin has chosen to disable the PriceWaiter widget by customer group.
-                $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
-                $customerGroups = Mage::getStoreConfig('pricewaiter/customer_groups/group_select');
-                $customerGroups = preg_split('/,/', $customerGroups);
+        // Are Conversion Tools  enabled for this Customer Group
+        $disableCT = Mage::getStoreConfig('pricewaiter/conversion_tools/customer_group_disable');
+        if ($disableCT) {
+            // An admin has chosen to disable the Conversion Tools by customer group.
+            $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
+            $customerGroups = Mage::getStoreConfig('pricewaiter/conversion_tools/group_select');
+            $customerGroups = preg_split('/,/', $customerGroups);
 
-                if (in_array($customerGroupId, $customerGroups)) {
-                    $this->_buttonEnabled = false;
-                    return false;
-                }
+            if (in_array($customerGroupId, $customerGroups)) {
+                $this->_conversionToolsEnabled = false;
             }
-        } else {
-            // We end up here if PriceWaiter is disabled for this store
-            $this->_buttonEnabled = false;
-            $this->_conversionToolsEnabled = false;
         }
     }
 
