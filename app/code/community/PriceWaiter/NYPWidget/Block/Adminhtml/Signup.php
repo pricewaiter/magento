@@ -36,10 +36,15 @@ class PriceWaiter_NYPWidget_Block_Adminhtml_Signup extends Mage_Adminhtml_Block_
             array(
                 'id' => 'nypwidget_signup',
                 'label' => $this->helper('adminhtml')->__('Sign Up for PriceWaiter'),
-                'onclick' => 'return false;'
+                'disabled' => true
             )
         );
 
         return $button->toHtml();
+    }
+
+    public function getTokenUrl()
+    {
+        return Mage::helper('adminhtml')->getUrl('adminhtml/adminhtml_pricewaiter/token');
     }
 }

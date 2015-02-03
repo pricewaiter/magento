@@ -131,6 +131,18 @@
         </layout>
     </adminhtml>
 
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <PriceWaiter_NYPWidget after="Mage_Adminhtml">PriceWaiter_NYPWidget</PriceWaiter_NYPWidget>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
     <default>
         <pricewaiter>
             <configuration>

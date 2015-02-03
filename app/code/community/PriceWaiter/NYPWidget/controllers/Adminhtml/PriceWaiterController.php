@@ -24,18 +24,36 @@ class PriceWaiter_NYPWidget_Adminhtml_PriceWaiterController extends Mage_Adminht
 
     public function tokenAction()
     {
-        $user = Mage::getSingleton('admin/session')->getUser();
-        $store = Mage::app()->getStore();
-
-        // Build post request and send information to PriceWaiter to assist in signup process.
         try {
+            $user = Mage::getSingleton('admin/session')->getUser();
+            $scope = Mage::app()->getRequest()->getParam('scope');
 
+
+            // Determine store from scope
+            if (preg_match('/^store/', $scope)) {
+                $store = Mage::getModel('core/store')->load(substr($scope, 6));
+                $website = Mage::getModel('core/website')->load($store->getWebsiteId());
+            } else if (preg_match('/^website/', $scope)) {
+                $website = Mage::getModel('core/website')->load(substr($scope, 8));
+                $store = $website->getStoreCollection()->getFirstItem();
+            } else {
+                // Load the defaults
+                $storeId = Mage::app()->getWebsite(true)->getDefaultGroup()
+                    ->getDefaultStoreId();
+                $store = Mage::getModel('core/store')->load($storeId);
+                $website = Mage::getModel('core/website')->load($store->getWebsiteId());
+            }
+
+            // Get the name of the store from the group.
+            $storeName = $store->getGroup()->getName();
+
+            // Build post request and send information to PriceWaiter to assist in signup process.
             $postFields = array(
                 'platform' => 'magento',
                 'admin_email' => $user->getEmail(),
                 'admin_first_name' => $user->getFirstname(),
                 'admin_last_name' => $user->getLastname(),
-                'store_name' => $store->getName(),
+                'store_name' => $storeName,
                 'store_url' => $store->getBaseUrl(),
                 'customer_service_name' => Mage::getStoreConfig('trans_email/ident_support/name'),
                 'customer_service_email' => Mage::getStoreConfig('trans_email/ident_support/email'),
