@@ -53,8 +53,7 @@
                             <label>API Key</label>
                             <comment>
                                 <![CDATA[The API Key you were given when signing
-                                         up for PriceWaiter. If you do not have one,
-                                         sign up <a href="http://www.pricewaiter.com/">here</a>.]]>
+                                         up for PriceWaiter.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>10</sort_order>
