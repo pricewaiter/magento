@@ -84,6 +84,8 @@ class PriceWaiter_NYPWidget_Adminhtml_PriceWaiterController extends Mage_Adminht
 
             if ($response->status == '200') {
                 Mage::app()->getResponse()->setBody($response->body->token);
+                $config = Mage::getModel('core/config');
+                $config->saveConfig('pricewaiter/configuration/sign_up_token', $response->body->token);
             }
         } catch (Exception $e) {
             Mage::log('Unable to generate PriceWaiter signup token.');
