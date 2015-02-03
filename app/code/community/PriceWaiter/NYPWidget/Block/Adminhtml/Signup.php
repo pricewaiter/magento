@@ -32,6 +32,11 @@ class PriceWaiter_NYPWidget_Block_Adminhtml_Signup extends Mage_Adminhtml_Block_
 
     public function getButtonHtml()
     {
+        // If they have already set their API key, don't show the button.
+        if (Mage::getStoreConfig('pricewaiter/configuration/api_key')) {
+            return;
+        }
+
         $button = $this->getLayout()->createBlock('adminhtml/widget_button')->setData(
             array(
                 'id' => 'nypwidget_signup',
