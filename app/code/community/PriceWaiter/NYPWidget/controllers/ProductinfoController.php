@@ -79,6 +79,12 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
             $productInformation['cost_currency'] = (string) $productInformation['retail_price_currency'];
         }
 
-        Mage::app()->getResponse()->setBody(json_encode($productInformation));
+        // Sign response and send.
+
+        $json = json_encode($productInformation, JSON_PRETTY_PRINT);
+        $signature = Mage::helper('nypwidget')->getResponseSignature($json);
+
+        Mage::app()->getResponse()->setHeader('X-PriceWaiter-Signature', $signature);
+        Mage::app()->getResponse()->setBody($json);
     }
 }
