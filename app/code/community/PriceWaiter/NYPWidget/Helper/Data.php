@@ -21,6 +21,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
     private $_testing = false;
+    private $_secret = '1526ash032hag0253h';
 
     public function isTesting()
     {
@@ -175,33 +176,35 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::app()->getStore();
     }
 
+    private function _getSecret()
+    {
+        return $this->_secret;
+    }
+
+    /**
+     * Returns a signature that can be added to the head of a PriceWaiter API response.
+     * @param {String} $responseBody The full body of the request to sign.
+     * @return {String} Signature that should be set as the X-PriceWaiter-Signature header.
+     */
+    public function getResponseSignature($responseBody)
+    {
+        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->_secret, false);
+        return $signature;
+    }
+
     /**
      * Validates that the current request came from PriceWaiter.
-     * @param {String} $secret Your PriceWaiter secret key.
-     * @param {String} $signatureHeader Full value of the X-PriceWaiter-Signature header. If not specified, is read from $_SERVER
-     * @param {String} $requestBody Complete body of incoming request. If not specified, will be read automatically from php://input.
+     * @param {String} $signatureHeader Full value of the X-PriceWaiter-Signature header.
+     * @param {String} $requestBody Complete body of incoming request.
      * @return {Boolean} Wehther the request actually came from PriceWaiter.
      */
-    function validate_pricewaiter_request($secret, $signatureHeader = null, $requestBody = null)
+    public function isPriceWaiterRequestValid($signatureHeader = null, $requestBody = null)
     {
-        if ($signatureHeader === null) {
-
-            if (!array_key_exists('HTTP_X_PRICEWAITER_SIGNATURE', $_SERVER)) {
-                // No X-PriceWaiter-Signature header = invalid
-                return false;
-            }
-
-            $signatureHeader = $_SERVER['HTTP_X_PRICEWAITER_SIGNATURE'];
+        if ($signatureHeader === null || $requestBody === null) {
+            return false;
         }
 
-        if ($requestBody === null) {
-            $requestBody = file_get_contents('php://input');
-            if ($requestBody === false) {
-                return false;
-            }
-        }
-
-        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $secret, false);
+        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $this->_getSecret(), false);
 
         if (function_exists('hash_equals')) {
             // Favor PHP's secure hash comparison function in 5.6 and up.
