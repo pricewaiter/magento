@@ -214,4 +214,54 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $detected === $signatureHeader;
     }
+
+    /**
+     * Finds the Product that matches the given options and SKU
+     * @param {String} $sku SKU of the product
+     * @param {Array} $productOptions An array of options for the product, name => value
+     * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     */
+    public function getProductWithOptions($sku, $productOptions)
+    {
+        $product = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToFilter('sku', $sku)
+            ->addAttributeToSelect('*')
+            ->getFirstItem();
+
+        if ($product->getTypeId() == 'configurable') {
+            // Do configurable product specific stuff
+            $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+
+            Mage::log($attrs);
+            $additionalCost = null;
+
+            // Find our product based on attributes
+            foreach ($attrs as $attr) {
+                if (array_key_exists($attr['label'], $productOptions)) {
+                    foreach ($attr['values'] as $value) {
+                        if ($value['label'] == $productOptions[$attr['label']]) {
+                            $valueIndex = $value['value_index'];
+                            // If this attribute has a price assosciated with it, add it to the price later
+                            if ($value['pricing_value'] != '') {
+                                $additionalCost += $value['pricing_value'];
+                            }
+                            break;
+                        }
+                    }
+                    unset($productOptions[$attr['label']]);
+                    $productOptions[$attr['attribute_id']] = $valueIndex;
+                }
+            }
+
+            $parentProduct = $product;
+            $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+            $product->load($product->getId());
+        }
+
+        if ($additionalCost) {
+            $product->setPrice($product->getPrice() + $additionalCost);
+        }
+
+        return $product;
+    }
 }
