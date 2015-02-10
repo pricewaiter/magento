@@ -228,12 +228,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             ->addAttributeToSelect('*')
             ->getFirstItem();
 
+        $additionalCost = null;
+
         if ($product->getTypeId() == 'configurable') {
             // Do configurable product specific stuff
             $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
-
-            Mage::log($attrs);
-            $additionalCost = null;
 
             // Find our product based on attributes
             foreach ($attrs as $attr) {
