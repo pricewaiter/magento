@@ -43,6 +43,14 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
         $product = Mage::getModel('catalog/product')
             ->loadByAttribute('sku', $postFields['product_sku']);
 
+        $requestOptions = array();
+
+        for ($i = $postFields['product_option_count']; $i > 0; $i--) {
+            $requestOptions[$postFields['product_option_name' . $i]] = $postFields['product_option_value' . $i];
+        }
+
+        $product = Mage::helper('nypwidget')->getProductWithOptions($postFields['product_sku'], $requestOptions);
+
         if (is_object($product) && $product->getId()) {
             $productInformation = array();
 
@@ -53,7 +61,6 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                 $productInformation['allow_pricewaiter'] = false;
             }
 
-            // TODO: Handle production options before pulling remaining product information.
             $stockItem = Mage::getMOdel('cataloginventory/stock_item')
                 ->loadByProduct($product);
             $qty = $stockItem->getQty();
