@@ -45,8 +45,12 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
 
         $requestOptions = array();
 
-        for ($i = $postFields['product_option_count']; $i > 0; $i--) {
-            $requestOptions[$postFields['product_option_name' . $i]] = $postFields['product_option_value' . $i];
+        if (array_key_exists('product_option_count', $postFields)) {
+            for ($i = $postFields['product_option_count']; $i > 0; $i--) {
+                $requestOptions[$postFields['product_option_name' . $i]] = $postFields['product_option_value' . $i];
+            }
+        } else {
+            $requestOptions = false;
         }
 
         $product = Mage::helper('nypwidget')->getProductWithOptions($postFields['product_sku'], $requestOptions);
@@ -79,7 +83,10 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                 $productInformation['can_backorder'] = $backorder;
             }
 
-            $productInformation['retail_price'] = (string) $product->getPrice();
+            $productInformation['retail_price'] = (string) $product->getFinalPrice();
+            $productInformation['retail_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
+
+            $productInformation['regular_price'] = (string) $product->getPrice();
             $productInformation['retail_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
 
             $cost = $product->getData('cost');
