@@ -87,7 +87,7 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
             $productInformation['retail_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
 
             $productInformation['regular_price'] = (string) $product->getPrice();
-            $productInformation['retail_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
+            $productInformation['regular_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
 
             $cost = $product->getData('cost');
             if ($cost) {
