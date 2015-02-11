@@ -141,11 +141,6 @@
                 <disable>0</disable>
                 <group_select>0</group_select>
             </customer_groups>
-            <appearance>
-                <display_size>1</display_size>
-                <display_color>5F82D4</display_color>
-                <display_hover_color>739DFF</display_hover_color>
-            </appearance>
             <customer_interaction>
                 <send_welcome_email>0</send_welcome_email>
                 <send_new_order_email>0</send_new_order_email>
