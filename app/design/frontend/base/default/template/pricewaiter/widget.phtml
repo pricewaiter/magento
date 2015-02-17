@@ -28,10 +28,16 @@
     $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
     $brand = $_product->getData('brand');
     $image = $_product->getImageUrl();
+    if ($_product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        $groupedInformation = $helper->getGroupedProductInfo();
+    } else {
+        $groupedInformation = '';
+    }
     if ($helper->isEnabledForStore()):
         ?>
         <script type="text/javascript">
             //<![CDATA[
+            <?php echo $groupedInformation; ?>
             var PriceWaiterOptions = {
                 <?php if ($helper->isButtonEnabled()): ?>
                 enableButton: true,

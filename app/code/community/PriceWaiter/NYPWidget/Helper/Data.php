@@ -146,7 +146,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_product;
     }
 
-    private function _getGroupedProductInfo()
+    public function getGroupedProductInfo()
     {
         $product = $this->_getProduct();
         $javascript = "var PriceWaiterGroupedProductInfo =  new Array();\n";
