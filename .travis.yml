@@ -1,7 +1,7 @@
 language: php
 cache: composer
 env:
-  - VIRTUALHOST_NAME=pricewaiter.travis
+  - VIRTUALHOST_NAME=pricewaiter.travis PROTOCOL=http
 
 addons:
   hosts:

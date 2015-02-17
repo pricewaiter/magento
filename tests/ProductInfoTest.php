@@ -6,11 +6,13 @@ class ProductInfo extends PHPUnit_Framework_TestCase
 
     public function __construct()
     {
+        $protocol = getenv('PROTOCOL');
+        $hostname = getenv('VIRTUALHOST_NAME');
         $this->_ch = curl_init();
         curl_setopt($this->_ch, CURLOPT_POST, 1);
         curl_setopt($this->_ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->_ch, CURLOPT_URL,
-            'https://pricewaiter-magento.ngrok.com/index.php/pricewaiter/productinfo');
+            "{$protocol}://{$hostname}/index.php/pricewaiter/productinfo");
     }
 
     public function postMessage($fields, $signature)

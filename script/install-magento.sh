@@ -23,3 +23,7 @@ mage install \
     --installSampleData=yes \
     --magentoVersionByName="magento-ce-1.9.0.1" \
     --useDefaultConfigParams=yes
+
+# Testing
+mage config:set 'pricewaiter/configuration/api_secret' '1526ash032hag0253h'
+mage config:set 'pricewaiter/configuration/api_key' 'SpsBvTB8zJIXkOuJ5GtO0IeFFpcdf6hNYGfwxfKdje5d8s5Dpk'
