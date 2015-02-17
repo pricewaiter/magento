@@ -21,7 +21,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
     private $_testing = false;
-    private $_secret = '1526ash032hag0253h';
 
     public function isTesting()
     {
@@ -178,7 +177,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     private function _getSecret()
     {
-        return $this->_secret;
+        return Mage::getStoreConfig('pricewaiter/configuration/api_secret');
     }
 
     /**
@@ -188,7 +187,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getResponseSignature($responseBody)
     {
-        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->_secret, false);
+        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->_getSecret(), false);
         return $signature;
     }
 
