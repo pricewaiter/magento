@@ -1,5 +1,11 @@
 language: php
 cache: composer
+env:
+  - VIRTUALHOST_NAME=pricewaiter.travis
+
+addons:
+  hosts:
+    - pricewaiter.travis
 
 before_install:
   - sudo apt-get -qq update
@@ -10,6 +16,7 @@ install:
   - composer install
 
 before_script:
+  - script/install-webserver.sh
   - script/install-magerun.sh
   - script/install-modman.sh
   - script/install-magento.sh
