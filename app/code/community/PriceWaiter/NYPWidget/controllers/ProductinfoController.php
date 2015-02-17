@@ -40,68 +40,109 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
 
         // Process the request
         // - return 404 if the product does not exist (or PriceWaiter is not enabled)
-        $product = Mage::getModel('catalog/product')
-            ->loadByAttribute('sku', $postFields['product_sku']);
+        $productConfiguration = array();
+        parse_str(urldecode($postFields['product_configuration']), $productConfiguration);
 
-        $requestOptions = array();
+        // Create a cart and add the product to it
+        // This is necessary to make Magento calculate the cost of the item in the correct context.
+        try {
+            $cart = Mage::getModel('checkout/cart');
 
-        if (array_key_exists('product_option_count', $postFields)) {
-            for ($i = $postFields['product_option_count']; $i > 0; $i--) {
-                $requestOptions[$postFields['product_option_name' . $i]] = $postFields['product_option_value' . $i];
-            }
-        } else {
-            $requestOptions = false;
-        }
+            $product = Mage::getModel('catalog/product')
+                ->setStoreId(Mage::app()->getStore()->getId())
+                ->load($productConfiguration['product']);
 
-        $product = Mage::helper('nypwidget')->getProductWithOptions($postFields['product_sku'], $requestOptions);
+            $cart->addProduct($product, $productConfiguration);
+            $cart->save();
 
-        if (is_object($product) && $product->getId()) {
-            $productInformation = array();
-
-            if (Mage::helper('nypwidget')->isEnabledForStore() &&
-                $product->getData('nypwidget_disabled') == 0) {
-                $productInformation['allow_pricewaiter'] = true;
+            $cartItem = $cart->getQuote()->getAllItems();
+            if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE
+                || $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+            ) {
+                $cartItem = $cartItem[0];
             } else {
-                $productInformation['allow_pricewaiter'] = false;
+                $cartItem = $cartItem[1];
             }
 
-            $stockItem = Mage::getMOdel('cataloginventory/stock_item')
-                ->loadByProduct($product);
-            $qty = $stockItem->getQty();
+            $product = Mage::getModel('catalog/product')->load($cartItem->getProduct()->getId());
 
-            // Check for backorders set for the site
-            $backorder = false;
-            if ($stockItem->getUseConfigBackorders() &&
-                Mage::getStoreConfig('cataloginventory/item_options/backorders')) {
-                $backorder = true;
-            } else if ($stockItem->getBackorders()) {
-                $backorder = true;
-            }
+            // Pull the product information from the cart item.
+            if (is_object($product) && $product->getId()) {
+                $productInformation = array();
 
-            if ($qty != '') {
-                $productInformation['inventory'] = (int) $qty;
+                if (Mage::helper('nypwidget')->isEnabledForStore() &&
+                    $product->getData('nypwidget_disabled') == 0
+                ) {
+                    $productInformation['allow_pricewaiter'] = true;
+                } else {
+                    $productInformation['allow_pricewaiter'] = false;
+                }
+
+                $productType = $product->getTypeId();
+                if ($productType == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE
+                    || $productType == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+                ) {
+                    $qty = $product->getStockItem()->getQty();
+                    $productFinalPrice = $product->getFinalPrice();
+                    $productPrice = $product->getPrice();
+                    $cost = $product->getData('cost');
+                } else {
+                    $qty = $cartItem->getProduct()->getStockItem()->getQty();
+                    $productFinalPrice = $cartItem->getPrice();
+                    $productPrice = $cartItem->getFinalPrice();
+                    $cost = $cartItem->getData('cost');
+                }
+
+                // Check for backorders set for the site
+                $backorder = false;
+                if ($product->getStockItem()->getUseConfigBackorders() &&
+                    Mage::getStoreConfig('cataloginventory/item_options/backorders')
+                ) {
+                    $backorder = true;
+                } else if ($product->getStockItem()->getBackorders()) {
+                    $backorder = true;
+                }
+
+                // If the product is returning a '0' quantity, but is "In Stock", set the "backorder" flag to true.
+                if ($product->getStockItem()->getIsInStock() == 1 && $qty == 0) {
+                    $backorder = true;
+                }
+
+                $productInformation['inventory'] = (int)$qty;
                 $productInformation['can_backorder'] = $backorder;
+
+                $productInformation['inventory'] = (int)$qty;
+
+                $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
+
+                if ($productFinalPrice != 0) {
+                    $productInformation['retail_price'] = (string)$productFinalPrice;
+                    $productInformation['retail_price_currency'] = $currency;
+                }
+
+                if ($productPrice != 0) {
+                    $productInformation['regular_price'] = (string)$productPrice;
+                    $productInformation['regular_price_currency'] = $currency;
+                }
+
+                if ($cost) {
+                    $productInformation['cost'] = (string)$cost;
+                    $productInformation['cost_currency'] = (string)$productInformation['retail_price_currency'];
+                }
+
+                // Sign response and send.
+                $json = json_encode($productInformation, JSON_PRETTY_PRINT);
+                $signature = Mage::helper('nypwidget')->getResponseSignature($json);
+
+                Mage::app()->getResponse()->setHeader('X-PriceWaiter-Signature', $signature);
+                Mage::app()->getResponse()->setBody($json);
+            } else {
+                Mage::app()->getResponse()->setHeader('HTTP/1.0 404 Not Found', 404, true);
+                return;
             }
-
-            $productInformation['retail_price'] = (string) $product->getFinalPrice();
-            $productInformation['retail_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
-
-            $productInformation['regular_price'] = (string) $product->getPrice();
-            $productInformation['regular_price_currency'] = Mage::app()->getStore()->getCurrentCurrencyCode();
-
-            $cost = $product->getData('cost');
-            if ($cost) {
-                $productInformation['cost'] = (string) $cost;
-                $productInformation['cost_currency'] = (string) $productInformation['retail_price_currency'];
-            }
-
-            // Sign response and send.
-            $json = json_encode($productInformation, JSON_PRETTY_PRINT);
-            $signature = Mage::helper('nypwidget')->getResponseSignature($json);
-
-            Mage::app()->getResponse()->setHeader('X-PriceWaiter-Signature', $signature);
-            Mage::app()->getResponse()->setBody($json);
-        } else {
+        } catch (Exception $e) {
+            Mage::log("Unable to fulfill PriceWaiter Product Information request for product ID: " . $productConfiguration['product']);
+            Mage::log($e->getMessage());
             Mage::app()->getResponse()->setHeader('HTTP/1.0 404 Not Found', 404, true);
             return;
         }
