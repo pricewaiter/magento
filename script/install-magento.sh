@@ -14,7 +14,7 @@ cd "$HOME/build"
 
 # Install magento
 mage install \
-    --baseUrl="http://magento.localdomain/" \
+    --baseUrl="http://$VIRTUALHOST_NAME" \
     --dbHost="localhost" \
     --dbName="teststore" \
     --dbPass="" \
