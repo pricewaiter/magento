@@ -263,4 +263,39 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $product;
     }
+
+    public function getGroupedQuantity($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $quantities = array();
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $quantities[] = $associatedProduct->getStockItem()->getQty();
+        }
+
+        return min($quantities);
+    }
+
+    public function getGroupedFinalPrice($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $finalPrice = 0;
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $finalPrice += ($associatedProduct->getFinalPrice() * $productConfiguration['super_group'][$associatedProductId]);
+        }
+        return $finalPrice;
+    }
+
+    public function getGroupedCost($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $costs = array();
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $costs[] = $associatedProduct->getData('cost');
+        }
+
+        return min($costs);
+    }
 }
