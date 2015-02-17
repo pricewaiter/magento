@@ -26,7 +26,13 @@ script:
   - php make.php clean --ansi
   - php make.php check --ansi
   - php make.php build --ansi
+  - vendor/bin/phpunit
+
+after_success:
+  - vendor/bin/coveralls
 
 after_script:
-  - vendor/bin/phpunit
-  - vendor/bin/coveralls
+  - sudo cat /var/log/apache2/access.log
+
+after_failure:
+  - sudo cat /var/log/apache2/error.log
