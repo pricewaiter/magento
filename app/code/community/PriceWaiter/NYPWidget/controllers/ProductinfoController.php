@@ -58,13 +58,16 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
             $cartItem = $cart->getQuote()->getAllItems();
             if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE
                 || $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+                || $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED
             ) {
                 $cartItem = $cartItem[0];
             } else {
                 $cartItem = $cartItem[1];
             }
 
-            $product = Mage::getModel('catalog/product')->load($cartItem->getProduct()->getId());
+            if ($product->getTypeId() != Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+                $product = Mage::getModel('catalog/product')->load($cartItem->getProduct()->getId());
+            }
 
             // Pull the product information from the cart item.
             if (is_object($product) && $product->getId()) {
@@ -86,6 +89,11 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                     $productFinalPrice = $product->getFinalPrice();
                     $productPrice = $product->getPrice();
                     $cost = $product->getData('cost');
+                } elseif ($productType == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+                    $qty = Mage::helper('nypwidget')->getGroupedQuantity($productConfiguration);
+                    $productFinalPrice = Mage::helper('nypwidget')->getGroupedFinalPrice($productConfiguration);
+                    $productPrice = $productFinalPrice;
+                    $cost = Mage::helper('nypwidget')->getGroupedCost($productConfiguration);
                 } else {
                     $qty = $cartItem->getProduct()->getStockItem()->getQty();
                     $productFinalPrice = $cartItem->getPrice();
