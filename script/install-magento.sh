@@ -4,8 +4,7 @@ set -ex
 # Create database for test store
 mysql -e 'create database teststore;'
 
-# Configure php and n98-magerun
-phpenv config-add "$TRAVIS_BUILD_DIR/travis/travis.php.ini"
+# Configure n98-magerun
 cp "$TRAVIS_BUILD_DIR/travis/.n98-magerun.yml" "$HOME/."
 
 # Create install directory
@@ -28,5 +27,6 @@ mage install \
 mage config:set 'pricewaiter/configuration/api_secret' '1526ash032hag0253h'
 mage config:set 'pricewaiter/configuration/api_key' 'SpsBvTB8zJIXkOuJ5GtO0IeFFpcdf6hNYGfwxfKdje5d8s5Dpk'
 
-# Rewrites
-sed -i 's/#RewriteBase.*/RewriteBase \//' "$HOME/build/.htaccess"
+# Other config occurs in the virtualhost
+rm "$HOME/build/.htaccess"
+rm "$HOME/build/.htaccess.sample"
