@@ -27,3 +27,6 @@ mage install \
 # Testing
 mage config:set 'pricewaiter/configuration/api_secret' '1526ash032hag0253h'
 mage config:set 'pricewaiter/configuration/api_key' 'SpsBvTB8zJIXkOuJ5GtO0IeFFpcdf6hNYGfwxfKdje5d8s5Dpk'
+
+# Rewrites
+sed -i 's/#RewriteBase.*/RewriteBase \//' "$HOME/build/.htaccess"
