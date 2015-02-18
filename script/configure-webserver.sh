@@ -8,6 +8,6 @@ phpenv config-add "$TRAVIS_BUILD_DIR/travis/travis.php.ini"
 
 # configure nginx server
 sudo cp -f travis/nginx-server.conf /etc/nginx/sites-available/default
-sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)/build?g" --in-place /etc/nginx/sites-available/default
+sudo sed -e "s?%TRAVIS_BUILD_DIR%?$HOME/build?g" --in-place /etc/nginx/sites-available/default
 sudo sed -e "s?%VIRTUALHOST_NAME%?${VIRTUALHOST_NAME}?g" --in-place /etc/nginx/sites-available/default
 sudo service nginx restart
