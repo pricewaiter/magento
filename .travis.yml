@@ -22,10 +22,7 @@ before_script:
   - script/run-modman.sh
 
 script:
-  - php make.php clean --ansi
-  - php make.php check --ansi
-  - php make.php build --ansi
-  - vendor/bin/phpunit
+  - script/build-and-test.sh
 
 after_success:
   - vendor/bin/coveralls
