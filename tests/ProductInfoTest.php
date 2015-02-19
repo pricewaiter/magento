@@ -53,7 +53,7 @@ class ProductInfo extends PHPUnit_Framework_TestCase
 EOR;
 
         $response = $this->postMessage($fields, $signature);
-        $this->assertEquals($response, $expectedResponse);
+        $this->assertEquals($expectedResponse, $response);
     }
 
     public function testConfigurableProduct()
@@ -78,7 +78,7 @@ EOR;
 EOR;
 
         $response = $this->postMessage($fields, $signature);
-        $this->assertEquals($response, $expectedResponse);
+        $this->assertEquals($expectedResponse, $response);
     }
 
     public function testBundleProduct()
@@ -101,7 +101,7 @@ EOR;
 EOR;
 
         $response = $this->postMessage($fields, $signature);
-        $this->assertEquals($response, $expectedResponse);
+        $this->assertEquals($expectedResponse, $response);
     }
 
     public function testGroupedProduct()
@@ -126,6 +126,6 @@ EOR;
 EOR;
 
         $response = $this->postMessage($fields, $signature);
-        $this->assertEquals($response, $expectedResponse);
+        $this->assertEquals($expectedResponse, $response);
     }
 }
