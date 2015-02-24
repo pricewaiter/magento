@@ -40,6 +40,11 @@
                 enableButton: false,
                 <?php endif; ?>
                 currency: '<?php echo $currency; ?>',
+                <?php if ($helper->isConversionToolsEnabled()): ?>
+                enableConversionTools: true,
+                <?php else: ?>
+                enableConversionTools: false,
+                <?php endif; ?>
                 button: {
                     type: <?php echo json_encode($displayPhrase); ?>,
                     size: <?php echo json_encode($displaySize); ?>,
