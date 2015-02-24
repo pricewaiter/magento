@@ -109,14 +109,22 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction = Mage::getModel('core/resource_transaction');
             $reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($this->_store->getId());
 
+            // Grab the currency code from the request, if one is set.
+            // Otherwise, use the store's default currency code.
+            if ($request['currency']) {
+                $currencyCode = $request['currency'];
+            } else {
+                $currencyCode = $this->_store->getDefaultCurrencyCode();
+            }
+
             $order = Mage::getModel('sales/order')
                 ->setIncrementId($reservedOrderId)
                 ->setStoreId($this->_store->getId())
                 ->setQuoteId(0)
-                ->setGlobal_currency_code('USD')
-                ->setBase_currency_code('USD')
-                ->setStore_currency_code('USD')
-                ->setOrder_currency_code('USD');
+                ->setGlobal_currency_code($currencyCode)
+                ->setBase_currency_code($currencyCode)
+                ->setStore_currency_code($currencyCode)
+                ->setOrder_currency_code($currencyCode);
 
             // set Customer data
             $order->setCustomer_email($customer->getEmail())

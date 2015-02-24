@@ -28,6 +28,7 @@
     $displayHoverColor = Mage::getStoreConfig('pricewaiter/appearance/display_hover_color');
     $brand = $_product->getData('brand');
     $image = $_product->getImageUrl();
+    $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
     if ($helper->isEnabledForStore()):
         ?>
         <script type="text/javascript">
@@ -38,6 +39,7 @@
                 <?php else: ?>
                 enableButton: false,
                 <?php endif; ?>
+                currency: '<?php echo $currency; ?>',
                 button: {
                     type: <?php echo json_encode($displayPhrase); ?>,
                     size: <?php echo json_encode($displaySize); ?>,
