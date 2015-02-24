@@ -148,6 +148,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_buttonEnabled;
     }
 
+    public function getButtonSettingsUrl()
+    {
+        $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
+        $baseUrl = 'https://manage.pricewaiter.com';
+        if ($this->_testing) {
+            $baseUrl = 'https://manage-staging.pricewaiter.com';
+        }
+
+        return sprintf("%s/stores/%s/button", $baseUrl, $apiKey);
+    }
+
     public function getWidgetUrl()
     {
         if ($this->isEnabledForStore()) {
