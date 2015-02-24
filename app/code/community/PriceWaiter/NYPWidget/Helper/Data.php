@@ -198,7 +198,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_product;
     }
 
-    private function _getGroupedProductInfo()
+    public function getGroupedProductInfo()
     {
         $product = $this->_getProduct();
         $javascript = "var PriceWaiterGroupedProductInfo =  new Array();\n";
@@ -226,5 +226,128 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return Mage::app()->getStore();
+    }
+
+    private function _getSecret()
+    {
+        return Mage::getStoreConfig('pricewaiter/configuration/api_secret');
+    }
+
+    /**
+     * Returns a signature that can be added to the head of a PriceWaiter API response.
+     * @param {String} $responseBody The full body of the request to sign.
+     * @return {String} Signature that should be set as the X-PriceWaiter-Signature header.
+     */
+    public function getResponseSignature($responseBody)
+    {
+        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->_getSecret(), false);
+        return $signature;
+    }
+
+    /**
+     * Validates that the current request came from PriceWaiter.
+     * @param {String} $signatureHeader Full value of the X-PriceWaiter-Signature header.
+     * @param {String} $requestBody Complete body of incoming request.
+     * @return {Boolean} Wehther the request actually came from PriceWaiter.
+     */
+    public function isPriceWaiterRequestValid($signatureHeader = null, $requestBody = null)
+    {
+        if ($signatureHeader === null || $requestBody === null) {
+            return false;
+        }
+
+        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $this->_getSecret(), false);
+
+        if (function_exists('hash_equals')) {
+            // Favor PHP's secure hash comparison function in 5.6 and up.
+            // For a robust drop-in compatibility shim, see: https://github.com/indigophp/hash-compat
+            return hash_equals($detected, $signatureHeader);
+        }
+
+        return $detected === $signatureHeader;
+    }
+
+    /**
+     * Finds the Product that matches the given options and SKU
+     * @param {String} $sku SKU of the product
+     * @param {Array} $productOptions An array of options for the product, name => value
+     * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     */
+    public function getProductWithOptions($sku, $productOptions)
+    {
+        $product = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToFilter('sku', $sku)
+            ->addAttributeToSelect('*')
+            ->getFirstItem();
+
+        $additionalCost = null;
+
+        if ($product->getTypeId() == 'configurable') {
+            // Do configurable product specific stuff
+            $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+
+            // Find our product based on attributes
+            foreach ($attrs as $attr) {
+                if (array_key_exists($attr['label'], $productOptions)) {
+                    foreach ($attr['values'] as $value) {
+                        if ($value['label'] == $productOptions[$attr['label']]) {
+                            $valueIndex = $value['value_index'];
+                            // If this attribute has a price assosciated with it, add it to the price later
+                            if ($value['pricing_value'] != '') {
+                                $additionalCost += $value['pricing_value'];
+                            }
+                            break;
+                        }
+                    }
+                    unset($productOptions[$attr['label']]);
+                    $productOptions[$attr['attribute_id']] = $valueIndex;
+                }
+            }
+
+            $parentProduct = $product;
+            $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+            $product->load($product->getId());
+        }
+
+        if ($additionalCost) {
+            $product->setPrice($product->getPrice() + $additionalCost);
+        }
+
+        return $product;
+    }
+
+    public function getGroupedQuantity($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $quantities = array();
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $quantities[] = $associatedProduct->getStockItem()->getQty();
+        }
+
+        return min($quantities);
+    }
+
+    public function getGroupedFinalPrice($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $finalPrice = 0;
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $finalPrice += ($associatedProduct->getFinalPrice() * $productConfiguration['super_group'][$associatedProductId]);
+        }
+        return $finalPrice;
+    }
+
+    public function getGroupedCost($productConfiguration)
+    {
+        $associatedProductIds = array_keys($productConfiguration['super_group']);
+        $costs = array();
+        foreach ($associatedProductIds as $associatedProductId) {
+            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
+            $costs[] = $associatedProduct->getData('cost');
+        }
+
+        return min($costs);
     }
 }

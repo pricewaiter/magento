@@ -15,10 +15,15 @@
  *
  */
 $(document).observe('dom:loaded', function () {
-    if (typeof adminPW == 'function') {
-        adminPW();
-    }
     if (typeof PriceWaiterOptions == 'object') {
+        PriceWaiterOptions.onButtonClick =
+            function(PriceWaiter, platformOnButtonClick) {
+                var productForm = $('product_addtocart_form');
+                var productConfiguration = productForm.serialize();
+
+                PriceWaiter.setMetadata('product_configuration', encodeURIComponent(productConfiguration));
+                return true;
+            };
         PriceWaiterOptions.onload =
             function (PriceWaiter) {
                 PriceWaiter.setRegularPrice(PriceWaiterRegularPrice);

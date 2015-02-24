@@ -212,40 +212,13 @@ class PriceWaiter_NYPWidget_Model_Callback
             $order->setPayment($orderPayment);
 
             // Find the Product from the request
-            $this->_product = Mage::getModel('catalog/product')->getCollection()
-                ->addAttributeToFilter('sku', $request['product_sku'])
-                ->addAttributeToSelect('*')
-                ->getFirstItem();
-
-            // If we have product options, split them out of the request
             $requestOptions = array();
 
             for ($i = $request['product_option_count']; $i > 0; $i--) {
                 $requestOptions[$request['product_option_name' . $i]] = $request['product_option_value' . $i];
             }
 
-            if ($this->_product->getTypeId() == 'configurable') {
-                // Do configurable product specific stuff
-                $attrs = $this->_product->getTypeInstance(true)->getConfigurableAttributesAsArray($this->_product);
-
-                // Find our product based on attributes
-                foreach ($attrs as $attr) {
-                    if (array_key_exists($attr['label'], $requestOptions)) {
-                        foreach ($attr['values'] as $value) {
-                            if ($value['label'] == $requestOptions[$attr['label']]) {
-                                $valueIndex = $value['value_index'];
-                                break;
-                            }
-                        }
-                        unset($requestOptions[$attr['label']]);
-                        $requestOptions[$attr['attribute_id']] = $valueIndex;
-                    }
-                }
-
-                $parentProduct = $this->_product;
-                $this->_product = $this->_product->getTypeInstance()->getProductByAttributes($requestOptions, $this->_product);
-                $this->_product->load($this->_product->getId());
-            }
+            $this->_product = Mage::helper('nypwidget')->getProductWithOptions($request['product_sku'], $requestOptions);
 
             // Build the pricing information of the product
             $subTotal = 0;

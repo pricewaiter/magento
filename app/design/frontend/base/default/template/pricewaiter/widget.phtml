@@ -29,10 +29,16 @@
     $brand = $_product->getData('brand');
     $image = $_product->getImageUrl();
     $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
+    if ($_product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        $groupedInformation = $helper->getGroupedProductInfo();
+    } else {
+        $groupedInformation = '';
+    }
     if ($helper->isEnabledForStore()):
         ?>
         <script type="text/javascript">
             //<![CDATA[
+            <?php echo $groupedInformation; ?>
             var PriceWaiterOptions = {
                 <?php if ($helper->isButtonEnabled()): ?>
                 enableButton: true,
