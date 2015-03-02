@@ -228,9 +228,22 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::app()->getStore();
     }
 
-    private function _getSecret()
+    /**
+     * Returns the secret token used when communicating with PriceWaiter.
+     * @return {String} Secret token
+     */
+    public function getSecret()
     {
-        return Mage::getStoreConfig('pricewaiter/configuration/api_secret');
+        $token = Mage::getStoreConfig('pricewaiter/configuration/api_secret');
+
+        if (is_null($token) || $token == '') {
+            $token = bin2hex(openssl_random_pseudo_bytes(24));
+            $config = Mage::getModel('core/config');
+
+            $config->saveConfig('pricewaiter/configuration/api_secret', $token);
+        }
+
+        return $token;
     }
 
     /**
@@ -240,7 +253,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getResponseSignature($responseBody)
     {
-        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->_getSecret(), false);
+        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->getSecret(), false);
         return $signature;
     }
 
@@ -256,7 +269,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
-        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $this->_getSecret(), false);
+        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $this->getSecret(), false);
 
         if (function_exists('hash_equals')) {
             // Favor PHP's secure hash comparison function in 5.6 and up.
