@@ -62,7 +62,9 @@ class PriceWaiter_NYPWidget_Adminhtml_PriceWaiterController extends Mage_Adminht
                 'store_currency' => Mage::getStoreConfig('currency/options/base'),
                 'store_languages' => Mage::getStoreConfig('general/locale/code'),
                 'store_paypal_email' => Mage::getStoreConfig('paypal/general/business_account'),
-                'store_order_callback_url' => Mage::getUrl('pricewaiter/callback')
+                'store_order_callback_url' => Mage::getUrl('pricewaiter/callback'),
+                'product_data_secret' => Mage::helper('nypwidget')->getSecret(),
+                'product_data_url' => Mage::getUrl('pricewaiter/productinfo')
             );
 
             // Make a string from the POST fields
