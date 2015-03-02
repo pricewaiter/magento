@@ -88,16 +88,19 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                     $qty = $product->getStockItem()->getQty();
                     $productFinalPrice = $product->getFinalPrice();
                     $productPrice = $product->getPrice();
+                    $msrp = $product->getData('msrp');
                     $cost = $product->getData('cost');
                 } elseif ($productType == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
                     $qty = Mage::helper('nypwidget')->getGroupedQuantity($productConfiguration);
                     $productFinalPrice = Mage::helper('nypwidget')->getGroupedFinalPrice($productConfiguration);
                     $productPrice = $productFinalPrice;
+                    $msrp = false;
                     $cost = Mage::helper('nypwidget')->getGroupedCost($productConfiguration);
                 } else {
                     $qty = $cartItem->getProduct()->getStockItem()->getQty();
                     $productFinalPrice = $cartItem->getPrice();
                     $productPrice = $cartItem->getFinalPrice();
+                    $msrp = $cartItem->getData('msrp');
                     $cost = $cartItem->getData('cost');
                 }
 
@@ -128,7 +131,10 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                     $productInformation['retail_price_currency'] = $currency;
                 }
 
-                if ($productPrice != 0) {
+                if ($msrp != '') {
+                    $productInformation['regular_price'] = (string)$msrp;
+                    $productInformation['regular_price_currency'] = $currency;
+                } elseif ($productPrice != 0) {
                     $productInformation['regular_price'] = (string)$productPrice;
                     $productInformation['regular_price_currency'] = $currency;
                 }
