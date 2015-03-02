@@ -21,7 +21,7 @@ $(document).observe('dom:loaded', function () {
                 var productForm = $('product_addtocart_form');
                 var productConfiguration = productForm.serialize();
 
-                PriceWaiter.setMetadata('product_configuration', encodeURIComponent(productConfiguration));
+                PriceWaiter.setMetadata('_magento_product_configuration', encodeURIComponent(productConfiguration));
                 return true;
             };
         PriceWaiterOptions.onload =

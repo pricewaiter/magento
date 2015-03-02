@@ -41,7 +41,7 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
         // Process the request
         // - return 404 if the product does not exist (or PriceWaiter is not enabled)
         $productConfiguration = array();
-        parse_str(urldecode($postFields['product_configuration']), $productConfiguration);
+        parse_str(urldecode($postFields['_magento_product_configuration']), $productConfiguration);
 
         // Create a cart and add the product to it
         // This is necessary to make Magento calculate the cost of the item in the correct context.
