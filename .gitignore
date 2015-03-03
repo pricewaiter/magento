@@ -5,3 +5,4 @@ nypwidget-*
 phpunit.xml
 testing.sh
 TODO
+js/pricewaiter/*js
