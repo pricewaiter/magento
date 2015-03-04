@@ -71,4 +71,20 @@
             <span id="pricewaiter"></span>
         </div>
     <?php endif; ?>
+    <?php if ($_product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE): ?>
+        <?php
+        $simples = Mage::getModel('catalog/product_type_configurable')->setProduct($_product)
+            ->getUsedProductCollection()
+            ->addAttributeToSelect('sku');
+
+        $idToSku = array();
+        foreach ($simples as $simple) {
+            $idToSku[$simple->getId()] = $simple->getSku();
+        } ?>
+        <?php if (count($idToSku) > 0): ?>
+        <script type="text/javascript">
+            var PriceWaiterIdToSkus = <?php echo json_encode($idToSku); ?>;
+        </script>
+        <?php endif; ?>
+    <?php endif; ?>
 <?php endif; ?>

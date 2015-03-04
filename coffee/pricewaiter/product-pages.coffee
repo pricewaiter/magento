@@ -18,10 +18,30 @@
 $(document).observe 'dom:loaded', ->
   if typeof PriceWaiterOptions == 'object'
 
+    # If this is a configurable product, find and return the simple
+    # product's SKU based on the product's configuration
+    getSimpleProductSku = ->
+      if PriceWaiterProductType == 'configurable'
+        spConfig.settings.each((setting) ->
+          settingId = setting.id.replace('attribute', '')
+          options = spConfig.config.attributes[settingId].options
+          productId = options.find((option) ->
+            option.id == setting.value
+          ).allowedProducts[0]
+
+          PriceWaiter.setSKU(PriceWaiterIdToSkus[productId])
+        )
+
+      PriceWaiter.getSKU()
+
     PriceWaiterOptions.onButtonClick = (PriceWaiter, platformOnButtonClick) ->
+      # Add the product form data to PriceWaiter's metadata
       productForm = $('product_addtocart_form')
       productConfiguration = productForm.serialize()
       PriceWaiter.setMetadata '_magento_product_configuration', encodeURIComponent(productConfiguration)
+
+      # Ensure that the SKU is set correctly
+      PriceWaiter.setSKU(getSimpleProductSku())
       true
 
     PriceWaiterOptions.onload = (PriceWaiter) ->
