@@ -220,17 +220,6 @@ $(document).observe 'dom:loaded', ->
         return
 
       PriceWaiter.setRegularPrice PriceWaiterRegularPrice
-      # define indexof, needed for older versions of IE
-      if !Array::indexof
-
-        Array::indexof = (needle) ->
-          i = 0
-          while i < @length
-            if @[i] == needle
-              return i
-            i++
-          -1
-
       # define getElementsByRegex to find required bundle options
 
       document['getElementsByRegex'] = (pattern) ->
