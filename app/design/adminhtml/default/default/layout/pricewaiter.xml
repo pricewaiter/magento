@@ -21,9 +21,6 @@
                 <name>pricewaiter.css</name>
             </action>
             <action method="addJs">
-                <name>jscolor-pw/jscolor.js</name>
-            </action>
-            <action method="addJs">
                 <name>pricewaiter/token.js</name>
             </action>
         </reference>
