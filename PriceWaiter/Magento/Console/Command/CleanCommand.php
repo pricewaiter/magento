@@ -22,5 +22,9 @@ class CleanCommand extends Command
         `find . -name ".DS_Store" -delete`;
         `rm -f nypwidget-*tgz`;
         $output->writeln('<info>Done</info>');
+
+        $output->write('Deleting compiled assets... ');
+        `rm -rf js/pricewaiter/*js`;
+        $output->writeln('<info>Done</info>');
     }
 }
