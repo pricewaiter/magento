@@ -19,6 +19,10 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->write('Building assets... ');
+        `cake build`;
+        $output->writeln('<info>Done.</info>');
+
         $output->write('Building package... ');
 
         //Load Magento core

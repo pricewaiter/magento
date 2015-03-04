@@ -18,6 +18,7 @@
 ?>
 <?php
 $enabled = $this->getIsEnabled();
+$ctEnabled = $this->getIsConversionToolsEnabled();
 ?>
 <div class="entry-edit">
     <div class="entry-edit-head">
@@ -34,6 +35,19 @@ $enabled = $this->getIsEnabled();
                         <select id="group_pricewaiter_enabled" name="pricewaiter[enabled]" class=" select">
                             <option value="1" <?php if ($enabled): ?>selected="selected"<?php endif; ?>>Yes</option>
                             <option value="0" <?php if (!$enabled): ?>selected="selected"<?php endif; ?>>No</option>
+                        </select>
+                    </td>
+                    <td class="scope-label">
+                        <span class="nobr">[STORE VIEW]</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="label"><label for="group_pricewaiter_conversion_tools_enabled">Conversion Tools Enabled</label></td>
+                    <td class="value">
+                        <select id="group_pricewaiter_conversion_tools_enabled" name="pricewaiter[ct_enabled]" class=" select">
+                            <option value="1" <?php if ($ctEnabled): ?>selected="selected"<?php endif; ?>>Yes</option>
+                            <option value="0" <?php if (!$ctEnabled): ?>selected="selected"<?php endif; ?>>No</option>
                         </select>
                     </td>
                     <td class="scope-label">

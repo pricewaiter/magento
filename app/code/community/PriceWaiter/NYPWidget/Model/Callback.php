@@ -21,38 +21,37 @@ class PriceWaiter_NYPWidget_Model_Callback
 {
 
     private $_store;
-    private $_groupId = '1';
-    private $_sendConfirmation = '0';
-
-    private $orderData = array();
     private $_product;
 
-    private $_sourceCustomer;
-    private $_sourceOrder;
+    private $_test = false;
 
     public function processRequest($request)
     {
-        // If the PriceWaiter extension is in testing mode, skip request validation
-        if (!Mage::helper('nypwidget')->isTesting()) {
-            // Build URL to check validity of order notification.
-            $url = Mage::helper('nypwidget')->getApiUrl();
+        if ($request['test'] == 1) {
+            $this->_test = true;
+        }
 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+        // Build URL to check validity of order notification.
+        $url = Mage::helper('nypwidget')->getApiUrl();
 
-            // If PriceWaiter returns an invalid response
-            if (curl_exec($ch) == "1") {
-                $message = "The Name Your Price Widget has received a valid order notification.";
-                Mage::log($message);
-                $this->_log($message);
-            } else {
-                $message = "An invalid PriceWaiter order notification has been received.";
-                Mage::log($message);
-                $this->_log($message);
-                return;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+
+        // If PriceWaiter returns an invalid response
+        if (curl_exec($ch) == "1") {
+            $message = "The Name Your Price Widget has received a valid order notification.";
+            if ($this->_test) {
+                $message .= ' This is a TEST order that will be created and canceled.';
             }
+            Mage::log($message);
+            $this->_log($message);
+        } else {
+            $message = "An invalid PriceWaiter order notification has been received.";
+            Mage::log($message);
+            $this->_log($message);
+            return;
         }
 
         // Verify that we have not already received this callback based on the `pricewaiter_id` field
@@ -110,14 +109,22 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction = Mage::getModel('core/resource_transaction');
             $reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($this->_store->getId());
 
+            // Grab the currency code from the request, if one is set.
+            // Otherwise, use the store's default currency code.
+            if ($request['currency']) {
+                $currencyCode = $request['currency'];
+            } else {
+                $currencyCode = $this->_store->getDefaultCurrencyCode();
+            }
+
             $order = Mage::getModel('sales/order')
                 ->setIncrementId($reservedOrderId)
                 ->setStoreId($this->_store->getId())
                 ->setQuoteId(0)
-                ->setGlobal_currency_code('USD')
-                ->setBase_currency_code('USD')
-                ->setStore_currency_code('USD')
-                ->setOrder_currency_code('USD');
+                ->setGlobal_currency_code($currencyCode)
+                ->setBase_currency_code($currencyCode)
+                ->setStore_currency_code($currencyCode)
+                ->setOrder_currency_code($currencyCode);
 
             // set Customer data
             $order->setCustomer_email($customer->getEmail())
@@ -205,40 +212,13 @@ class PriceWaiter_NYPWidget_Model_Callback
             $order->setPayment($orderPayment);
 
             // Find the Product from the request
-            $this->_product = Mage::getModel('catalog/product')->getCollection()
-                ->addAttributeToFilter('sku', $request['product_sku'])
-                ->addAttributeToSelect('*')
-                ->getFirstItem();
-
-            // If we have product options, split them out of the request
             $requestOptions = array();
 
             for ($i = $request['product_option_count']; $i > 0; $i--) {
                 $requestOptions[$request['product_option_name' . $i]] = $request['product_option_value' . $i];
             }
 
-            if ($this->_product->getTypeId() == 'configurable') {
-                // Do configurable product specific stuff
-                $attrs = $this->_product->getTypeInstance(true)->getConfigurableAttributesAsArray($this->_product);
-
-                // Find our product based on attributes
-                foreach ($attrs as $attr) {
-                    if (array_key_exists($attr['label'], $requestOptions)) {
-                        foreach ($attr['values'] as $value) {
-                            if ($value['label'] == $requestOptions[$attr['label']]) {
-                                $valueIndex = $value['value_index'];
-                                break;
-                            }
-                        }
-                        unset($requestOptions[$attr['label']]);
-                        $requestOptions[$attr['attribute_id']] = $valueIndex;
-                    }
-                }
-
-                $parentProduct = $this->_product;
-                $this->_product = $this->_product->getTypeInstance()->getProductByAttributes($requestOptions, $this->_product);
-                $this->_product->load($this->_product->getId());
-            }
+            $this->_product = Mage::helper('nypwidget')->getProductWithOptions($request['product_sku'], $requestOptions);
 
             // Build the pricing information of the product
             $subTotal = 0;
@@ -301,6 +281,13 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction->save();
             if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_new_order_email')) {
                 $order->sendNewOrderEmail();
+            }
+
+            // If this is a test order, cancel it to prevent it from any further processing.
+            if ($this->_test) {
+                $order->cancel();
+                $order->save();
+                return;
             }
 
             // Capture the invoice

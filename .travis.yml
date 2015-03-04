@@ -1,25 +1,34 @@
 language: php
 cache: composer
+env:
+  - VIRTUALHOST_NAME=pricewaiter.travis PROTOCOL=http
+
+addons:
+  hosts:
+    - pricewaiter.travis
 
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install libxml2 libxml2-utils
   - composer self-update
+  - script/install-packages.sh
 
 install:
   - composer install
 
 before_script:
+  - script/configure-webserver.sh
   - script/install-magerun.sh
   - script/install-modman.sh
   - script/install-magento.sh
   - script/run-modman.sh
 
 script:
-  - php make.php clean --ansi
-  - php make.php check --ansi
-  - php make.php build --ansi
+  - script/build-and-test.sh
+
+after_success:
+  - vendor/bin/coveralls
 
 after_script:
-  - vendor/bin/phpunit
-  - vendor/bin/coveralls
+  - sudo cat /var/log/nginx/access.log
+
+after_failure:
+  - sudo cat /var/log/nginx/error.log
