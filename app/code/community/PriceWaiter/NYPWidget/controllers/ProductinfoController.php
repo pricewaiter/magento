@@ -145,7 +145,7 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
                 }
 
                 // Sign response and send.
-                $json = json_encode($productInformation, JSON_PRETTY_PRINT);
+                $json = json_encode($productInformation);
                 $signature = Mage::helper('nypwidget')->getResponseSignature($json);
 
                 Mage::app()->getResponse()->setHeader('X-PriceWaiter-Signature', $signature);
