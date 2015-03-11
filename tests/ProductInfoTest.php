@@ -52,6 +52,7 @@ class ProductInfo extends PHPUnit_Framework_TestCase
 }
 EOR;
 
+        $expectedResponse = preg_replace('/\s+/', '', trim($expectedResponse));
         $response = $this->postMessage($fields, $signature);
         $this->assertEquals($expectedResponse, $response);
     }
@@ -77,6 +78,7 @@ EOR;
 }
 EOR;
 
+        $expectedResponse = preg_replace('/\s+/', '', trim($expectedResponse));
         $response = $this->postMessage($fields, $signature);
         $this->assertEquals($expectedResponse, $response);
     }
@@ -100,6 +102,7 @@ EOR;
 }
 EOR;
 
+        $expectedResponse = preg_replace('/\s+/', '', trim($expectedResponse));
         $response = $this->postMessage($fields, $signature);
         $this->assertEquals($expectedResponse, $response);
     }
@@ -125,6 +128,7 @@ EOR;
 }
 EOR;
 
+        $expectedResponse = preg_replace('/\s+/', '', trim($expectedResponse));
         $response = $this->postMessage($fields, $signature);
         $this->assertEquals($expectedResponse, $response);
     }
