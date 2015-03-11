@@ -67,7 +67,7 @@
                     </dir>
                     <dir name="controllers">
                         <dir name="Adminhtml">
-                            <file name="PriceWaiterController.php" hash="a494809c8632645fcda400fd6534b0c1"/>
+                            <file name="PricewaiterController.php" hash="a494809c8632645fcda400fd6534b0c1"/>
                         </dir>
                         <file name="CallbackController.php" hash="8b95003b06ebc0e1a05430655f2caacd"/>
                         <file name="ProductinfoController.php" hash="c1789df70740823cfd195b7dd9869eed"/>
