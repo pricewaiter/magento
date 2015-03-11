@@ -24,65 +24,65 @@
                 <dir name="NYPWidget">
                     <dir name="Block">
                         <dir name="Adminhtml">
-                            <file name="Widget.php" hash="00772d20f1c4380804c3fd7120e9125f"/>
+                            <file name="Widget.php" hash="b781daf1de34d7856de7faba65afe414"/>
                             <file name="Link.php" hash="848a4e3813a3d238cacdd812334bb780"/>
-                            <file name="Signup.php" hash="61bca956af7eb456e429f5953890b72d"/>
+                            <file name="Signup.php" hash="dab8d9a3da78ce206c70877e1e8f71b9"/>
                         </dir>
-                        <file name="Category.php" hash="9bf9443951889d8535a87d059d1beb58"/>
-                        <file name="Widget.php" hash="3e35edfaaac4b9a9eb9856c20fd0ea74"/>
+                        <file name="Category.php" hash="de6397a45d7deabc803bef83a83d6b9a"/>
+                        <file name="Widget.php" hash="193d694c4acc2133d8402f1e59d4dc25"/>
                     </dir>
                     <dir name="Helper">
-                        <file name="Data.php" hash="7e1623ebd44952d648621914195bf031"/>
+                        <file name="Data.php" hash="49a7fdd4928b3c0d358ad7e1d240d874"/>
                     </dir>
                     <dir name="Model">
-                        <file name="Callback.php" hash="e354067a607bd4fcef6ac18e33b2bb18"/>
+                        <file name="Callback.php" hash="65f978209a660f847954795c6a8525e8"/>
                         <dir name="Carrier">
-                            <file name="ShippingMethod.php" hash="5aa808f154444c51a0e9df83a379a2dd"/>
+                            <file name="ShippingMethod.php" hash="43a6ec1ad462797a5359238dcf9a749d"/>
                         </dir>
-                        <file name="Category.php" hash="cb061ed5488875e1e635454d03cc01f0"/>
+                        <file name="Category.php" hash="884685769be745cb273833ab7d691593"/>
                         <dir name="Display">
-                            <file name="Phrase.php" hash="e1178ae989246161e829167aafae4bac"/>
-                            <file name="Size.php" hash="fb3362f18b5fc4b33c0cbeb47bd5e255"/>
+                            <file name="Phrase.php" hash="5b595a42b487930154c505a8e9a1301c"/>
+                            <file name="Size.php" hash="8a596164268f48c3c034274550b13b96"/>
                         </dir>
                         <dir name="Mysql4">
                             <dir name="Category">
-                                <file name="Collection.php" hash="c7285faa453073de6d51c491aabdffc7"/>
+                                <file name="Collection.php" hash="45eaa532cd5935b69102b8969da848fa"/>
                             </dir>
-                            <file name="Category.php" hash="d91e7bc01d5aea6faa69e81baf7ed1ae"/>
+                            <file name="Category.php" hash="f4e761813ec4bb81d919f30895ce3578"/>
                             <dir name="Order">
-                                <file name="Collection.php" hash="33e3d9bd05d5e8995219cd96fbaebe29"/>
+                                <file name="Collection.php" hash="4dc5b344274c0e5a391a24864fd1c003"/>
                             </dir>
-                            <file name="Order.php" hash="631bf16fe9d3e41fe3a720ada8d203eb"/>
+                            <file name="Order.php" hash="c08b340cec16bf774a7c178726dee0ac"/>
                         </dir>
-                        <file name="Observer.php" hash="8ce888df99486bfd292c1b2b8dbdce4e"/>
-                        <file name="Order.php" hash="9473fe3332de53ae7582b87ea01394eb"/>
-                        <file name="PaymentMethod.php" hash="28eaa96b1b3463233ad5bace111666f0"/>
+                        <file name="Observer.php" hash="2399e210dd82633091570483f144bf12"/>
+                        <file name="Order.php" hash="080844dcc4cf55d516abe27175a3a62a"/>
+                        <file name="PaymentMethod.php" hash="386134e1ac803580222263523f0ced31"/>
                         <dir name="Resource">
                             <dir name="Eav">
                                 <dir name="Mysql4">
-                                    <file name="Setup.php" hash="95ffd71fb9ffb4947bb76273197d9eba"/>
+                                    <file name="Setup.php" hash="d63678e9cc718ee87e8db3ca5163a8fd"/>
                                 </dir>
                             </dir>
                         </dir>
                     </dir>
                     <dir name="controllers">
                         <dir name="Adminhtml">
-                            <file name="PricewaiterController.php" hash="a494809c8632645fcda400fd6534b0c1"/>
+                            <file name="PricewaiterController.php" hash="2dbf6509bca54d915c6f83de40e572bb"/>
                         </dir>
-                        <file name="CallbackController.php" hash="8b95003b06ebc0e1a05430655f2caacd"/>
-                        <file name="ProductinfoController.php" hash="c1789df70740823cfd195b7dd9869eed"/>
+                        <file name="CallbackController.php" hash="d16b43353b74924298ff4cf7cf989f33"/>
+                        <file name="ProductinfoController.php" hash="116869b03b42e93c66fde077aeec22ce"/>
                     </dir>
                     <dir name="etc">
-                        <file name="adminhtml.xml" hash="e75595d053f9f8e149fe9d259bbee8db"/>
-                        <file name="config.xml" hash="d2ffa2123f7de858a6b6af7d8057d47c"/>
-                        <file name="system.xml" hash="ee699492dc4cd7d89fc0a10492782856"/>
+                        <file name="adminhtml.xml" hash="dff2f6de0dacaf5a933048fa4a347f2f"/>
+                        <file name="config.xml" hash="5f3051ad2ee38e9642dd6cac5a52926a"/>
+                        <file name="system.xml" hash="82bb83cf7eb6a1d0ebf6bb774cd24414"/>
                     </dir>
                     <dir name="sql">
                         <dir name="nypwidget_setup">
-                            <file name="mysql4-install-1.0.0.php" hash="54031c453a4bddb772005e733e1dc810"/>
-                            <file name="mysql4-upgrade-1.1.2-1.1.3.php" hash="d1749c66e1418523e19e121807ba2bfe"/>
-                            <file name="mysql4-upgrade-1.1.7-1.1.8.php" hash="f0b01f95ac331d416e7d1e3ce9952b09"/>
-                            <file name="mysql4-upgrade-1.2.4-1.2.5.php" hash="6e55f3d6e27f1a447b63771666a63be5"/>
+                            <file name="mysql4-install-1.0.0.php" hash="cd1b7892e75e4452ee94afbbefb4de6e"/>
+                            <file name="mysql4-upgrade-1.1.2-1.1.3.php" hash="d1ae05f5cbe4a8f833e92b9f49d395db"/>
+                            <file name="mysql4-upgrade-1.1.7-1.1.8.php" hash="bd342c802f6c91de6f9f51b0a4a25414"/>
+                            <file name="mysql4-upgrade-1.2.4-1.2.5.php" hash="b1ced0226bef6e950e026402b933872f"/>
                             <file name="mysql4-upgrade-1.3.0-1.3.1.php" hash="106b36065c125be31fc67424d80acdd4"/>
                         </dir>
                     </dir>
@@ -94,11 +94,11 @@
                 <dir name="default">
                     <dir name="default">
                         <dir name="layout">
-                            <file name="pricewaiter.xml" hash="e8336de672e65c269467c5745d3c42d2"/>
+                            <file name="pricewaiter.xml" hash="9e06026a8a820224336de4c9a7dde3fd"/>
                         </dir>
                         <dir name="template">
                             <dir name="pricewaiter">
-                                <file name="categorytab.phtml" hash="7a7c10e935bb95a4cb960c2f622ccdd4"/>
+                                <file name="categorytab.phtml" hash="d1d2c333cc9b18c909a44d333d8ab077"/>
                                 <file name="signup.phtml" hash="1a1f3c3cd82b8e3360951c1012dc1131"/>
                             </dir>
                         </dir>
@@ -109,11 +109,11 @@
                 <dir name="base">
                     <dir name="default">
                         <dir name="layout">
-                            <file name="pricewaiter.xml" hash="b37306ffb71cb5f40805ae06afeb4659"/>
+                            <file name="pricewaiter.xml" hash="cbaa61566545d46740d2e9b6078d1874"/>
                         </dir>
                         <dir name="template">
                             <dir name="pricewaiter">
-                                <file name="widget.phtml" hash="6628389603b93e4d17218269af1c133c"/>
+                                <file name="widget.phtml" hash="9b2734821e5ed45d51b6926f51f834a0"/>
                             </dir>
                         </dir>
                     </dir>
@@ -122,13 +122,13 @@
         </target>
         <target name="mageetc">
             <dir name="modules">
-                <file name="PriceWaiter_NYPWidget.xml" hash="9dd54c042a15f822e23da02207ae037d"/>
+                <file name="PriceWaiter_NYPWidget.xml" hash="72be18d9a8a741abc8926866449619cd"/>
             </dir>
         </target>
         <target name="mage">
             <dir name="js">
                 <dir name="pricewaiter">
-                    <file name="product-pages.js" hash="baefe8f845930a771dae3e9b3a7d125f"/>
+                    <file name="product-pages.js" hash="cac0eecf149dc4ec34691a94f53737fa"/>
                     <file name="token.js" hash="25dddc701bf69053bdc94ff897e82cfa"/>
                 </dir>
             </dir>
@@ -141,7 +141,7 @@
                             <file name="pricewaiter_logo.png" hash="becb9713a561131ff69eabb7503d3e74"/>
                             <file name="pricewaiter_tab.png" hash="1bab71be6b1a93aee2ae7aeae3807484"/>
                         </dir>
-                        <file name="pricewaiter.css" hash="d492f0d7f7778cf26614c95e89e0167f"/>
+                        <file name="pricewaiter.css" hash="c4061169f3e505c28bd09924108ca0ad"/>
                     </dir>
                 </dir>
             </dir>
