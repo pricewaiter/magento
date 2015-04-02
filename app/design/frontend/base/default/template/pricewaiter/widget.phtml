@@ -50,7 +50,7 @@
 
                 product: {
                 <?php if ($brand): ?>
-                    brand: <?php json_encode($brand); ?>,
+                    brand: <?php echo json_encode($brand); ?>,
                 <?php endif; ?>
                     sku: <?php echo json_encode($_product->getSku()); ?>,
                     name: <?php echo json_encode($_product->getName()); ?>,
