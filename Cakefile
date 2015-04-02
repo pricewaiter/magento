@@ -1,10 +1,10 @@
 fs = require 'fs'
 
-{print} = require 'sys'
+{print} = require 'util'
 {spawn} = require 'child_process'
 
 build = (callback) ->
-  coffee = spawn 'coffee', ['-c', '-o', 'js/pricewaiter', 'coffee/pricewaiter']
+  coffee = spawn 'coffee', ['--no-header', '-c', '-o', 'js/pricewaiter', 'coffee/pricewaiter']
   coffee.stderr.on 'data', (data) ->
     process.stderr.write data.toString()
   coffee.stdout.on 'data', (data) ->
