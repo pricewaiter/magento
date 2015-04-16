@@ -8,7 +8,7 @@
     <extends/>
     <summary>PriceWaiter&#xAE; let's buyers make offers on your products that you can easily accept, counter offer or reject.</summary>
     <description>Sell more, immediately, with the PriceWaiter&#xAE; widget. Convert comparison shoppers you might have lost, increase sales and conversions, and stop "minimum advertised price" from preventing sales before they even start.&#xD;&#xD; PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
-    <notes>Features:&#xD;- New, more powerful, button configuration controls:&#xD;- Easier setup with a new assisted PriceWaiter signup process:&#xD;- Support for Automated Acceptance</notes>
+    <notes>Bug Fix:&#xD;- Fixes a problem with on page JavaScript options that could lead to page rendering problems.</notes>
     <authors>
         <author>
             <name>PriceWaiter</name>
@@ -32,7 +32,7 @@
                         <file name="Widget.php" hash="193d694c4acc2133d8402f1e59d4dc25"/>
                     </dir>
                     <dir name="Helper">
-                        <file name="Data.php" hash="49a7fdd4928b3c0d358ad7e1d240d874"/>
+                        <file name="Data.php" hash="3b85120aaa222082063f464f1d11debb"/>
                     </dir>
                     <dir name="Model">
                         <file name="Callback.php" hash="65f978209a660f847954795c6a8525e8"/>
