@@ -1,4 +1,4 @@
-###*
+###
  * Copyright 2013-2015 Price Waiter, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,7 +153,7 @@ $(document).observe 'dom:loaded', ->
             PriceWaiter.setProductOptionRequired opt.title, true
         # Bind to event fired when price is changed on bundle
         document.observe 'bundle:reload-price', (event) ->
-          PriceWaiter.setPrice event.memo.priceInclTax
+          PriceWaiter.setPrice(event.memo.priceInclTax + event.memo.bundle.config.basePrice)
           bSelected = event.memo.bundle.config.selected
           bOptions = event.memo.bundle.config.options
           for current of bSelected
