@@ -123,7 +123,7 @@ $(document).observe 'dom:loaded', ->
             PriceWaiter.setProductOptionRequired optionName, true
           Event.observe setting, 'change', (event) ->
             # Update PriceWaiter's price and options when changes are made
-            PriceWaiter.setPrice Number(spConfig.config.basePrice) + Number(spConfig.reloadPrice())
+            PriceWaiter.setPrice (Number(spConfig.config.basePrice) || 0) + (Number(spConfig.reloadPrice()) || 0)
             optionValue = if setting.value != '' then setting.options[setting.selectedIndex].innerHTML else undefined
             # if the option value is undefined, clear the option. Otherwise, set the newly selected option.
             if optionValue == undefined
