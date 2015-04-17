@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package>
     <name>nypwidget</name>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <stability>stable</stability>
     <license uri="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</license>
     <channel>community</channel>
     <extends/>
     <summary>PriceWaiter&#xAE; let's buyers make offers on your products that you can easily accept, counter offer or reject.</summary>
     <description>Sell more, immediately, with the PriceWaiter&#xAE; widget. Convert comparison shoppers you might have lost, increase sales and conversions, and stop "minimum advertised price" from preventing sales before they even start.&#xD;&#xD; PriceWaiter&#xAE; lets customers make offers on products you sell-- offers you can accept, reject or counter. The widget embeds a simple Name Your Price button on any product page or category that you choose. Simply install the extension and you'll have full control over PriceWaiter&#xAE; in your Magento admin control panel.</description>
-    <notes>Bug Fix:&#xD;- Fixes a problem with basePrice calculations on bundle products.</notes>
+    <notes>Bug Fix:&#xD;- Fixes a bug in configurable product price calculation.</notes>
     <authors>
         <author>
             <name>PriceWaiter</name>
@@ -128,7 +128,7 @@
         <target name="mage">
             <dir name="js">
                 <dir name="pricewaiter">
-                    <file name="product-pages.js" hash="90d1e5c0cddd4fc6360aaed3f72cfa2e"/>
+                    <file name="product-pages.js" hash="db4c96a2186bda2754d80fab21139503"/>
                     <file name="token.js" hash="d125ae6b7d01b3c0320691c29fd6cce2"/>
                 </dir>
             </dir>
