@@ -129,7 +129,7 @@
             <dir name="js">
                 <dir name="pricewaiter">
                     <file name="product-pages.js" hash="db4c96a2186bda2754d80fab21139503"/>
-                    <file name="token.js" hash="d125ae6b7d01b3c0320691c29fd6cce2"/>
+                    <file name="token.js" hash="a4ff5f9313e40209f15d1168e7633837"/>
                 </dir>
             </dir>
         </target>
