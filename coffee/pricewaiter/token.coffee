@@ -22,7 +22,7 @@ document.observe 'dom:loaded', ->
   button = document.getElementById('nypwidget_signup')
   scope = document.getElementById('store_switcher')
 
-  if typeof button == 'undefined'
+  if (typeof button == 'undefined' || button == null)
     return
 
   fetchToken = ->
