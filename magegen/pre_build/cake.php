@@ -1,0 +1,3 @@
+<?php
+
+`cake build`;
