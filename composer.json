@@ -8,6 +8,6 @@
     ],
     "require-dev": {
         "phpunit/phpunit": "~4.4.1",
-        "delegator/magegen": "*"
+        "delegator/magegen": "~0.1.0"
     }
 }
