@@ -81,7 +81,7 @@ Build Instructions:
 2. Follow steps 1-4 of the installation instructions.
 3. Make your desired modifications to the extension in `.modman/magento/`
 4. Run `composer install` in `.modman/magento`.
-5. Run `php make.php list` to review all subcommands of the make tool.
-6. When you are ready to build the new package, execute `php make.php build`
+5. Run `vendor/bin/magegen list` to review all subcommands of the make tool.
+6. When you are ready to build the new package, execute `vendor/bin/magegen build`
 
 You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
