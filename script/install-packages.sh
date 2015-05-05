@@ -2,4 +2,5 @@
 set -ex
 
 sudo apt-get -qq update
-sudo apt-get -qq install libxml2 libxml2-utils nginx-full
+sudo apt-get -qq install libxml2 libxml2-utils nginx-full nodejs npm
+sudo npm install -g coffee-script
