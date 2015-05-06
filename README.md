@@ -69,19 +69,18 @@ As of version 1.2.5, you can now build the Extension as a custom package from so
 
 Dependencies:
 
-* find
-* xmllint
-* grep
 * [modman](https://github.com/colinmollenhour/modman)
 * [composer](https://getcomposer.org/)
+* [npm](https://www.npmjs.com/)
 
 Build Instructions:
 
 1. Create a Magento store to use for development.
 2. Follow steps 1-4 of the installation instructions.
 3. Make your desired modifications to the extension in `.modman/magento/`
-4. Run `composer install` in `.modman/magento`.
-5. Run `vendor/bin/magegen list` to review all subcommands of the make tool.
-6. When you are ready to build the new package, execute `vendor/bin/magegen build`
+4. Run `npm install` in `.modman/magento`.
+5. Run `composer install` in `.modman/magento`.
+6. Run `vendor/bin/magegen list` to review all subcommands of the make tool.
+7. When you are ready to build the new package, execute `vendor/bin/magegen build`
 
 You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
