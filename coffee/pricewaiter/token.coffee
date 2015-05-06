@@ -21,6 +21,7 @@ document.observe 'dom:loaded', ->
   tokenInput = document.getElementById('pricewaiter_configuration_sign_up_token')
   button = document.getElementById('nypwidget_signup')
   scope = document.getElementById('store_switcher')
+  apiSecret = document.getElementById('pricewaiter_configuration_api_secret')
 
   if (typeof button == 'undefined' || button == null)
     return
@@ -34,6 +35,15 @@ document.observe 'dom:loaded', ->
         return
       onComplete: ->
         enableButton()
+        return
+    )
+    return
+
+  fetchSecret = ->
+    new (Ajax.Request)(priceWaiterSecretURL,
+      method: 'post'
+      onSuccess: (transport) ->
+        apiSecret.value = transport.responseJSON.secret
         return
     )
     return
@@ -55,4 +65,6 @@ document.observe 'dom:loaded', ->
     fetchToken()
   else
     enableButton()
-  return
+
+  if apiSecret.value == ''
+    fetchSecret()

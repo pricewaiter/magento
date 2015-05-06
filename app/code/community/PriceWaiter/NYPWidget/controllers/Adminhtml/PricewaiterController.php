@@ -95,4 +95,17 @@ class PriceWaiter_NYPWidget_Adminhtml_PriceWaiterController extends Mage_Adminht
 
         return;
     }
+
+    public function secretAction()
+    {
+        $secret = Mage::helper('nypwidget')->getSecret();
+
+        $this->getResponse()->clearHeaders()->setHeader(
+            'Content-type', 'application/json', true
+        );
+
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode(array(
+            'secret' => $secret
+        )));
+    }
 }

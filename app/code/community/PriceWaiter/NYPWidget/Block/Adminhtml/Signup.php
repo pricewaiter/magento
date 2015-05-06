@@ -52,4 +52,9 @@ class PriceWaiter_NYPWidget_Block_Adminhtml_Signup extends Mage_Adminhtml_Block_
     {
         return Mage::helper('adminhtml')->getUrl('adminhtml/adminhtml_pricewaiter/token');
     }
+
+    public function getSecretUrl()
+    {
+        return Mage::helper('adminhtml')->getUrl('adminhtml/adminhtml_pricewaiter/secret');
+    }
 }
