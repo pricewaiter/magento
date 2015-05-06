@@ -6,3 +6,4 @@ phpunit.xml
 testing.sh
 TODO
 js/pricewaiter/*js
+node_modules
