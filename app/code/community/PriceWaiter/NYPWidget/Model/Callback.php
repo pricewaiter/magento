@@ -134,15 +134,15 @@ class PriceWaiter_NYPWidget_Model_Callback
                 ->setCustomer_is_guest(0)
                 ->setCustomer($customer);
 
+            // Find billing Region ID
+            $regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_billing_state'], $request['buyer_billing_country']);
+
             //Get a phone number, or make a dummy one
-            if ($request['buyer_shipping_phone']) {
-                $telephone = $request['buyer_shipping_phone'];
+            if ($request['buyer_billing_phone']) {
+                $telephone = $request['buyer_billing_phone'];
             } else {
                 $telephone = "000-000-0000";
             }
-
-            // Find Region ID
-            $regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_shipping_state'], $request['buyer_shipping_country']);
 
             // set Billing Address
             $billing = $customer->getDefaultBillingAddress();
@@ -151,30 +151,29 @@ class PriceWaiter_NYPWidget_Model_Callback
                 ->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
                 ->setCustomerId($customer->getId())
                 ->setPrefix('')
-                ->setFirstname($request['buyer_first_name'])
+                ->setFirstname($request['buyer_billing_first_name'])
                 ->setMiddlename('')
-                ->setLastname($request['buyer_last_name'])
+                ->setLastname($request['buyer_billing_last_name'])
                 ->setSuffix('')
                 ->setCompany('')
-                ->setStreet(array($request['buyer_shipping_address'], $request['buyer_shipping_address2']))
-                ->setCity($request['buyer_shipping_city'])
-                ->setCountry_id($request['buyer_shipping_country'])
-                ->setRegion($request['buyer_shipping_state'])
+                ->setStreet(array($request['buyer_billing_address'], $request['buyer_billing_address2']))
+                ->setCity($request['buyer_billing_city'])
+                ->setCountry_id($request['buyer_billing_country'])
+                ->setRegion($request['buyer_billing_state'])
                 ->setRegion_id($regionModel->getId())
-                ->setPostcode($request['buyer_shipping_zip'])
+                ->setPostcode($request['buyer_billing_zip'])
                 ->setTelephone($telephone)
                 ->setFax('');
             $order->setBillingAddress($billingAddress);
 
-            // Try to get the shipping name. If we fail, fall back on the buyer_first/last_name fields
-            preg_match('#^(\w+\.)?\s*([\'\’\w]+)\s+([\'\’\w]+)\s*(\w+\.?)?$#', $request['buyer_shipping_name'], $name);
+            // Find shipping Region ID
+            $regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_shipping_state'], $request['buyer_shipping_country']);
 
-            if (array_key_exists(2, $name)) {
-                $request['buyer_shipping_first_name'] = $name[2];
-                $request['buyer_shipping_last_name'] = $name[3];
+            //Get a phone number, or make a dummy one
+            if ($request['buyer_shipping_phone']) {
+                $telephone = $request['buyer_shipping_phone'];
             } else {
-                $request['buyer_shipping_first_name'] = $request['buyer_first_name'];
-                $request['buyer_shipping_last_name'] = $request['buyer_last_name'];
+                $telephone = "000-000-0000";
             }
 
             // set Shipping Address

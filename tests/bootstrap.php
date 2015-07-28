@@ -12,3 +12,6 @@ foreach ($envDefaults as $key => $value) {
         putenv("{$key}={$value}");
     }
 }
+
+require_once '../../app/Mage.php';
+Mage::app();
