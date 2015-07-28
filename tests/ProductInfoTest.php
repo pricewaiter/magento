@@ -3,6 +3,8 @@
 class ProductInfo extends PHPUnit_Framework_TestCase
 {
     private $_ch = null;
+    private $existingSecret = null;
+    private $secret = '7964fdf170df8cbe12c75487c24699d5564f1a53d3c2b6fe';
 
     public function __construct()
     {
@@ -14,6 +16,7 @@ class ProductInfo extends PHPUnit_Framework_TestCase
         curl_setopt($this->_ch, CURLOPT_URL,
             "{$protocol}://{$hostname}/index.php/pricewaiter/productinfo");
     }
+
 
     public function postMessage($fields, $signature)
     {
@@ -28,12 +31,22 @@ class ProductInfo extends PHPUnit_Framework_TestCase
         ));
         curl_setopt($this->_ch, CURLOPT_POSTFIELDS, rtrim($postString, '&'));
 
-        return curl_exec($this->_ch);
+        // Stash the existing secret key and set one for testing.
+        $config = Mage::getModel('core/config');
+        $this->existingSecret = Mage::getStoreConfig('pricewaiter/configuration/api_secret');
+        $config->saveConfig('pricewaiter/configuration/api_secret', $this->secret);
+
+        $status = curl_exec($this->_ch);
+
+        // Reset the secret key.
+        $config->saveConfig('pricewaiter/configuration/api_secret', $this->existingSecret);
+
+        return $status;
     }
 
     public function testSimpleProduct()
     {
-        $signature = 'sha256=1ad5813456f31d6a97172f6f3aaa68ccd3675f12764e29eab0353db41cca1f21';
+        $signature = 'sha256=936813aecdbad097751ff49fdf6adb660589ac691fbc8ed84bcbf64461baa9ab';
 
         $fields = array(
             'product_sku' => 'ABC 456-Black-10',
@@ -59,7 +72,7 @@ EOR;
 
     public function testConfigurableProduct()
     {
-        $signature = 'sha256=ddb5282a97d8a71dee207e6488ce9ff29140e3bdd5b0ecbedad23336a97b4918';
+        $signature = 'sha256=762d247fe45890905c388c4881a2130f9f24923d5c6e26320be956097b2fa9ce';
 
         $fields = array(
             'product_sku' => 'wbk002c',
@@ -85,7 +98,7 @@ EOR;
 
     public function testBundleProduct()
     {
-        $signature = 'sha256=38b0881f31498061484d2d4189c426eb6fa18dddbab9e9881f079f867755a233';
+        $signature = 'sha256=075b44b01fa014db62f0344d06e6a7b41a7f14bb6a06abc4ef961cbfac74edcf';
 
         $fields = array(
             'product_sku' => 'hdb010',
@@ -109,7 +122,7 @@ EOR;
 
     public function testGroupedProduct()
     {
-        $signature = 'sha256=3bd2b05dfd657bb44993c5340365d5d50642507542080369e16e6e52ee14eb99';
+        $signature = 'sha256=cac0b0a0226dcf39029f0873e5b72736a550aa7b8f893e9cd6630625a916b6d1';
 
         $fields = array(
             'product_sku' => 'hdb010',
