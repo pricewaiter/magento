@@ -5,7 +5,7 @@ set -ex
 mysql -u root -e 'create database teststore;'
 
 # Configure n98-magerun
-cp "$TRAVIS_BUILD_DIR/travis/.n98-magerun.yml" "$HOME/."
+cp "$TRAVIS_BUILD_DIR/travis/.n98-magerun.yaml" "$HOME/"
 
 # Create install directory
 mkdir -p "$HOME/build"
@@ -20,7 +20,7 @@ mage install \
     --dbUser="root" \
     --installationFolder=. \
     --installSampleData=yes \
-    --magentoVersionByName="magento-ce-1.9.0.1" \
+    --magentoVersionByName="magento-ce-1.9.1.1" \
     --useDefaultConfigParams=yes
 
 # Testing
