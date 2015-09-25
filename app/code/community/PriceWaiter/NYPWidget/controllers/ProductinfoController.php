@@ -24,6 +24,7 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
         // Ensure that we have received POST data
         $requestBody = Mage::app()->getRequest()->getRawBody();
         $postFields = Mage::app()->getRequest()->getPost();
+        Mage::helper('nypwidget')->setHeaders();
 
         if (count($postFields) == 0) {
             $this->norouteAction();
