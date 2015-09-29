@@ -220,6 +220,9 @@ bootstrapPriceWaiter = ->
               return
         return
 
+      unless typeof window.PriceWaiterCategories == 'undefined'
+        PriceWaiter.setCategories(window.PriceWaiterCategories)
+
       PriceWaiter.setRegularPrice PriceWaiterRegularPrice
       # define getElementsByRegex to find required bundle options
 
