@@ -15,7 +15,7 @@
  *
 ###
 
-$(document).observe 'dom:loaded', ->
+bootstrapPriceWaiter = ->
   if typeof PriceWaiterOptions == 'object'
 
     # If this is a configurable product, find and return the simple
@@ -39,7 +39,7 @@ $(document).observe 'dom:loaded', ->
       return false unless productAddToCartForm.validator.validate()
 
       # Add the product form data to PriceWaiter's metadata
-      productForm = $('product_addtocart_form')
+      productForm = document.getElementById('product_addtocart_form')
       productConfiguration = productForm.serialize()
       PriceWaiter.setMetadata '_magento_product_configuration', encodeURIComponent(productConfiguration)
 
@@ -73,12 +73,10 @@ $(document).observe 'dom:loaded', ->
         if typeof opConfig == 'undefined'
           return
         # If this product has an upload file option, we can't use the NYP widget
-        productForm = $('product_addtocart_form')
+        productForm = document.getElementById('product_addtocart_form')
         if productForm.getInputs('file').length != 0
           console.log 'The PriceWaiter Name Your Price Widget does not support upload file options.'
-          $$('div.name-your-price-widget').each (pww) ->
-            pww.setStyle display: 'none'
-            return
+          document.getElementsByClassName('name-your-price-widget')[0].style.display = 'none';
         # Grab the updated price before opening the PriceWaiter window
         PriceWaiter.originalOpen = PriceWaiter.open
 
@@ -95,7 +93,7 @@ $(document).observe 'dom:loaded', ->
           return
 
         # Find the available options, and bind to them
-        productCustomOptions = $$('.product-custom-option')
+        productCustomOptions = document.getElementsByClassName('product-custom-option')
         for current of productCustomOptions
           if !isNaN(parseInt(current, 10))
             # Find the option label
@@ -115,11 +113,11 @@ $(document).observe 'dom:loaded', ->
       handleConfigurables = ->
         # Bind to each configurable options 'change' event
         spConfig.settings.each (setting) ->
-          attributeId = $(setting).id
+          attributeId = setting.id
           attributeId = attributeId.replace(/attribute/, '')
           optionName = spConfig.config.attributes[attributeId].label
           # If this option is required, tell the PriceWaiter widget about the requirement
-          if $(setting).hasClassName('required-entry') and typeof PriceWaiter.setProductOptionRequired == 'function'
+          if setting.hasClassName('required-entry') and typeof PriceWaiter.setProductOptionRequired == 'function'
             PriceWaiter.setProductOptionRequired optionName, true
           Event.observe setting, 'change', (event) ->
             # Update PriceWaiter's price and options when changes are made
@@ -180,7 +178,7 @@ $(document).observe 'dom:loaded', ->
 
       handleGrouped = ->
         # Get the Grouped product table rows
-        productTable = $$('table.grouped-items-table')[0]
+        productTable = document.getElementsByClassName('grouped-items-table')[0]
         productRows = productTable.select('tbody')[0]
         productRows = productRows.childElements()
         # Prevent users from attempting to name a price on grouped products without
@@ -248,9 +246,10 @@ $(document).observe 'dom:loaded', ->
         # return matching elements
 
       # Bind to Qty: input
-      if $('qty') != null
-        $('qty').observe 'change', ->
-          PriceWaiter.setQuantity $('qty').value
+      quantityInput = document.getElementById('qty')
+      if quantityInput != null
+        quantityInput.observe 'change', ->
+          PriceWaiter.setQuantity quantityInput.value
           return
       switch PriceWaiterProductType
         when 'simple'
@@ -273,3 +272,8 @@ $(document).observe 'dom:loaded', ->
       s.parentNode.insertBefore pw, s
       return
   return
+
+if window.addEventListener
+  window.addEventListener 'DOMContentLoaded', bootstrapPriceWaiter, no
+else
+  window.attachEvent 'onload', bootstrapPriceWaiter
