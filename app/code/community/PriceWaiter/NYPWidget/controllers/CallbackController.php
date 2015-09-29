@@ -27,6 +27,8 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
             return;
         }
 
+        Mage::helper('nypwidget')->setHeaders();
+
         try {
             $request = $this->getRequest()->getPost();
             if (!array_key_exists('pricewaiter_id', $request)) {

@@ -39,31 +39,28 @@ class PriceWaiter_NYPWidget_Model_Callback
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
 
-        // If PriceWaiter returns an invalid response
-        if (curl_exec($ch) == "1") {
-            $message = "The Name Your Price Widget has received a valid order notification.";
-            if ($this->_test) {
-                $message .= ' This is a TEST order that will be created and canceled.';
-            }
-            Mage::log($message);
-            $this->_log($message);
-        } else {
-            $message = "An invalid PriceWaiter order notification has been received.";
-            Mage::log($message);
-            $this->_log($message);
-            return;
-        }
-
-        // Verify that we have not already received this callback based on the `pricewaiter_id` field
-        $pricewaiterOrder = Mage::getModel('nypwidget/order');
-        $pricewaiterOrder->loadByPriceWaiterId($request['pricewaiter_id']);
-        if ($pricewaiterOrder->getId()) {
-            $message = "Received a duplicate order from the PriceWaiter Callback API. Ignoring.";
-            $this->_log($message);
-            return;
-        }
-
         try {
+            // If PriceWaiter returns an invalid response
+            if (curl_exec($ch) == "1") {
+                $message = "The Name Your Price Widget has received a valid order notification.";
+                if ($this->_test) {
+                    $message .= ' This is a TEST order that will be created and canceled.';
+                }
+                Mage::log($message);
+                $this->_log($message);
+            } else {
+                $message = "An invalid PriceWaiter order notification has been received.";
+                throw(new Exception($message));
+            }
+
+            // Verify that we have not already received this callback based on the `pricewaiter_id` field
+            $pricewaiterOrder = Mage::getModel('nypwidget/order');
+            $pricewaiterOrder->loadByPriceWaiterId($request['pricewaiter_id']);
+            if ($pricewaiterOrder->getId()) {
+                $message = "Received a duplicate order from the PriceWaiter Callback API. Ignoring.";
+                throw(new Exception($message));
+            }
+
 
             // First, determine the store that this order corresponds to.
             // This is a new feature as of 1.2.2, so we need to make sure the API
@@ -282,6 +279,9 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $order->sendNewOrderEmail();
             }
 
+            // Add order Increment ID to response
+            Mage::app()->getResponse()->setHeader('X-Platform-Order-Id', $order->getIncrementId());
+
             // If this is a test order, cancel it to prevent it from any further processing.
             if ($this->_test) {
                 $order->cancel();
@@ -309,6 +309,8 @@ class PriceWaiter_NYPWidget_Model_Callback
             $this->_log("The Name Your Price Widget has created order #"
                 . $order->getIncrementId() . " with order ID " . $order->getId());
         } catch (Exception $e) {
+            Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
+            Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
             $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
             $this->_log($e->getMessage());
         }

@@ -59,9 +59,9 @@ class ProductInfo extends PHPUnit_Framework_TestCase
     "inventory": 7,
     "can_backorder": false,
     "retail_price": "295",
-    "retail_price_currency": "EUR",
+    "retail_price_currency": "USD",
     "regular_price": "295.0000",
-    "regular_price_currency": "EUR"
+    "regular_price_currency": "USD"
 }
 EOR;
 
@@ -85,9 +85,9 @@ EOR;
     "inventory": 25,
     "can_backorder": false,
     "retail_price": "120.0000",
-    "retail_price_currency": "EUR",
+    "retail_price_currency": "USD",
     "regular_price": "150.0000",
-    "regular_price_currency": "EUR"
+    "regular_price_currency": "USD"
 }
 EOR;
 
@@ -111,7 +111,7 @@ EOR;
     "inventory": 0,
     "can_backorder": true,
     "retail_price": "245",
-    "retail_price_currency": "EUR"
+    "retail_price_currency": "USD"
 }
 EOR;
 
@@ -135,9 +135,9 @@ EOR;
     "inventory": 7,
     "can_backorder": false,
     "retail_price": "3200",
-    "retail_price_currency": "EUR",
+    "retail_price_currency": "USD",
     "regular_price": "3200",
-    "regular_price_currency": "EUR"
+    "regular_price_currency": "USD"
 }
 EOR;
 

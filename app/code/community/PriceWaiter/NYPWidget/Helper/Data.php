@@ -363,4 +363,16 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return min($costs);
     }
+
+    public function setHeaders()
+    {
+        $magentoEdition = 'Magento ' . Mage::getEdition();
+        $magentoVersion = Mage::getVersion();
+        $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
+        Mage::app()->getResponse()->setHeader('X-Platform', $magentoEdition, true);
+        Mage::app()->getResponse()->setHeader('X-Platform-Version', $magentoVersion, true);
+        Mage::app()->getResponse()->setHeader('X-Platform-Extension-Version', $extensionVersion, true);
+
+        return true;
+    }
 }
