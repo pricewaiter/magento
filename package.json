@@ -1,3 +1,8 @@
 {
-    "dependencies" : { "coffee-script" : "1.9.1" }
+    "license": "Apache-2.0",
+    "repository": "npm/npm",
+    "devDependencies" : { "coffee-script" : "1.10.0" },
+    "scripts": {
+      "build-coffee": "coffee --no-header -c -o js/pricewaiter coffee/pricewaiter"
+    }
 }
