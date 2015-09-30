@@ -61,6 +61,8 @@
                 }
             };
 
+            var PriceWaiterCategories = <?php echo $helper->getCategoriesAsJSON($_product); ?>;
+
             var PriceWaiterRegularPrice = '<?php echo (float) $_product->getPrice(); ?>';
             var PriceWaiterProductType = '<?php echo $_product->getTypeId(); ?>';
             var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";

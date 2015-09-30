@@ -375,4 +375,37 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
         return true;
     }
+
+    public function getCategoriesAsJSON($product)
+    {
+        $categorization = array();
+        $assignedCategories = $product->getCategoryCollection()
+            ->addAttributeToSelect('name');
+
+        $baseUrl = Mage::app()->getStore()->getBaseUrl();
+
+        // Find the path (parents) of each category, and add their information
+        // to the categorization array
+        foreach ($assignedCategories as $assignedCategory) {
+            $parentCategories = array();
+            $path = $assignedCategory->getPath();
+            $parentIds = explode('/', $path);
+            array_shift($parentIds); // We don't care about the root category
+
+            $categoryModel = Mage::getModel('catalog/category');
+            foreach($parentIds as $parentCategoryId) {
+                $parentCategory = $categoryModel->load($parentCategoryId);
+                $parentCategoryUrl = preg_replace('/^\//', '', $parentCategory->getUrlPath());
+
+                $parentCategories[] = array(
+                    'name' => $parentCategory->getName(),
+                    'url' => $baseUrl . '/' . $parentCategoryUrl
+                );
+            }
+
+            $categorization[] = $parentCategories;
+        }
+
+        return json_encode($categorization);
+    }
 }
