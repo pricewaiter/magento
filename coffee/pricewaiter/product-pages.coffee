@@ -25,11 +25,14 @@ bootstrapPriceWaiter = ->
         spConfig.settings.each((setting) ->
           settingId = setting.id.replace('attribute', '')
           options = spConfig.config.attributes[settingId].options
-          productId = options.find((option) ->
+          product = options.find((option) ->
             option.id == setting.value
-          ).allowedProducts[0]
+          )
 
-          PriceWaiter.setSKU(PriceWaiterIdToSkus[productId])
+          unless typeof product == "undefined"
+            productId = product.allowedProducts[0]
+
+            PriceWaiter.setSKU(PriceWaiterIdToSkus[productId])
         )
 
       PriceWaiter.getSKU()
