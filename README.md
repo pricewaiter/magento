@@ -1,4 +1,4 @@
-# PriceWaiter® Name Your Price Widget Extension
+# PriceWaiter for Magento
 
 [![Build Status](https://api.travis-ci.org/pricewaiter/magento.svg)](https://travis-ci.org/pricewaiter/magento)
 
