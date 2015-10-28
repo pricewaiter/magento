@@ -8,3 +8,4 @@ TODO
 js/pricewaiter/*js
 node_modules
 package.xml
+**/pwconfig.local.php
