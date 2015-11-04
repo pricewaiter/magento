@@ -28,8 +28,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
 
-    private $_widgetUrl = 'https://widget.pricewaiter.com/';
-    private $_manageUrl = 'https://manage.pricewaiter.com/';
+    private $_widgetUrl = 'https://widget.pricewaiter.com';
+    private $_manageUrl = 'https://manage.pricewaiter.com';
     private $_apiUrl = 'https://api.pricewaiter.com';
 
     public function __construct()
@@ -181,17 +181,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     public function getWidgetUrl()
     {
         if ($this->isEnabledForStore()) {
-            return $this->_widgetUrl . 'script/'
+            return $this->_widgetUrl . '/script/'
                 . Mage::getStoreConfig('pricewaiter/configuration/api_key')
                 . ".js";
         }
 
-        return $this->_widgetUrl . 'nyp/script/widget.js';
+        return $this->_widgetUrl . '/nyp/script/widget.js';
     }
 
     public function getApiUrl()
     {
-        return $this->_apiUrl . '1/order/verify?api_key='
+        return $this->_apiUrl . '/1/order/verify?api_key='
             . Mage::getStoreConfig('pricewaiter/configuration/api_key');
     }
 
