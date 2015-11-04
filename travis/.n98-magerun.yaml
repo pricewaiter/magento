@@ -15,3 +15,9 @@ commands:
         encryption_key:
         use_rewrites: no
         use_secure: no
+    demo-data-packages:
+      - name: sample-data-1.9.1.0
+        version: 1.9.1.0
+        dist:
+          url: http://magento.com/downloads/assets/1.9.1.0/magento-sample-data-1.9.1.0.tar
+          type: tar
