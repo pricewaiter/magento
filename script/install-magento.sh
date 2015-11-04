@@ -20,7 +20,7 @@ mage install \
     --dbUser="root" \
     --installationFolder=. \
     --installSampleData=yes \
-    --magentoVersionByName="magento-ce-1.9.2.2" \
+    --magentoVersion="1.9.2.2" \
     --useDefaultConfigParams=yes
 
 # Testing
