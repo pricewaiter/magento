@@ -15,20 +15,4 @@
  *
 ###
 
-bootstrapPriceWaiter = ->
-
-    if window.PriceWaiterWidgetUrl
-        do ->
-            pw = document.createElement('script')
-            pw.type = 'text/javascript'
-            pw.src = window.PriceWaiterWidgetUrl
-            pw.async = true
-            s = document.getElementsByTagName('script')[0]
-            s.parentNode.insertBefore pw, s
-            return
-    return
-
-if window.addEventListener
-    window.addEventListener 'DOMContentLoaded', bootstrapPriceWaiter, no
-else
-    window.attachEvent 'onload', bootstrapPriceWaiter
+# This will be removed in a future update.
