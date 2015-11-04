@@ -65,7 +65,6 @@
 
             var PriceWaiterRegularPrice = '<?php echo (float) $_product->getPrice(); ?>';
             var PriceWaiterProductType = '<?php echo $_product->getTypeId(); ?>';
-            var PriceWaiterWidgetUrl = "<?php echo $helper->getWidgetUrl(); ?>";
             //]]>
         </script>
         <div class="name-your-price-widget"
@@ -89,4 +88,7 @@
         </script>
         <?php endif; ?>
     <?php endif; ?>
+
+    <script src="<?php echo $helper->getWidgetUrl(); ?>" async></script>
+
 <?php endif; ?>
