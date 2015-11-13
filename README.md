@@ -48,15 +48,12 @@ field in the 'General' tab. Setting this to 'No' will hide the button in this ca
 
 ## Appearance of the Widget
 
-In your Magento Admin Panel, under System -> Configuration, click 'PriceWaiter' under the 'Sales'
-tab. The color of the button, and button's hover color can be controlled under the 'Appearance' heading.
-Saving these settings provides a preview button on this page.
-
-Changing the configuration scope allows for the appearance to be controlled by store.
+Color and size can be controlled by configuring the button in your campaign on PriceWaiter.com.
 
 The widget is displayed on product pages inside a `<div>` with the class 'name-your-price-widget'. This
 allows custom CSS to alter the position of the button on your product page. For example, to add 20px of
 padding around the button on your product page, add this CSS to your existing template.
+
 ```css
 .name-your-price-widget {
     padding: 20px;
