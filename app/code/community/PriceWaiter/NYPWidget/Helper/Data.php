@@ -38,8 +38,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             $this->_manageUrl = getenv('PRICEWAITER_MANAGE_URL');
         }
 
-        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
-            $this->_apiUrl = getenv('PRICEWAITER_WIDGET_URL');
+        if (!!getenv('PRICEWAITER_API_URL')) {
+            $this->_apiUrl = getenv('PRICEWAITER_API_URL');
         }
     }
 
