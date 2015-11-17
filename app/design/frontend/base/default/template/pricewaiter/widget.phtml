@@ -22,6 +22,10 @@
     $customCss = Mage::getStoreConfig('pricewaiter/appearance/display_custom_css');
     $helper = $this->_getHelper();
 
+    $magentoVersion = Mage::getVersion();
+    $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
+
+
     $brand = $_product->getData('brand');
     $image = $_product->getImageUrl();
     $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -58,6 +62,10 @@
                     <?php if ($image != ''): ?>
                     image: <?php echo json_encode($image); ?>
                     <?php endif; ?>
+                },
+                metadata: {
+                    _magento_version: "<?php echo $magentoVersion; ?>",
+                    _magento_extention_version: "<?php echo $extensionVersion; ?>"
                 }
             };
 
