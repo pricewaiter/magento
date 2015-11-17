@@ -17,10 +17,6 @@
  *
  */
 
-if (is_file(dirname(__FILE__).'/../../pwconfig.local.php')) {
-    include dirname(__FILE__).'/../../pwconfig.local.php';
-}
-
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     private $_product = false;
@@ -34,16 +30,16 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function __construct()
     {
-        if (!!defined('_PW_WIDGET_URL_')) {
-            $this->_widgetUrl = _PW_WIDGET_URL_;
+        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
+            $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
         }
 
-        if (!!defined('_PW_MANAGE_URL_')) {
-            $this->_manageUrl = _PW_MANAGE_URL_;
+        if (!!getenv('PRICEWAITER_MANAGE_URL')) {
+            $this->_manageUrl = getenv('PRICEWAITER_MANAGE_URL');
         }
 
-        if (!!defined('_PW_API_URL_')) {
-            $this->_apiUrl = _PW_API_URL_;
+        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
+            $this->_apiUrl = getenv('PRICEWAITER_WIDGET_URL');
         }
     }
 
