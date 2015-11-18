@@ -275,6 +275,15 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction->addCommitCallback(array($order, 'place'));
             $transaction->addCommitCallback(array($order, 'save'));
             $transaction->save();
+
+            // Add this order to the list of received callback orders
+            $pricewaiterOrder->setData(array(
+                'store_id' => $order->getStoreId(),
+                'pricewaiter_id' => $request['pricewaiter_id'],
+                'order_id' => $order->getId()
+            ));
+            $pricewaiterOrder->save();
+
             if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_new_order_email')) {
                 $order->sendNewOrderEmail();
             }
@@ -296,13 +305,6 @@ class PriceWaiter_NYPWidget_Model_Callback
                 ->loadByIncrementId($invoiceId);
             $invoice->capture()->save();
 
-            // Add this order to the list of received callback orders
-            $pricewaiterOrder->setData(array(
-                'store_id' => $order->getStoreId(),
-                'pricewaiter_id' => $request['pricewaiter_id'],
-                'order_id' => $order->getId()
-            ));
-            $pricewaiterOrder->save();
 
             Mage::log("The Name Your Price Widget has created order #"
                 . $order->getIncrementId() . " with order ID " . $order->getId());
