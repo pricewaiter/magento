@@ -27,11 +27,16 @@
 
 
     // prefer brand, but fallback to manufacturer attribute
+    // getAttributeText will fail when manufacturer is deleted.
+    // getResource -> getAttribute will safely give Object when attribute exists
     $brand = $_product->getData('brand');
-    $manufacturer = $_product->getAttributeText('manufacturer');
+    $manufacturer_id = $_product->getResource()->getAttribute('manufacturer');
 
-    if (!$brand && $manufacturer) {
-        $brand = $manufacturer;
+    if (!$brand && $manufacturer_id) {
+        $manufacturer = $_product->getAttributeText('manufacturer');
+        if ($manufacturer) {
+            $brand = $manufacturer;
+        }
     }
 
     $image = $_product->getImageUrl();
