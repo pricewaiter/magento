@@ -26,7 +26,14 @@
     $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
 
 
+    // prefer brand, but fallback to manufacturer attribute
     $brand = $_product->getData('brand');
+    $manufacturer = $_product->getAttributeText('manufacturer');
+
+    if (!$brand && $manufacturer) {
+        $brand = $manufacturer;
+    }
+
     $image = $_product->getImageUrl();
     $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
     if ($_product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
