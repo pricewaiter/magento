@@ -24,22 +24,22 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
 
-    private $_widgetUrl = 'https://widget.pricewaiter.com';
-    private $_manageUrl = 'https://manage.pricewaiter.com';
     private $_apiUrl = 'https://api.pricewaiter.com';
+    private $_retailerUrl = 'https://retailer.pricewaiter.com';
+    private $_widgetUrl = 'https://widget.pricewaiter.com';
 
     public function __construct()
     {
-        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
-            $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
-        }
-
-        if (!!getenv('PRICEWAITER_MANAGE_URL')) {
-            $this->_manageUrl = getenv('PRICEWAITER_MANAGE_URL');
-        }
-
         if (!!getenv('PRICEWAITER_API_URL')) {
             $this->_apiUrl = getenv('PRICEWAITER_API_URL');
+        }
+
+        if (!!getenv('PRICEWAITER_RETAILER_URL')) {
+            $this->_retailerUrl = getenv('PRICEWAITER_RETAILER_URL');
+        }
+
+        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
+            $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
         }
     }
 
@@ -167,11 +167,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_buttonEnabled;
     }
 
-    public function getButtonSettingsUrl()
+    public function getPriceWaiterSettingsUrl()
     {
         $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
 
-        return sprintf("%s/stores/%s/button", $this->_manageUrl, $apiKey);
+        return sprintf("%s/", $this->_retailerUrl);
     }
 
     public function getWidgetUrl()

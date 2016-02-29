@@ -27,6 +27,27 @@
             <class>pricewaiter-tab</class>
             <header_css>pricewaiter-header</header_css>
             <groups>
+                <appearance translate="label">
+                    <label>PriceWaiter Settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <button_link translate="label comment">
+                            <label>Widget Appearance</label>
+                            <frontend_type>link</frontend_type>
+                            <frontend_model>nypwidget/adminhtml_link</frontend_model>
+                            <comment><![CDATA[Follow the provided link to customize the PriceWaiter widget appearance.]]></comment>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </button_link>
+                    </fields>
+                </appearance>
                 <configuration translate="label">
                     <label>Configuration</label>
                     <frontend_type>text</frontend_type>
@@ -187,27 +208,7 @@
                         </group_select>
                     </fields>
                 </conversion_tools>
-                <appearance translate="label">
-                    <label>Appearance</label>
-                    <frontend_type>text</frontend_type>
-                    <sort_order>10</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>1</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <expanded>1</expanded>
-                    <fields>
-                        <button_link translate="label comment">
-                            <label>Widget Appearance</label>
-                            <frontend_type>link</frontend_type>
-                            <frontend_model>nypwidget/adminhtml_link</frontend_model>
-                            <comment><![CDATA[Follow the provided link to customize the PriceWaiter widget appearance.]]></comment>
-                            <sort_order>10</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </button_link>
-                    </fields>
-                </appearance>
+
                 <customer_interaction>
                     <label>Customer Interaction</label>
                     <frontend_type>text</frontend_type>
