@@ -3,7 +3,8 @@
 // Defaults for possibly-missing environment variables
 $envDefaults = array(
     'PROTOCOL' => 'https',
-    'VIRTUALHOST_NAME' => 'pricewaiter-magento.ngrok.io'
+    'VIRTUALHOST_NAME' => 'pricewaiter-magento.ngrok.io',
+    'PORT' => '80067',
 );
 
 foreach ($envDefaults as $key => $value) {

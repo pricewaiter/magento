@@ -13,7 +13,7 @@ cd "$HOME/build"
 
 # Install magento
 mage install \
-    --baseUrl="http://$VIRTUALHOST_NAME" \
+    --baseUrl="http://$VIRTUALHOST_NAME:80067" \
     --dbHost="127.0.0.1" \
     --dbName="teststore" \
     --dbPass="" \

@@ -10,11 +10,12 @@ class ProductInfo extends PHPUnit_Framework_TestCase
     {
         $protocol = getenv('PROTOCOL');
         $hostname = getenv('VIRTUALHOST_NAME');
+        $port = getenv('PORT');
         $this->_ch = curl_init();
         curl_setopt($this->_ch, CURLOPT_POST, 1);
         curl_setopt($this->_ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->_ch, CURLOPT_URL,
-            "{$protocol}://{$hostname}/index.php/pricewaiter/productinfo");
+            "{$protocol}://{$hostname}:{$port}/index.php/pricewaiter/productinfo");
     }
 
 
