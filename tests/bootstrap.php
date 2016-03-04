@@ -4,7 +4,7 @@
 $envDefaults = array(
     'PROTOCOL' => 'https',
     'VIRTUALHOST_NAME' => 'pricewaiter-magento.ngrok.io',
-    'PORT' => '80067',
+    'PORT' => '8008',
 );
 
 foreach ($envDefaults as $key => $value) {
