@@ -194,6 +194,24 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $productPrice;
     }
 
+    public function getProductBrand($product) {
+
+        // prefer brand, but fallback to manufacturer attribute
+        // getAttributeText will throw exception when manufacturer attribute is deleted.
+        // getResource -> getAttribute will safely give Object when attribute exists
+        $brand = $product->getData('brand');
+        $manufacturer_id = $product->getResource()->getAttribute('manufacturer');
+
+        if (!$brand && $manufacturer_id) {
+            $manufacturer = $product->getAttributeText('manufacturer');
+            if ($manufacturer) {
+                $brand = $manufacturer;
+            }
+        }
+
+        return $brand;
+    }
+
     private function _getProduct()
     {
         if (!$this->_product) {

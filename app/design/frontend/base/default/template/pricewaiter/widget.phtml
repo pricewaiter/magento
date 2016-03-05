@@ -25,19 +25,7 @@
     $magentoVersion = Mage::getVersion();
     $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
 
-
-    // prefer brand, but fallback to manufacturer attribute
-    // getAttributeText will throw exception when manufacturer attribute is deleted.
-    // getResource -> getAttribute will safely give Object when attribute exists
-    $brand = $_product->getData('brand');
-    $manufacturer_id = $_product->getResource()->getAttribute('manufacturer');
-
-    if (!$brand && $manufacturer_id) {
-        $manufacturer = $_product->getAttributeText('manufacturer');
-        if ($manufacturer) {
-            $brand = $manufacturer;
-        }
-    }
+    $brand = $helper->getProductBrand($_product);
 
     $image = $_product->getImageUrl();
     $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
