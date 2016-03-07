@@ -199,6 +199,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     private function safeGetAttributeText($product, $code) {
         $value = $product->getData($code);
 
+        // prevent Magento from rendering "No" when nothing is selected.
+        if (!$value) {
+            return false;
+        }
+
         $resource = $product->getResource();
         if (!$resource) {
             return false;
