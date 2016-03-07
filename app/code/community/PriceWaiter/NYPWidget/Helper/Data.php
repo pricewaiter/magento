@@ -75,6 +75,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             $this->_conversionToolsEnabled = true;
         }
 
+        $product = $this->_getProduct();
+
         // Is the PriceWaiter widget enabled for this category
         $category = Mage::registry('current_category');
         if (is_object($category)) {
