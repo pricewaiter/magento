@@ -229,6 +229,14 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
+        // try looking up popular plugin for brand attribute
+        if (!$brand) {
+            $manufacturer = $this->safeGetAttributeText($product, 'c2c_brand');
+            if ($manufacturer) {
+                $brand = $manufacturer;
+            }
+        }
+
         return $brand;
     }
 
