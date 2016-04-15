@@ -3,7 +3,6 @@
 /vendor/
 npm-debug.log
 nypwidget-*
-phpunit.xml
 testing.sh
 TODO
 js/pricewaiter/*js
