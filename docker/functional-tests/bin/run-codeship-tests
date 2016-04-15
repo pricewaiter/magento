@@ -8,6 +8,7 @@ do
     curl \
         --retry 50 \
         --retry-delay $RETRY_DELAY \
+        --silent \
         $MAGENTO_BASE_URL > /dev/null
 
     CURL_RESULT=$?
