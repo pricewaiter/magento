@@ -1,0 +1,7 @@
+#!/bin/bash
+# Runs the PHPUnit executable inside the PriceWaiter extension directory.
+pushd /var/www/htdocs/.modman/pricewaiter
+vendor/bin/phpunit $@
+RESULT=$?
+popd
+exit $RESULT

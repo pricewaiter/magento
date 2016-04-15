@@ -1,0 +1,16 @@
+# Docker image that runs functional tests (written in JS) against a running Magento instance.
+FROM node:5
+
+# Bring in custom .npmrc for private module access
+COPY ./docker/.npmrc /root/
+
+COPY ./docker/functional-tests/bin/* /usr/local/bin/
+
+WORKDIR /usr/src
+
+COPY ./tests/functional/package.json ./
+RUN npm install
+
+COPY ./tests/functional ./
+
+CMD ["run-codeship-tests"]

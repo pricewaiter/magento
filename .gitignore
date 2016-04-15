@@ -1,6 +1,7 @@
 *.sublime-workspace
 /build/*
 /vendor/
+npm-debug.log
 nypwidget-*
 phpunit.xml
 testing.sh
@@ -9,3 +10,12 @@ js/pricewaiter/*js
 node_modules
 package.xml
 **/pwconfig.local.php
+
+# /lib is a good place to stash Magento source for voluming in.
+/lib
+
+# To edit GH wiki locally: git clone git@github.com:pricewaiter/magento-dev.wiki.git wiki
+/wiki
+
+# AES Encryption Key for Codeship
+codeship.aes

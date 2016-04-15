@@ -1,0 +1,16 @@
+#!/bin/bash
+# Runs PHPUnit unit tests suite inside docker containers.
+# Hint: any arguments you pass to this script will be forwarded to PHPUnit running inside the docker container.
+
+# TODO: Allow switching container in some convenient way.
+CONTAINER=magento_v19php55_1
+
+docker ps --format '{{.Names}}' | grep $CONTAINER > /dev/null
+IS_RUNNING=$?
+
+if [ $IS_RUNNING == 0 ]; then
+    CMD="cd \$PRICEWAITER_DIR && vendor/bin/phpunit --testsuite=unit $@"
+    docker exec -it $CONTAINER sh -c "$CMD"
+else
+    echo "Magento container is not running. Hint: start it using docker-compose up"
+fi

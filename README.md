@@ -1,83 +1,31 @@
-# PriceWaiter for Magento
+# PriceWaiter Magento Extension
 
-[![Build Status](https://api.travis-ci.org/pricewaiter/magento.svg)](https://travis-ci.org/pricewaiter/magento)
+## Development Flow
 
-The PriceWaiter Name Your Price Widget Extension integrates the Name Your Price button available
-from [PriceWaiter](http://pricewaiter.com) into your Magento store.
+0. Ensure your Docker machine is accessible as **magento.local**: `echo "$(docker-machine ip dev) magento.local" >> /etc/hosts`
+1. Start the docker environment up: `docker-compose up`
+    1. Magento 1.9 + PHP 5.5 available on [http://magento.local:1955](http://magento.local:1955) (Username: `admin`, password: `password123`)
+2. Write code :saxophone:
+3. Run tests :tada:
 
-For more information about this extension's features, or to install through the Magento Connect
-Manager, visit our page on [Magento Connect](http://www.magentocommerce.com/magento-connect/).
+## Tests
 
-## Installation
+Tests run inside Docker containers. There are 2 sets of tests:
 
-We recommend installing this extension through the Magento Connect Manager. If you prefer to
-install via git, we suggest using [modman](https://github.com/colinmollenhour/modman). You will
-also need a PriceWaiter account and API key to enable the widget. Signup for a PriceWaiter account
-[here](http://www.pricewaiter.com/) and get your API key by logging into your account and selecting
-'Name Your Price Button' from the left navigation. The API key is in the second block of JavaScript.
+#### Unit Tests (`bin/run-unit-tests`)
 
-1. Navigate to the root directory of your Magento installation
-2. If you have not initiallized modman, execute `modman init`.
-3. Navigate to '.modman' and execute `modman clone git://github.com/pricewaiter/magento.git`. This will
-clone the git repo into your Magento install, and create the necessary symlinks.
-4. Clear your Magento Cache, and log into your Magento Admin Panel. If you are logged in now, you may
-need to log out and back in to trigger the installation process.
-5. In Magento, navigate to System -> Configuration. Under the 'Advanced' tab, click 'Developer', and
-under the 'Template Settings' heading set 'Allow Symlinks' to 'Yes'.
-6. Under the 'Sales' tab, click 'PriceWaiter'. Enter your API Key into the 'API Key' field.
-7. Log into your PriceWaiter account, and click the 'Name Your Price Button' link. In the 'New Order
-Notification API' field, enter 'http://yourmagentostoreurl.com/pricewaiter/callback'. Be sure to
-reploace 'yourmagentostoreurl.com' with the Base URL of your Magento Store.
+Runs `phpunit --testsuite=unit` (see `tests/unit`). Unit tests should not touch the database. *Ideally* they don't touch any Magento code at all.
 
-The PriceWaiter Name Your Price Extension is now installed in your Magento store.
+#### Integration Tests (`bin/run-integration-tests`)
 
-## Controlling the Widget
+Runs `phpunit --testsuite=integration` (see `tests/integration`). Integration tests can interact with an installed Magento system.
 
-This extension allows you to enable the Name Your Price button by store, product, or category.
-In your Magento Admin Panel, under System -> Configuration, click 'PriceWaiter' under the 'Sales'
-tab. You can disable the button by setting 'Enabled' to 'No'. You can also change the configuration
-scope, and set any options by store.
+**HINT:** Any arguments you pass to these scripts will be forwarded to `phpunit`.
 
-To disable the button for a product, select Catalog -> Manage Products in your Magento Admin Panel.
-Edit the product you would like to disable the button for, and find the 'PriceWaiter Widget Enabled'
-field in the 'General' tab. Setting this to 'No' will hide the button on this product's page.
+## phpMyAdmin
 
-To disable the button for a category, select Catalog -> Manage Categories in your Magento Admin Panel.
-Edit the category you would like to disable the button for, and find the 'PriceWaiter Widget Enabled'
-field in the 'General' tab. Setting this to 'No' will hide the button in this category.
+phpMyAdmin runs on [http://magento.local:7777](http://magento.local:7777). There is a separate database for each Magento installation.
 
-## Appearance of the Widget
+## Releasing a New Version
 
-Color and size can be controlled by configuring the button in your campaign on PriceWaiter.com.
-
-The widget is displayed on product pages inside a `<div>` with the class 'name-your-price-widget'. This
-allows custom CSS to alter the position of the button on your product page. For example, to add 20px of
-padding around the button on your product page, add this CSS to your existing template.
-
-```css
-.name-your-price-widget {
-    padding: 20px;
-}
-```
-
-## Building as a custom package
-
-As of version 1.2.5, you can now build the Extension as a custom package from source.
-
-Dependencies:
-
-* [modman](https://github.com/colinmollenhour/modman)
-* [composer](https://getcomposer.org/)
-* [npm](https://www.npmjs.com/)
-
-Build Instructions:
-
-1. Create a Magento store to use for development.
-2. Follow steps 1-4 of the installation instructions.
-3. Make your desired modifications to the extension in `.modman/magento/`
-4. Run `npm install` in `.modman/magento`.
-5. Run `composer install` in `.modman/magento`.
-6. Run `vendor/bin/magegen list` to review all subcommands of the make tool.
-7. When you are ready to build the new package, execute `vendor/bin/magegen build`
-
-You should now have a 'nypwidget-{version number}.tgz' file in your git repo.
+_TODO: Write this part._

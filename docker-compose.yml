@@ -1,0 +1,36 @@
+mysql:
+    image: mysql:5.6
+    environment:
+        - MYSQL_ROOT_PASSWORD=password
+
+phpmyadmin:
+    build: docker/phpmyadmin
+    ports:
+        - "7777:80"
+    links:
+        - mysql
+
+v19php55:
+  build: .
+  dockerfile: ./docker/v1.9-php5.5/Dockerfile
+  environment:
+    - MAGENTO_DB_PASSWORD=password
+    - MAGENTO_DB_USER=root
+    # Use these variables to link into your PriceWaiter docker environment running locally.
+    - PRICEWAITER_API_URL=http://dockerhost:8008
+    - PRICEWAITER_RETAILER_URL=http://localhost:8009
+    - PRICEWAITER_WIDGET_URL=http://dockerhost:8006
+  extra_hosts:
+    # Important: Tell tests how to find magento host internally.
+    - "magento.local:127.0.0.1"
+  links:
+    - mysql
+  ports:
+    - "1955:1955"
+  volumes:
+    - ./src:/var/www/htdocs/.modman/pricewaiter/src
+    - ./tests:/var/www/htdocs/.modman/pricewaiter/tests
+    # Download source into lib/magento-1.9 and uncomment these to volume it in.
+    # - ./lib/magento-1.9/app/code/core:/var/www/htdocs/app/code/core
+    # - ./lib/magento-1.9/lib:/var/www/htdocs/lib
+
