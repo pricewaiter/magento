@@ -19,65 +19,93 @@
 
 class PriceWaiter_NYPWidget_Model_Callback
 {
+    /**
+     * @var PriceWaiter_NYPWidget_Helper_Orders
+     */
+    private $_orderHelper = null;
 
-    private $_store;
-    private $_product;
+    /**
+     * @var PriceWaiter_NYPWidget_Helper_Data
+     */
+    private $_helper = null;
 
-    private $_test = false;
-
-    public function processRequest($request)
+    /**
+     * @param  Array $request
+     * @return PriceWaiter_NYPWidget_Model_Order|false
+     */
+    public function getExistingOrder(Array $request)
     {
-        if ($request['test'] == 1) {
-            $this->_test = true;
+        $existingOrder = Mage::getModel('nypwidget/order');
+        $existingOrder->loadByPriceWaiterId($request['pricewaiter_id']);
+
+        if ($existingOrder->getId()) {
+            return $existingOrder;
         }
 
-        // Build URL to check validity of order notification.
-        $url = Mage::helper('nypwidget')->getOrderVerificationUrl();
+        return false;
+    }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($request));
+    /**
+     * @param  Array  $request
+     * @return Mage_Core_Model_Store
+     * @throws PriceWaiter_NYPWidget_Exception_ApiKey If no store configured for API key.
+     */
+    public function getStore(Array $request)
+    {
+        $apiKey = isset($request['api_key']) ? $request['api_key'] : null;
+        $store = false;
+
+        if ($apiKey) {
+            $store = $this->getHelper()->getStoreByPriceWaiterApiKey($apiKey);
+        }
+
+        if (!$store) {
+            throw new PriceWaiter_NYPWidget_Exception_ApiKey();
+        }
+
+        return $store;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isTestOrder(Array $request)
+    {
+        return !empty($request['test']);
+    }
+
+    public function logIncomingOrder(Array $request)
+    {
+        $message = "The Name Your Price Widget has received a valid order notification.";
+
+        if ($this->isTestOrder($request)) {
+            $message .= ' This is a TEST order that will be created and canceled.';
+        }
+
+        $this->getHelper()->log($message);
+    }
+
+    /**
+     * @param  Array  $request
+     * @return Mage_Sales_Model_Order
+     */
+    public function processRequest(Array $request)
+    {
+        $orderHelper = $this->getOrderHelper();
+        $orderHelper->verifyPriceWaiterOrderData($request);
+
+        $store = $this->getStore($request);
+
+        $existingOrder = $this->getExistingOrder($request);
+        if ($existingOrder) {
+            throw new PriceWaiter_NYPWidget_Exception_DuplicateOrder($existingOrder);
+        }
 
         try {
-            // If PriceWaiter returns an invalid response
-            if (curl_exec($ch) == "1") {
-                $message = "The Name Your Price Widget has received a valid order notification.";
-                if ($this->_test) {
-                    $message .= ' This is a TEST order that will be created and canceled.';
-                }
-                Mage::log($message);
-                $this->_log($message);
-            } else {
-                $message = "An invalid PriceWaiter order notification has been received.";
-                throw(new Exception($message));
-            }
-
-            // Verify that we have not already received this callback based on the `pricewaiter_id` field
-            $pricewaiterOrder = Mage::getModel('nypwidget/order');
-            $pricewaiterOrder->loadByPriceWaiterId($request['pricewaiter_id']);
-            if ($pricewaiterOrder->getId()) {
-                $message = "Received a duplicate order from the PriceWaiter Callback API. Ignoring.";
-                throw(new Exception($message));
-            }
-
-
-            // First, determine the store that this order corresponds to.
-            // This is a new feature as of 1.2.2, so we need to make sure the API
-            // is compatible first.
-            if (array_key_exists('api_key', $request)
-                && $request['api_key'] != ''
-            ) {
-                $store = Mage::helper('nypwidget')->getStoreByApiKey($request['api_key']);
-                $this->_store = $store;
-            } else {
-                // Fallback for when the API key isn't found
-                $this->_store = Mage::app()->getStore();
-            }
-
             // Is this an existing customer?
             $customer = Mage::getModel('customer/customer')
-                ->setWebsiteId($this->_store->getWebsiteId());
+                ->setWebsiteId($store->getWebsiteId());
+
             $customer->loadByEmail($request['buyer_email']);
 
             if (!$customer->getId()) {
@@ -95,28 +123,28 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $customer->setLastname($request['buyer_last_name']);
                 $customer->setPassword($password);
                 $customer->setConfirmation(null);
-                $customer->setWebsiteId($this->_store->getWebsiteId());
+                $customer->setWebsiteId($store->getWebsiteId());
                 $customer->save();
                 if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_welcome_email')) {
-                    $customer->sendNewAccountEmail('registered', '', $this->_store->getId());
+                    $customer->sendNewAccountEmail('registered', '', $store->getId());
                 }
                 $customer->load($customer->getId());
             }
 
             $transaction = Mage::getModel('core/resource_transaction');
-            $reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($this->_store->getId());
+            $reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($store->getId());
 
             // Grab the currency code from the request, if one is set.
             // Otherwise, use the store's default currency code.
             if ($request['currency']) {
                 $currencyCode = $request['currency'];
             } else {
-                $currencyCode = $this->_store->getDefaultCurrencyCode();
+                $currencyCode = $store->getDefaultCurrencyCode();
             }
 
             $order = Mage::getModel('sales/order')
                 ->setIncrementId($reservedOrderId)
-                ->setStoreId($this->_store->getId())
+                ->setStoreId($store->getId())
                 ->setQuoteId(0)
                 ->setGlobal_currency_code($currencyCode)
                 ->setBase_currency_code($currencyCode)
@@ -144,7 +172,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             // set Billing Address
             $billing = $customer->getDefaultBillingAddress();
             $billingAddress = Mage::getModel('sales/order_address')
-                ->setStoreId($this->_store->getId())
+                ->setStoreId($store->getId())
                 ->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
                 ->setCustomerId($customer->getId())
                 ->setPrefix('')
@@ -176,7 +204,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             // set Shipping Address
             $shipping = $customer->getDefaultShippingAddress();
             $shippingAddress = Mage::getModel('sales/order_address')
-                ->setStoreId($this->_store->getId())
+                ->setStoreId($store->getId())
                 ->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
                 ->setCustomerId($customer->getId())
                 ->setPrefix('')
@@ -202,7 +230,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
             // Add PriceWaiter payment method
             $orderPayment = Mage::getModel('sales/order_payment')
-                ->setStoreId($this->_store->getId())
+                ->setStoreId($store->getId())
                 ->setCustomerPaymentId(0)
                 ->setMethod('nypwidget');
             $order->setPayment($orderPayment);
@@ -222,7 +250,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             $itemDiscount = ($this->_product->getPrice() - $request['unit_price']);
 
             $orderItem = Mage::getModel('sales/order_item')
-                ->setStoreId($this->_store->getId())
+                ->setStoreId($store->getId())
                 ->setQuoteItemId(0)
                 ->setQuoteParentItemId(NULL)
                 ->setProductId($this->_product->getId())
@@ -249,7 +277,7 @@ class PriceWaiter_NYPWidget_Model_Callback
                 // Grab the options from the request, build $additionalOptions array
                 $additionalOptions = array();
                 for ($i = $request['product_option_count']; $i > 0; $i--) {
-                    $additionalOptions[] = array(
+                    $addressitionalOptions[] = array(
                         'label' => $request['product_option_name' . $i],
                         'value' => $request['product_option_value' . $i]
                     );
@@ -277,6 +305,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             $transaction->save();
 
             // Add this order to the list of received callback orders
+            $pricewaiterOrder = Mage::getModel('nypwidget/order');
             $pricewaiterOrder->setData(array(
                 'store_id' => $order->getStoreId(),
                 'pricewaiter_id' => $request['pricewaiter_id'],
@@ -288,8 +317,6 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $order->sendNewOrderEmail();
             }
 
-            // Add order Increment ID to response
-            Mage::app()->getResponse()->setHeader('X-Platform-Order-Id', $order->getIncrementId());
 
             // If this is a test order, cancel it to prevent it from any further processing.
             if ($this->_test) {
@@ -310,13 +337,63 @@ class PriceWaiter_NYPWidget_Model_Callback
                 . $order->getIncrementId() . " with order ID " . $order->getId());
             $this->_log("The Name Your Price Widget has created order #"
                 . $order->getIncrementId() . " with order ID " . $order->getId());
-        } catch (Exception $e) {
-            Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
-            Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
-            $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
-            $this->_log($e->getMessage());
-        }
 
+            return $order;
+
+        } catch (Exception $e) {
+            // TODO: Move this to controller
+            // Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
+            // Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
+            // $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
+            // $this->_log($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * @internal
+     * @return PriceWaiter_NYPWidget_Helper_Data
+     */
+    public function getHelper()
+    {
+        if ($this->_helper === null) {
+            $this->_helper = Mage::helper('nypwidget');
+        }
+        return $this->_helper;
+    }
+
+    /**
+     * @internal
+     * @param PriceWaiter_NYPWidget_Helper_Data $helper
+     * @return PriceWaiter_NYPWidget_Model_Callback $this
+     */
+    public function setHelper(PriceWaiter_NYPWidget_Helper_Data $helper)
+    {
+        $this->_helper = $helper;
+        return $this;
+    }
+
+    /**
+     * @internal
+     * @return PriceWaiter_NYPWidget_Helper_Orders
+     */
+    public function getOrderHelper()
+    {
+        if ($this->_orderHelper === null) {
+            $this->_orderHelper = Mage::getHelper('nypwidget/orders');
+        }
+        return $this->_orderHelper;
+    }
+
+    /**
+     * @internal
+     * @param PriceWaiter_NYPWidget_Helper_Orders $helper
+     * @return PriceWaiter_NYPWidget_Model_Callback $this
+     */
+    public function setOrderHelper(PriceWaiter_NYPWidget_Helper_Orders $helper)
+    {
+        $this->_orderHelper = $helper;
+        return $this;
     }
 
     private function _log($message)

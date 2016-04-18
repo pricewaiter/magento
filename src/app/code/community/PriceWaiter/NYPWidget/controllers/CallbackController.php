@@ -38,7 +38,13 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
             }
             $this->_log("Incoming PriceWaiter order notification.");
             $this->_log($request);
+
             Mage::getModel('nypwidget/callback')->processRequest($request);
+
+            // TODO: Add order Increment ID to response
+            // Mage::app()->getResponse()->setHeader('X-Platform-Order-Id', $order->getIncrementId());
+
+
         } catch (Exception $e) {
             Mage::logException($e);
             $this->_log($e);
