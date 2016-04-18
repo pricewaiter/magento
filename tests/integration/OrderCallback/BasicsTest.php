@@ -209,12 +209,12 @@ class Integration_OrderCallback_Basics
         $this->markTestIncomplete();
     }
 
-    public function testCustomerReused()
+    public function testExistingCustomerOnWebsiteReused()
     {
         $this->markTestIncomplete();
     }
 
-    public function testCustomerFromOtherStoreNotReused()
+    public function testCustomerFromOtherWebsiteNotReused()
     {
         $this->markTestIncomplete();
     }

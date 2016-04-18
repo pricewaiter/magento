@@ -39,6 +39,12 @@ class PriceWaiter_NYPWidget_Model_Callback
     );
 
     /**
+     * @internal
+     * @var string
+     */
+    protected $passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    /**
      * @internal Constructs address models based on request data.
      * @param  String                       $type     'billing' or 'shipping'.
      * @param  Array                        $request
@@ -89,6 +95,52 @@ class PriceWaiter_NYPWidget_Model_Callback
             // Phone numbers
             ->setTelephone($request["buyer_{$type}_phone"])
             ->setFax('');
+    }
+
+    /**
+     * @internal Creates a new customer, saves it, and returns it.
+     * @param  Array                 $request
+     * @param  Mage_Core_Model_Store $store
+     * @return Mage_Customer_Model_Customer
+     */
+    public function createCustomer(Array $request, Mage_Core_Model_Store $store)
+    {
+        $customer = Mage::getModel('customer/customer')
+            // System
+            ->setWebsiteId($store->getWebsiteId())
+            ->setPassword($this->generatePassword(10))
+            ->setConfirmation(null)
+
+            // Person
+            ->setEmail($request['buyer_email'])
+            ->setFirstname($request['buyer_first_name'])
+            ->setLastname($request['buyer_last_name']);
+
+        $customer->save();
+
+        $this->sendNewAccountEmail($customer, $store);
+
+        return $customer;
+    }
+
+    /**
+     * @internal Either returns an existing customer (by email) or creates a new one.
+     * @param  Array                 $request
+     * @param  Mage_Core_Model_Store $store
+     * @return Mage_Customer_Model_Customer
+     */
+    public function findOrCreateCustomer(Array $request, Mage_Core_Model_Store $store)
+    {
+        $customer = Mage::getModel('customer/customer')
+            ->setWebsiteId($store->getWebsiteId())
+            ->loadByEmail($request['buyer_email']);
+
+        if ($customer->getId()) {
+            // This an existing customer for this Magento store.
+            return $customer;
+        }
+
+        return $this->createCustomer($request, $store);
     }
 
     /**
@@ -165,34 +217,8 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         try {
-            // Is this an existing customer?
-            $customer = Mage::getModel('customer/customer')
-                ->setWebsiteId($store->getWebsiteId());
 
-            $customer->loadByEmail($request['buyer_email']);
-
-            if (!$customer->getId()) {
-                // Create a new customer with this email
-                $customer->reset();
-                $passwordLength = 10;
-                $passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                $password = '';
-                for ($p = 0; $p < $passwordLength; $p++) {
-                    $password .= $passwordCharacters[mt_rand(0, strlen($passwordCharacters))];
-                }
-
-                $customer->setEmail($request['buyer_email']);
-                $customer->setFirstname($request['buyer_first_name']);
-                $customer->setLastname($request['buyer_last_name']);
-                $customer->setPassword($password);
-                $customer->setConfirmation(null);
-                $customer->setWebsiteId($store->getWebsiteId());
-                $customer->save();
-                if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_welcome_email')) {
-                    $customer->sendNewAccountEmail('registered', '', $store->getId());
-                }
-                $customer->load($customer->getId());
-            }
+            $customer = $this->findOrCreateCustomer($request, $store);
 
             $transaction = Mage::getModel('core/resource_transaction');
             $reservedOrderId = Mage::getSingleton('eav/config')->getEntityType('order')->fetchNewIncrementId($store->getId());
@@ -366,6 +392,21 @@ class PriceWaiter_NYPWidget_Model_Callback
     }
 
     /**
+     *
+     * @param  Mage_Customer_Model_Customer $customer
+     * @return Boolean Whether email was sent.
+     */
+    public function sendNewAccountEmail(Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
+    {
+        if (!$store->getConfig('pricewaiter/customer_interaction/send_welcome_email')) {
+            return false;
+        }
+
+        $customer->sendNewAccountEmail('registered', '', $store->getId());
+        return true;
+    }
+
+    /**
      * @internal
      * @return PriceWaiter_NYPWidget_Helper_Data
      */
@@ -409,6 +450,24 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         $this->_orderHelper = $helper;
         return $this;
+    }
+
+    /**
+     * @internal
+     * @param  Integer $length
+     * @return String
+     */
+    protected function generatePassword($length)
+    {
+        $password = [];
+
+        $numberOfChars = strlen($this->passwordCharacters);
+
+        for ($i = 0; $i < $length; $i++) {
+            $password[] = $this->passwordCharacters[mt_rand(0, $numberOfChars)];
+        }
+
+        return implode('', $password);
     }
 
     private function _log($message)
