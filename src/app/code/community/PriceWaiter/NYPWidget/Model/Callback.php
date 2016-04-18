@@ -30,6 +30,69 @@ class PriceWaiter_NYPWidget_Model_Callback
     private $_helper = null;
 
     /**
+     * @internal Probably redundant, but don't want to tie our field names to internal Magento constants.
+     * @var array
+     */
+    protected static $magentoAddressTypes = array(
+        'billing' => Mage_Sales_Model_Quote_Address::TYPE_BILLING,
+        'shipping' => Mage_Sales_Model_Quote_Address::TYPE_SHIPPING
+    );
+
+    /**
+     * @internal Constructs address models based on request data.
+     * @param  String                       $type     'billing' or 'shipping'.
+     * @param  Array                        $request
+     * @param  Mage_Customer_Model_Customer $customer
+     * @param  Mage_Core_Model_Store        $store
+     * @return Mage_Sales_Model_Order_Address
+     * @throws PriceWaiter_NYPWidget_Exception_InvalidRegion
+     */
+    public function buildAddress($type, Array $request, Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
+    {
+        $state = $request["buyer_{$type}_state"];
+        $country = $request["buyer_{$type}_country"];
+
+        // Resolve state + country into a Mage_Directory_Model_Region
+        $regionModel = Mage::getModel('directory/region')
+            ->loadByCode($state, $country);
+
+        if (!$regionModel->getId()) {
+            throw new PriceWaiter_NYPWidget_Exception_InvalidRegion($state, $country);
+        }
+
+        return Mage::getModel('sales/order_address')
+            // System data
+            ->setStoreId($store->getId())
+            ->setAddressType(self::$magentoAddressTypes[$type])
+
+            // Customer + name
+            ->setCustomerId($customer->getId())
+            ->setPrefix('')
+            ->setFirstname($request["buyer_{$type}_first_name"])
+            ->setMiddlename('')
+            ->setLastname($request["buyer_{$type}_last_name"])
+            ->setSuffix('')
+            ->setCompany('')
+
+            // Actual address
+            ->setStreet(array_filter(array(
+                $request["buyer_{$type}_address"],
+                $request["buyer_{$type}_address2"],
+                $request["buyer_{$type}_address3"],
+            )))
+            ->setCity($request["buyer_{$type}_city"])
+            //->setRegion($state)
+            ->setRegion_id($regionModel->getId())
+            ->setPostcode($request["buyer_{$type}_zip"])
+            ->setCountry_id($country)
+
+            // Phone numbers
+            ->setTelephone($request["buyer_{$type}_phone"])
+            ->setFax('');
+    }
+
+    /**
+     * Looks for an existing order that matches the given order callback request.
      * @param  Array $request
      * @return PriceWaiter_NYPWidget_Model_Order|false
      */
@@ -159,71 +222,23 @@ class PriceWaiter_NYPWidget_Model_Callback
                 ->setCustomer_is_guest(0)
                 ->setCustomer($customer);
 
-            // Find billing Region ID
-            $regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_billing_state'], $request['buyer_billing_country']);
-
-            //Get a phone number, or make a dummy one
-            if ($request['buyer_billing_phone']) {
-                $telephone = $request['buyer_billing_phone'];
-            } else {
-                $telephone = "000-000-0000";
-            }
-
             // set Billing Address
-            $billing = $customer->getDefaultBillingAddress();
-            $billingAddress = Mage::getModel('sales/order_address')
-                ->setStoreId($store->getId())
-                ->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
-                ->setCustomerId($customer->getId())
-                ->setPrefix('')
-                ->setFirstname($request['buyer_billing_first_name'])
-                ->setMiddlename('')
-                ->setLastname($request['buyer_billing_last_name'])
-                ->setSuffix('')
-                ->setCompany('')
-                ->setStreet(array($request['buyer_billing_address'], $request['buyer_billing_address2']))
-                ->setCity($request['buyer_billing_city'])
-                ->setCountry_id($request['buyer_billing_country'])
-                ->setRegion($request['buyer_billing_state'])
-                ->setRegion_id($regionModel->getId())
-                ->setPostcode($request['buyer_billing_zip'])
-                ->setTelephone($telephone)
-                ->setFax('');
-            $order->setBillingAddress($billingAddress);
+            $order->setBillingAddress($this->buildAddress(
+                'billing',
+                $request,
+                $customer,
+                $store
+            ));
 
-            // Find shipping Region ID
-            $regionModel = Mage::getModel('directory/region')->loadByCode($request['buyer_shipping_state'], $request['buyer_shipping_country']);
+            $order->setShippingAddress($this->buildAddress(
+                'shipping',
+                $request,
+                $customer,
+                $store
+            ));
 
-            //Get a phone number, or make a dummy one
-            if ($request['buyer_shipping_phone']) {
-                $telephone = $request['buyer_shipping_phone'];
-            } else {
-                $telephone = "000-000-0000";
-            }
-
-            // set Shipping Address
-            $shipping = $customer->getDefaultShippingAddress();
-            $shippingAddress = Mage::getModel('sales/order_address')
-                ->setStoreId($store->getId())
-                ->setAddressType(Mage_Sales_Model_Quote_Address::TYPE_BILLING)
-                ->setCustomerId($customer->getId())
-                ->setPrefix('')
-                ->setFirstname($request['buyer_shipping_first_name'])
-                ->setMiddlename('')
-                ->setLastname($request['buyer_shipping_last_name'])
-                ->setSuffix('')
-                ->setCompany('')
-                ->setStreet(array($request['buyer_shipping_address'], $request['buyer_shipping_address2']))
-                ->setCity($request['buyer_shipping_city'])
-                ->setCountry_id($request['buyer_shipping_country'])
-                ->setRegion($request['buyer_shipping_state'])
-                ->setRegion_id($regionModel->getId())
-                ->setPostcode($request['buyer_shipping_zip'])
-                ->setTelephone($telephone)
-                ->setFax('');
-
-            // Apply shipping address to order, add PriceWaiter shipping method
-            $order->setShippingAddress($shippingAddress)
+            // Add PriceWaiter shipping method
+            $order
                 ->setShipping_method('nypwidget_nypwidget')
                 ->setShipping_amount($request['shipping'])
                 ->setShippingDescription('PriceWaiter');

@@ -224,7 +224,8 @@ class Integration_OrderCallback_Basics
      */
     public function testShippingAddress(Array $args)
     {
-        $this->markTestIncomplete();
+        list($request, $order) = $args;
+        $this->doAddressTest('shipping', $request, $order);
     }
 
     /**
@@ -232,7 +233,43 @@ class Integration_OrderCallback_Basics
      */
     public function testBillingAddress(Array $args)
     {
-        $this->markTestIncomplete();
+        list($request, $order) = $args;
+        $this->doAddressTest('billing', $request, $order);
+    }
+
+    public function doAddressTest($type, Array $request, Mage_Sales_Model_Order $order)
+    {
+        // TODO: This should be a unit test
+
+        $addressGetter = 'get' . ucfirst($type) . 'Address';
+        $addr = $order->$addressGetter();
+        $this->assertInstanceOf('Mage_Sales_Model_Order_Address', $addr, "$addressGetter returned something");
+
+        $expectedStreet = array_filter([
+            $request["buyer_{$type}_address"],
+            $request["buyer_{$type}_address2"],
+            $request["buyer_{$type}_address3"],
+        ]);
+        $this->assertGreaterThan(0, count($expectedStreet), 'test data includes street');
+        $this->assertEquals($expectedStreet, $addr->getStreet());
+
+        $expectedValues = [
+            'getCity' => $request["buyer_{$type}_city"],
+            'getCountryId' => $request["buyer_{$type}_country"],
+            'getFax' => '',
+            'getFirstname' => $request["buyer_{$type}_first_name"],
+            'getLastname' => $request["buyer_{$type}_last_name"],
+            'getMiddlename' => '',
+            'getPostcode' => $request["buyer_{$type}_zip"],
+            'getRegionCode' => $request["buyer_{$type}_state"],
+            'getSuffix' => '',
+            'getTelephone' => $request["buyer_{$type}_phone"],
+        ];
+
+        foreach($expectedValues as $getter => $expectedValue) {
+            $this->assertNotNull($expectedValue); // make sure we actually have a value to compare
+            $this->assertEquals($expectedValue, $addr->$getter());
+        }
     }
 
     public function testSendNewOrderEmailIfEnabled()
