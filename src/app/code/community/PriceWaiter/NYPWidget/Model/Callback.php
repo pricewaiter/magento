@@ -328,10 +328,14 @@ class PriceWaiter_NYPWidget_Model_Callback
     public function getNewOrderComment(Array $request)
     {
         $helper = $this->getHelper();
+        $url = $helper->getOfferUrl($request['pricewaiter_id']);
 
         return sprintf(
-            'Ordered via PriceWaiter (%s). Paid via %s (%s)',
-            $helper->getOfferUrl($request['pricewaiter_id']),
+            'Ordered via PriceWaiter (<a href="%s" target="_blank">%s</a>).
+            <br>
+            Paid via %s (%s)',
+            $url,
+            $url,
             $request['payment_method'],
             $request['transaction_id']
         );
