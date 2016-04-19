@@ -1,19 +1,10 @@
 <?php
 
-class TestableOrderHelper extends PriceWaiter_NYPWidget_Helper_Orders
-{
-    public $shouldVerify = true;
-
-    public function verifyPriceWaiterOrderData(Array $data)
-    {
-        return $this->shouldVerify;
-    }
-}
-
 class TestableCallbackModel extends PriceWaiter_NYPWidget_Model_Callback
 {
     public $newOrderEmailsSent = 0;
     public $welcomeEmailsSent = 0;
+    public $shouldVerify = true;
 
     protected function sendWelcomeEmail(Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
     {
@@ -32,6 +23,12 @@ class TestableCallbackModel extends PriceWaiter_NYPWidget_Model_Callback
         }
         return $sent;
     }
+
+    public function verifyPriceWaiterOrderData(Array $request)
+    {
+        return $this->shouldVerify;
+    }
+
 }
 
 /**
@@ -138,15 +135,14 @@ class Integration_OrderCallback_Basics
      */
     public function testInvalidApiKeyThrows()
     {
-        $callback = Mage::getModel('nypwidget/callback');
-        $callback->setOrderHelper(new TestableOrderHelper());
+        $callback = new TestableCallbackModel();
 
-        $data = [
+        $request = [
             'pricewaiter_id' => '1234',
             'api_key' => 'NOT A REAL API KEY',
         ];
 
-        $callback->processRequest($data);
+        $callback->processRequest($request);
     }
 
     /**
@@ -156,7 +152,6 @@ class Integration_OrderCallback_Basics
     public function testNormalOrderCallback()
     {
         $callback = new TestableCallbackModel();
-        $callback->setOrderHelper(new TestableOrderHelper());
 
         $request = $this->buildOrderCallbackRequest();
         $order = $callback->processRequest($request);
@@ -174,7 +169,6 @@ class Integration_OrderCallback_Basics
     public function testTestOrderCallback()
     {
         $callback = new TestableCallbackModel();
-        $callback->setOrderHelper(new TestableOrderHelper());
 
         $request = $this->buildOrderCallbackRequest();
         $request['test'] = '1';
@@ -198,8 +192,7 @@ class Integration_OrderCallback_Basics
         $pwOrder = Mage::getModel('nypwidget/order')->loadByMagentoOrderId($order->getEntityId());
         $this->assertTrue(!!$pwOrder->getId(), 'PriceWaiter_NYPWidget_Model_Order found');
 
-        $callback = Mage::getModel('nypwidget/callback');
-        $callback->setOrderHelper(new TestableOrderHelper());
+        $callback = new TestableCallbackModel();
 
         // Run second order callback with same pricewaiter_id
         $request = $this->buildOrderCallbackRequest();

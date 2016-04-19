@@ -19,21 +19,25 @@
 
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    /**
+     * Default PriceWaiter API url.
+     */
+    const PRICEWAITER_API_URL = 'https://api.pricewaiter.com';
+
+    /**
+     * Path to the order verification API.
+     */
+    const ORDER_VERIFICATION_API_PATH = '/1/order/verify';
+
     private $_product = false;
-    private $_testing = false;
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
 
-    private $_apiUrl = 'https://api.pricewaiter.com';
     private $_retailerUrl = 'https://retailer.pricewaiter.com';
     private $_widgetUrl = 'https://widget.pricewaiter.com';
 
     public function __construct()
     {
-        if (!!getenv('PRICEWAITER_API_URL')) {
-            $this->_apiUrl = getenv('PRICEWAITER_API_URL');
-        }
-
         if (!!getenv('PRICEWAITER_RETAILER_URL')) {
             $this->_retailerUrl = getenv('PRICEWAITER_RETAILER_URL');
         }
@@ -43,9 +47,31 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    public function isTesting()
+    /**
+     * @return String URL of the PriceWaiter API.
+     */
+    public function getApiUrl()
     {
-        return $this->_testing;
+        $apiUrl = getenv('PRICEWAITER_API_URL');
+
+        if ($apiUrl) {
+            return $apiUrl;
+        }
+
+        return self::PRICEWAITER_API_URL;
+    }
+
+    /**
+     * @return String URL to which to POST order data for verification.
+     */
+    public function getOrderVerificationUrl()
+    {
+        // Build verification URL off base API url.
+        $url = $this->getApiUrl();
+        $url = rtrim($url, '/');
+        $url .= '/1/order/verify';
+
+        return $url;
     }
 
     public function isEnabledForStore()
@@ -177,20 +203,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_widgetUrl . '/nyp/script/widget.js';
     }
 
-    /**
-     * @return String URL to which to POST order data to verify it came from PriceWaiter.
-     */
-    public function getOrderVerificationUrl()
-    {
-        $url = getenv('PRICEWAITER_ORDER_VERIFICATION_URL');
-
-        if ($url) {
-            return $url;
-        }
-
-        // Default to building off API url.
-        return "{$this->_apiUrl}/1/order/verify";
-    }
 
     public function getProductPrice($product)
     {
@@ -279,7 +291,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Returns the Magento store configured with the given PriceWaiter API, or false if none is found.
+     * Returns the Magento store configured with the given PriceWaiter API key, or false if none is found.
      * @param  String $apiKey
      * @return Mage_Core_Model_Store|false
      * @throws PriceWaiter

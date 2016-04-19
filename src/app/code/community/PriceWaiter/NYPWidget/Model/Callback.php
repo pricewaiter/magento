@@ -20,11 +20,6 @@
 class PriceWaiter_NYPWidget_Model_Callback
 {
     /**
-     * @var PriceWaiter_NYPWidget_Helper_Orders
-     */
-    private $_orderHelper = null;
-
-    /**
      * @var PriceWaiter_NYPWidget_Helper_Data
      */
     private $_helper = null;
@@ -364,14 +359,15 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     public function processRequest(Array $request)
     {
+        if (!$this->verifyPriceWaiterOrderData($request)) {
+            throw new PriceWaiter_NYPWidget_Exception_InvalidOrderData();
+        }
+
         // Hint to our custom payment method about the incoming request
         PriceWaiter_NYPWidget_Model_PaymentMethod::setCurrentOrderCallbackRequest($request);
 
         try
         {
-            $orderHelper = $this->getOrderHelper();
-            $orderHelper->verifyPriceWaiterOrderData($request);
-
             $store = $this->getStore($request);
 
             $existingOrder = $this->getExistingOrder($request);
@@ -475,26 +471,27 @@ class PriceWaiter_NYPWidget_Model_Callback
     }
 
     /**
-     * @internal
-     * @return PriceWaiter_NYPWidget_Helper_Orders
+     * Attempts to validate incoming PriceWaiter order data by POSTing it back
+     * to the PriceWaiter Order Verification endpoint.
+     * @param  Array  $data
      */
-    public function getOrderHelper()
+    public function verifyPriceWaiterOrderData(Array $data)
     {
-        if ($this->_orderHelper === null) {
-            $this->_orderHelper = Mage::getHelper('nypwidget/orders');
-        }
-        return $this->_orderHelper;
-    }
+        $verifyUrl = $this->getHelper()->getOrderVerificationUrl();
 
-    /**
-     * @internal
-     * @param PriceWaiter_NYPWidget_Helper_Orders $helper
-     * @return PriceWaiter_NYPWidget_Model_Callback $this
-     */
-    public function setOrderHelper(PriceWaiter_NYPWidget_Helper_Orders $helper)
-    {
-        $this->_orderHelper = $helper;
-        return $this;
+        $valid = false;
+        $ch = curl_init($verifyUrl);
+
+        if ($ch) {
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+            $response = curl_exec($ch);
+            $valid = ($response === '1');
+        }
+
+        return $valid;
     }
 
     /**
