@@ -456,4 +456,20 @@ class Integration_OrderCallback_Basics
         $this->markTestIncomplete();
     }
 
+    public function testOrderWithBlankShippingMethod()
+    {
+        $callback = new TestableCallbackModel();
+
+        $request = $this->buildOrderCallbackRequest();
+        $request['shipping_method'] = '';
+        $order = $callback->processRequest($request);
+
+        $this->assertInstanceOf(Mage_Sales_Model_Order, $order);
+
+        $this->assertNotEmpty($order->getShippingDescription(), 'there is *something* in the shipping description field');
+
+        // Pass valid order on to dependent tests.
+        return array($request, $order, $callback);
+    }
+
 }

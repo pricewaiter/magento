@@ -20,6 +20,11 @@
 class PriceWaiter_NYPWidget_Model_Callback
 {
     /**
+     * Description used for shipping if none specified.
+     */
+    const DEFAULT_SHIPPING_DESCRIPTION = 'PriceWaiter';
+
+    /**
      * @var PriceWaiter_NYPWidget_Helper_Data
      */
     private $_helper = null;
@@ -441,10 +446,16 @@ class PriceWaiter_NYPWidget_Model_Callback
         Mage_Customer_Model_Customer $customer
     )
     {
+        $description = $request['shipping_method'];
+        if (trim($description) === '') {
+            // Leaving description blank results in "No shipping information available" in PW admin
+            $description = self::DEFAULT_SHIPPING_DESCRIPTION;
+        }
+
         // Use PriceWaiter shipping method
         $order->setShippingMethod('nypwidget_nypwidget')
             ->setShippingAmount($request['shipping'])
-            ->setShippingDescription('PriceWaiter');
+            ->setShippingDescription($description);
     }
 
     /**
