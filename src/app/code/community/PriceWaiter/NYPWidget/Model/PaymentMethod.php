@@ -17,20 +17,25 @@
  *
  */
 
+/**
+ * PriceWaiter Payment method.
+ */
 class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Method_Abstract
 {
     protected $_code = 'nypwidget';
 
     protected $_isGateway = false;
     protected $_canOrder = true;
-    protected $_canAuthorize = false;
-    protected $_canCapture = false;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
     protected $_canCapturePartial = false;
     protected $_canRefund = false;
     protected $_canVoid = true;
     protected $_canUseInternal = true;
     protected $_canUseCheckout = false;
     protected $_canUseForMultishipping = false;
+
+    private static $_currentOrderCallbackRequest = [];
 
     public function authorize(Varien_Object $payment, $amount)
     {
@@ -50,5 +55,45 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
     public function isAvailable($quote = null)
     {
         return false;
+    }
+
+    public function getConfigPaymentAction()
+    {
+        $request = $this->getCurrentOrderCallbackRequest();
+        $isTest = !empty($request['test']);
+
+        // For test orders (which will be immediately canceled) we don't
+        // want to "capture" payment, since that removes our ability to cancel.
+        if ($isTest) {
+            return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
+        }
+
+        return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE;
+    }
+
+    /**
+     * @internal
+     */
+    public static function resetCurrentOrderCallbackRequest()
+    {
+        self::$_currentOrderCallbackRequest = array();
+    }
+
+    /**
+     * @internal Hack to allow payment method access to incoming order data.
+     * @param Array $request
+     */
+    public static function setCurrentOrderCallbackRequest(Array $request)
+    {
+        self::$_currentOrderCallbackRequest = $request;
+    }
+
+    /**
+     * @internal
+     * @return Array
+     */
+    protected function getCurrentOrderCallbackRequest()
+    {
+        return self::$_currentOrderCallbackRequest;
     }
 }

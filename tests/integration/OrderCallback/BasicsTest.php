@@ -424,12 +424,41 @@ class Integration_OrderCallback_Basics
     }
 
 
-    public function testOrderPaymentIncludesGoodStuff()
+    /**
+     * @depends testNormalOrderCallback
+     */
+    public function testOrderPayment(Array $args)
     {
-        $this->markTestIncomplete();
+        list($request, $order) = $args;
+
+        $payment = $order->getPayment();
+        $this->assertTrue(!!$payment, "payment exists");
+
+        $this->assertEquals($request['transaction_id'], $payment->getTransactionId());
     }
 
-    public function testTransactionRowCreated()
+    /**
+     * @depends testNormalOrderCallback
+     */
+    public function testOrderPaymentTransaction(Array $args)
+    {
+        list($request, $order) = $args;
+        $payment = $order->getPayment();
+
+        $txn = Mage::getModel('sales/order_payment_transaction')
+            ->setOrderPaymentObject($payment)
+            ->loadByTxnId($payment->getTransactionId());
+
+        $this->assertTrue(!!$txn->getId(), 'transaction found');
+
+        $this->assertEquals('capture', $txn->getTxnType());
+        $this->assertTrue(!!$txn->getIsClosed(), 'transaction is closed');
+    }
+
+    /**
+     * Checks that for auth-only PW payments, the resulting transaction is AUTH type.
+     */
+    public function testOrderPaymentTransactionForAuth()
     {
         $this->markTestIncomplete();
     }

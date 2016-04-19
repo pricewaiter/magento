@@ -364,37 +364,47 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     public function processRequest(Array $request)
     {
-        $orderHelper = $this->getOrderHelper();
-        $orderHelper->verifyPriceWaiterOrderData($request);
+        // Hint to our custom payment method about the incoming request
+        PriceWaiter_NYPWidget_Model_PaymentMethod::setCurrentOrderCallbackRequest($request);
 
-        $store = $this->getStore($request);
+        try
+        {
+            $orderHelper = $this->getOrderHelper();
+            $orderHelper->verifyPriceWaiterOrderData($request);
 
-        $existingOrder = $this->getExistingOrder($request);
+            $store = $this->getStore($request);
 
-        if ($existingOrder) {
-            throw new PriceWaiter_NYPWidget_Exception_DuplicateOrder($existingOrder);
+            $existingOrder = $this->getExistingOrder($request);
+
+            if ($existingOrder) {
+                throw new PriceWaiter_NYPWidget_Exception_DuplicateOrder($existingOrder);
+            }
+
+            $customer = $this->findOrCreateCustomer($request, $store);
+
+            $order = $this->buildMagentoOrder($request, $store, $customer);
+
+            // Ok, done with the order.
+            $this->saveAndPlaceOrder($order);
+
+            // --- After this point, we have a *live* order in the system. ---
+
+            $this->recordOrderCreation($request, $order);
+
+            $this->sendNewOrderEmail($order, $store);
+
+            if ($this->isTestOrder($request)) {
+                $this->cancelOrder($order);
+            }
+
+            PriceWaiter_NYPWidget_Model_PaymentMethod::resetCurrentOrderCallbackRequest();
+            return $order;
         }
-
-        $customer = $this->findOrCreateCustomer($request, $store);
-
-        $order = $this->buildMagentoOrder($request, $store, $customer);
-
-        // Ok, done with the order.
-        $this->saveAndPlaceOrder($order);
-
-        // --- After this point, we have a *live* order in the system. ---
-
-        $this->recordOrderCreation($request, $order);
-
-        $this->sendNewOrderEmail($order, $store);
-
-        if ($this->isTestOrder($request)) {
-            $this->cancelOrder($order);
-        } else {
-            $this->captureInvoice($order);
+        catch (Exception $ex)
+        {
+            PriceWaiter_NYPWidget_Model_PaymentMethod::resetCurrentOrderCallbackRequest();
+            throw $ex;
         }
-
-        return $order;
     }
 
     /**
@@ -413,9 +423,10 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         // Add PriceWaiter payment method
         $orderPayment = Mage::getModel('sales/order_payment')
+            ->setMethod('nypwidget')
             ->setStoreId($store->getId())
             ->setCustomerPaymentId(0)
-            ->setMethod('nypwidget');
+            ->setTransactionId($request['transaction_id']);
 
         $order->setPayment($orderPayment);
     }
@@ -494,21 +505,6 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         $order->cancel();
         $order->save();
-    }
-
-    /**
-     * @internal
-     * @param  Mage_Sales_Model_Order $order
-     */
-    protected function captureInvoice(Mage_Sales_Model_Order $order)
-    {
-        $invoiceId = Mage::getModel('sales/order_invoice_api')
-            ->create($order->getIncrementId(), array());
-
-        $invoice = Mage::getModel('sales/order_invoice')
-            ->loadByIncrementId($invoiceId);
-
-        $invoice->capture()->save();
     }
 
     /**

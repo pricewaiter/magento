@@ -177,7 +177,6 @@
                 <model>nypwidget/paymentMethod</model>
                 <order_status>pricewaiter_processing</order_status>
                 <title>PriceWaiter Payment</title>
-                <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>
             </nypwidget>
         </payment>
