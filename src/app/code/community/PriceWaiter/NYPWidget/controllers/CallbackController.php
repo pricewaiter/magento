@@ -44,8 +44,21 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
             // TODO: Add order Increment ID to response
             // Mage::app()->getResponse()->setHeader('X-Platform-Order-Id', $order->getIncrementId());
 
+            // TODO: Logging
+            //
+            // Mage::log("The Name Your Price Widget has created order #"
+            //     . $order->getIncrementId() . " with order ID " . $order->getId());
+            // $this->_log("The Name Your Price Widget has created order #"
+            //     . $order->getIncrementId() . " with order ID " . $order->getId());
 
         } catch (Exception $e) {
+
+            // TODO: This kind of stuff
+            // Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
+            // Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
+            // $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
+            // $this->_log($e->getMessage());
+
             Mage::logException($e);
             $this->_log($e);
         }

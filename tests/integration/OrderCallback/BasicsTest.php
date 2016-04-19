@@ -127,7 +127,7 @@ class Integration_OrderCallback_Basics
      * Makes an order write request and provides the resulting order data
      * to subsequent tests.
      */
-    public function testSuccessfulOrderWrite()
+    public function testNormalOrderCallback()
     {
         $callback = Mage::getModel('nypwidget/callback');
         $callback->setOrderHelper(new TestableOrderHelper());
@@ -142,7 +142,27 @@ class Integration_OrderCallback_Basics
     }
 
     /**
-     * @depends testSuccessfulOrderWrite
+     * Makes a *test* order callback and provides the resulting order data to
+     * subsequent tests.
+     */
+    public function testTestOrderCallback()
+    {
+        $callback = Mage::getModel('nypwidget/callback');
+        $callback->setOrderHelper(new TestableOrderHelper());
+
+        $request = $this->buildOrderCallbackRequest();
+        $request['test'] = '1';
+
+        $order = $callback->processRequest($request);
+
+        $this->assertInstanceOf(Mage_Sales_Model_Order, $order);
+
+        // Pass valid order on to dependent tests.
+        return array($request, $order);
+    }
+
+    /**
+     * @depends testNormalOrderCallback
      * @expectedException PriceWaiter_NYPWidget_Exception_DuplicateOrder
      */
     public function testDuplicateOrderThrows(Array $args)
@@ -163,7 +183,7 @@ class Integration_OrderCallback_Basics
     }
 
     /**
-     * @depends testSuccessfulOrderWrite
+     * @depends testNormalOrderCallback
      */
     public function testNewCustomerCreated(Array $args)
     {
@@ -222,7 +242,24 @@ class Integration_OrderCallback_Basics
     }
 
     /**
-     * @depends testSuccessfulOrderWrite
+     * @depends testNormalOrderCallback
+     */
+    public function testInvoiceCaptured(Array $args)
+    {
+        list($request, $order) = $args;
+
+        $invoiceIds = Mage::getModel('sales/order_invoice')
+            ->getCollection()
+            ->addAttributeToFilter('order_id', $order->getId())
+            ->getAllIds();
+
+        $this->assertCount(1, $invoiceIds);
+
+        // TODO: Anything else interesting it is useful to track for invoices?
+    }
+
+    /**
+     * @depends testNormalOrderCallback
      */
     public function testShippingAddress(Array $args)
     {
@@ -231,7 +268,7 @@ class Integration_OrderCallback_Basics
     }
 
     /**
-     * @depends testSuccessfulOrderWrite
+     * @depends testNormalOrderCallback
      */
     public function testBillingAddress(Array $args)
     {
@@ -275,7 +312,7 @@ class Integration_OrderCallback_Basics
     }
 
     /**
-     * @depends testSuccessfulOrderWrite
+     * @depends testNormalOrderCallback
      */
     public function testItems(Array $args)
     {
@@ -312,10 +349,38 @@ class Integration_OrderCallback_Basics
         $this->markTestIncomplete();
     }
 
-    public function testTestOrderCanceled()
+    /**
+     * @depends testTestOrderCallback
+     */
+    public function testTestOrderCanceled(Array $args)
     {
-        $this->markTestIncomplete();
+        list($request, $order) = $args;
+
+        $order = Mage::getModel('sales/order')->load($order->getId());
+        $this->assertTrue(!!$order->getId(), 'order persisted to db');
+
+        $this->assertEquals(
+            Mage_Sales_Model_Order::STATE_CANCELED,
+            $order->getStatus(),
+            'order is canceled'
+        );
     }
+
+    /**
+     * @depends testTestOrderCallback
+     */
+    public function testTestOrderNoInvoiceCaptured(Array $args)
+    {
+        list($request, $order) = $args;
+
+        $invoiceIds = Mage::getModel('sales/order_invoice')
+            ->getCollection()
+            ->addAttributeToFilter('order_id', $order->getId())
+            ->getAllIds();
+
+        $this->assertCount(0, $invoiceIds);
+    }
+
 
     public function testOrderPaymentIncludesGoodStuff()
     {

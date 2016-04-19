@@ -212,6 +212,8 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $this->addItemsToOrder($order, $request, $store, $customer);
 
+        $order->addStatusHistoryComment("This order has been programmatically created by the PriceWaiter Name Your Price Widget.");
+
         return $order;
     }
 
@@ -368,71 +370,32 @@ class PriceWaiter_NYPWidget_Model_Callback
         $store = $this->getStore($request);
 
         $existingOrder = $this->getExistingOrder($request);
+
         if ($existingOrder) {
             throw new PriceWaiter_NYPWidget_Exception_DuplicateOrder($existingOrder);
         }
 
-        try {
+        $customer = $this->findOrCreateCustomer($request, $store);
 
-            $customer = $this->findOrCreateCustomer($request, $store);
+        $order = $this->buildMagentoOrder($request, $store, $customer);
 
-            $order = $this->buildMagentoOrder($request, $store, $customer);
+        // Ok, done with the order.
+        $this->saveAndPlaceOrder($order);
 
-            $order->addStatusHistoryComment("This order has been programmatically created by the PriceWaiter Name Your Price Widget.");
+        // --- After this point, we have a *live* order in the system. ---
 
-            // Ok, done with the order.
-            $transaction = Mage::getModel('core/resource_transaction');
-            $transaction->addObject($order);
-            $transaction->addCommitCallback(array($order, 'place'));
-            $transaction->addCommitCallback(array($order, 'save'));
-            $transaction->save();
+        $this->recordOrderCreation($request, $order);
 
-            // Add this order to the list of received callback orders
-            $pricewaiterOrder = Mage::getModel('nypwidget/order');
-            $pricewaiterOrder->setData(array(
-                'store_id' => $order->getStoreId(),
-                'pricewaiter_id' => $request['pricewaiter_id'],
-                'order_id' => $order->getId()
-            ));
-            $pricewaiterOrder->save();
+        $this->sendNewOrderEmail($order, $store);
 
-            if (Mage::getStoreConfig('pricewaiter/customer_interaction/send_new_order_email')) {
-                $order->sendNewOrderEmail();
-            }
-
-
-            // If this is a test order, cancel it to prevent it from any further processing.
-            if ($this->_test) {
-                $order->cancel();
-                $order->save();
-                return;
-            }
-
-            // Capture the invoice
-            $invoiceId = Mage::getModel('sales/order_invoice_api')
-                ->create($order->getIncrementId(), array());
-            $invoice = Mage::getModel('sales/order_invoice')
-                ->loadByIncrementId($invoiceId);
-            $invoice->capture()->save();
-
-
-            Mage::log("The Name Your Price Widget has created order #"
-                . $order->getIncrementId() . " with order ID " . $order->getId());
-            $this->_log("The Name Your Price Widget has created order #"
-                . $order->getIncrementId() . " with order ID " . $order->getId());
-
-            return $order;
-
-        } catch (Exception $e) {
-            // TODO: Move this to controller
-            // Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
-            // Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
-            // $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
-            // $this->_log($e->getMessage());
-            throw $e;
+        if ($this->isTestOrder($request)) {
+            $this->cancelOrder($order);
+        } else {
+            $this->captureInvoice($order);
         }
-    }
 
+        return $order;
+    }
     /**
      *
      * @param  Mage_Customer_Model_Customer $customer
@@ -445,6 +408,23 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         $customer->sendNewAccountEmail('registered', '', $store->getId());
+
+        return true;
+    }
+
+    /**
+     * @internal
+     * @param  Mage_Sales_Model_Order $order
+     * @param  Mage_Core_Model_Store  $store
+     * @return Boolean Whether email was sent.
+     */
+    public function sendNewOrderEmail(Mage_Sales_Model_Order $order, Mage_Core_Model_Store $store)
+    {
+        if (!$store->getConfig('pricewaiter/customer_interaction/send_new_order_email')) {
+            return false;
+        }
+
+        $order->sendNewOrderEmail();
         return true;
     }
 
@@ -539,6 +519,31 @@ class PriceWaiter_NYPWidget_Model_Callback
 
     /**
      * @internal
+     * @param  Mage_Sales_Model_Order $order
+     */
+    protected function cancelOrder(Mage_Sales_Model_Order $order)
+    {
+        $order->cancel();
+        $order->save();
+    }
+
+    /**
+     * @internal
+     * @param  Mage_Sales_Model_Order $order
+     */
+    protected function captureInvoice(Mage_Sales_Model_Order $order)
+    {
+        $invoiceId = Mage::getModel('sales/order_invoice_api')
+            ->create($order->getIncrementId(), array());
+
+        $invoice = Mage::getModel('sales/order_invoice')
+            ->loadByIncrementId($invoiceId);
+
+        $invoice->capture()->save();
+    }
+
+    /**
+     * @internal
      * @param  Integer $length
      * @return String
      */
@@ -553,6 +558,33 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         return implode('', $password);
+    }
+
+    /**
+     * Stores a record in the db indicating we've processed $request into $order. This is used for
+     * duplicate order detection.
+     * @param  Array                  $request
+     * @param  Mage_Sales_Model_Order $order
+     */
+    protected function recordOrderCreation(Array $request, Mage_Sales_Model_Order $order)
+    {
+        Mage::getModel('nypwidget/order')
+            ->setStoreId($order->getStoreId())
+            ->setPricewaiterId($request['pricewaiter_id'])
+            ->setOrderId($order->getId())
+            ->save();
+    }
+
+    /**
+     * @param  Mage_Sales_Model_Order $order
+     */
+    protected function saveAndPlaceOrder(Mage_Sales_Model_Order $order)
+    {
+        $transaction = Mage::getModel('core/resource_transaction');
+        $transaction->addObject($order);
+        $transaction->addCommitCallback(array($order, 'place'));
+        $transaction->addCommitCallback(array($order, 'save'));
+        $transaction->save();
     }
 
     private function _log($message)
