@@ -6,5 +6,5 @@
 class PriceWaiter_NYPWidget_Exception_Product_NotFound
     extends PriceWaiter_NYPWidget_Exception_Product_Abstract
 {
-    public $errorCode = 'EPRODUCT';
+    public $errorCode = 'product_not_found';
 }

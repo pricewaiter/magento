@@ -17,9 +17,11 @@ class Integration_OrderCallback_Basics
     extends PHPUnit_Framework_TestCase
 {
     public $simpleProduct = array(
+        'type' => 'simple',
         'sku' => 'hde012',
         'id' => '399',
-        'price' => '150.00'
+        'name' => 'Madison 8GB Digital Media Player',
+        'price' => '150.00',
     );
 
     public $buyer = array(
@@ -100,6 +102,7 @@ class Integration_OrderCallback_Basics
         }
 
         $request['product_option_count'] = 0;
+        $request['product_sku'] = $product['sku'];
 
         return $request;
     }
@@ -115,7 +118,6 @@ class Integration_OrderCallback_Basics
         $data = [
             'pricewaiter_id' => '1234',
             'api_key' => 'NOT A REAL API KEY',
-            'should_verify' => '1',
         ];
 
         $callback->processRequest($data);
@@ -269,6 +271,34 @@ class Integration_OrderCallback_Basics
         foreach($expectedValues as $getter => $expectedValue) {
             $this->assertNotNull($expectedValue); // make sure we actually have a value to compare
             $this->assertEquals($expectedValue, $addr->$getter());
+        }
+    }
+
+    /**
+     * @depends testSuccessfulOrderWrite
+     */
+    public function testItems(Array $args)
+    {
+        list($request, $order) = $args;
+
+        $items = $order->getItemsCollection();
+        $this->assertCount(1, $items);
+
+        $item = $items->getFirstItem();
+
+        $expectedValues = [
+            'getProductId' => $this->simpleProduct['id'],
+            'getProductType' => $this->simpleProduct['type'],
+            'getSku' => $this->simpleProduct['sku'],
+            'getStoreId' => $order->getStoreId(),
+            'getOrderId' => $order->getId(),
+            'getName' => $this->simpleProduct['name'],
+
+        ];
+
+        foreach($expectedValues as $getter => $expectedValue) {
+            $this->assertNotNull($expectedValue, "no expected value to test against $getter");
+            $this->assertEquals($expectedValue, $item->$getter());
         }
     }
 
