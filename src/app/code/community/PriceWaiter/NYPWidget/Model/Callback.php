@@ -261,7 +261,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $customer->save();
 
-        $this->sendNewAccountEmail($customer, $store);
+        $this->sendWelcomeEmail($customer, $store);
 
         return $customer;
     }
@@ -395,37 +395,6 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         return $order;
-    }
-    /**
-     *
-     * @param  Mage_Customer_Model_Customer $customer
-     * @return Boolean Whether email was sent.
-     */
-    public function sendNewAccountEmail(Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
-    {
-        if (!$store->getConfig('pricewaiter/customer_interaction/send_welcome_email')) {
-            return false;
-        }
-
-        $customer->sendNewAccountEmail('registered', '', $store->getId());
-
-        return true;
-    }
-
-    /**
-     * @internal
-     * @param  Mage_Sales_Model_Order $order
-     * @param  Mage_Core_Model_Store  $store
-     * @return Boolean Whether email was sent.
-     */
-    public function sendNewOrderEmail(Mage_Sales_Model_Order $order, Mage_Core_Model_Store $store)
-    {
-        if (!$store->getConfig('pricewaiter/customer_interaction/send_new_order_email')) {
-            return false;
-        }
-
-        $order->sendNewOrderEmail();
-        return true;
     }
 
     /**
@@ -585,6 +554,36 @@ class PriceWaiter_NYPWidget_Model_Callback
         $transaction->addCommitCallback(array($order, 'place'));
         $transaction->addCommitCallback(array($order, 'save'));
         $transaction->save();
+    }
+
+    /**
+     * @param  Mage_Sales_Model_Order $order
+     * @param  Mage_Core_Model_Store  $store
+     * @return Boolean Whether email was sent.
+     */
+    protected function sendNewOrderEmail(Mage_Sales_Model_Order $order, Mage_Core_Model_Store $store)
+    {
+        if (!$store->getConfig('pricewaiter/customer_interaction/send_new_order_email')) {
+            return false;
+        }
+
+        $order->sendNewOrderEmail();
+        return true;
+    }
+
+    /**
+     * @param  Mage_Customer_Model_Customer $customer
+     * @return Boolean Whether email was sent.
+     */
+    protected function sendWelcomeEmail(Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
+    {
+        if (!$store->getConfig('pricewaiter/customer_interaction/send_welcome_email')) {
+            return false;
+        }
+
+        $customer->sendNewAccountEmail('registered', '', $store->getId());
+
+        return true;
     }
 
     private function _log($message)

@@ -10,12 +10,38 @@ class TestableOrderHelper extends PriceWaiter_NYPWidget_Helper_Orders
     }
 }
 
+class TestableCallbackModel extends PriceWaiter_NYPWidget_Model_Callback
+{
+    public $newOrderEmailsSent = 0;
+    public $welcomeEmailsSent = 0;
+
+    protected function sendWelcomeEmail(Mage_Customer_Model_Customer $customer, Mage_Core_Model_Store $store)
+    {
+        $sent = parent::sendWelcomeEmail($customer, $store);
+        if ($sent) {
+            $this->welcomeEmailsSent++;
+        }
+        return $sent;
+    }
+
+    protected function sendNewOrderEmail(Mage_Sales_Model_Order $order, Mage_Core_Model_Store $store)
+    {
+        $sent = parent::sendNewOrderEmail($order, $store);
+        if ($sent) {
+            $this->newOrderEmailsSent++;
+        }
+        return $sent;
+    }
+}
+
 /**
  * Tests around PriceWaiter order callback.
  */
 class Integration_OrderCallback_Basics
     extends PHPUnit_Framework_TestCase
 {
+    public $apiKey = 'MAGENTO';
+
     public $simpleProduct = array(
         'type' => 'simple',
         'sku' => 'hde012',
@@ -64,7 +90,7 @@ class Integration_OrderCallback_Basics
     public function buildOrderCallbackRequest()
     {
         $product = $this->simpleProduct;
-        $apiKey = 'MAGENTO';
+        $apiKey = $this->apiKey;
 
         $request = [
             // Default to new customer per-order.
@@ -129,7 +155,7 @@ class Integration_OrderCallback_Basics
      */
     public function testNormalOrderCallback()
     {
-        $callback = Mage::getModel('nypwidget/callback');
+        $callback = new TestableCallbackModel();
         $callback->setOrderHelper(new TestableOrderHelper());
 
         $request = $this->buildOrderCallbackRequest();
@@ -138,7 +164,7 @@ class Integration_OrderCallback_Basics
         $this->assertInstanceOf(Mage_Sales_Model_Order, $order);
 
         // Pass valid order on to dependent tests.
-        return array($request, $order);
+        return array($request, $order, $callback);
     }
 
     /**
@@ -147,7 +173,7 @@ class Integration_OrderCallback_Basics
      */
     public function testTestOrderCallback()
     {
-        $callback = Mage::getModel('nypwidget/callback');
+        $callback = new TestableCallbackModel();
         $callback->setOrderHelper(new TestableOrderHelper());
 
         $request = $this->buildOrderCallbackRequest();
@@ -158,7 +184,7 @@ class Integration_OrderCallback_Basics
         $this->assertInstanceOf(Mage_Sales_Model_Order, $order);
 
         // Pass valid order on to dependent tests.
-        return array($request, $order);
+        return array($request, $order, $callback);
     }
 
     /**
@@ -223,12 +249,20 @@ class Integration_OrderCallback_Basics
 
     public function testCustomerCreatedSendsWelcomeEmailIfEnabled()
     {
-        $this->markTestIncomplete();
+        $store = Mage::helper('nypwidget')->getStoreByPriceWaiterApiKey($this->apiKey);
+        $store->setConfig('pricewaiter/customer_interaction/send_welcome_email', 1);
+
+        list($request, $order, $callback) = $this->testNormalOrderCallback();
+        $this->assertEquals(1, $callback->welcomeEmailsSent, 'welcome email sent to new customer');
     }
 
     public function testCustomerCreatedDoesntSendWelcomeEmailIfNotEnabled()
     {
-        $this->markTestIncomplete();
+        $store = Mage::helper('nypwidget')->getStoreByPriceWaiterApiKey($this->apiKey);
+        $store->setConfig('pricewaiter/customer_interaction/send_welcome_email', 0);
+
+        list($request, $order, $callback) = $this->testNormalOrderCallback();
+        $this->assertEquals(0, $callback->welcomeEmailsSent, 'no welcome email sent');
     }
 
     public function testExistingCustomerOnWebsiteReused()
@@ -341,12 +375,20 @@ class Integration_OrderCallback_Basics
 
     public function testSendNewOrderEmailIfEnabled()
     {
-        $this->markTestIncomplete();
+        $store = Mage::helper('nypwidget')->getStoreByPriceWaiterApiKey($this->apiKey);
+        $store->setConfig('pricewaiter/customer_interaction/send_new_order_email', 1);
+
+        list($request, $order, $callback) = $this->testNormalOrderCallback();
+        $this->assertEquals(1, $callback->newOrderEmailsSent);
     }
 
     public function testDoesntSendNewOrderEmailIfNotEnabled()
     {
-        $this->markTestIncomplete();
+        $store = Mage::helper('nypwidget')->getStoreByPriceWaiterApiKey($this->apiKey);
+        $store->setConfig('pricewaiter/customer_interaction/send_new_order_email', 0);
+
+        list($request, $order, $callback) = $this->testNormalOrderCallback();
+        $this->assertEquals(0, $callback->newOrderEmailsSent, 'no new order email sent');
     }
 
     /**
