@@ -260,12 +260,43 @@ class Integration_OrderCallback_Basics
 
     public function testExistingCustomerOnWebsiteReused()
     {
-        $this->markTestIncomplete();
+        $store = Mage::helper('nypwidget')->getStoreByPriceWaiterApiKey($this->apiKey);
+
+        $customer = Mage::getModel('customer/customer')
+            ->setEmail(uniqid() . '@example.org')
+            ->setStore($store)
+            ->save();
+
+        $this->assertTrue(!!$customer->getId(), 'customer saved');
+
+        $request = $this->buildOrderCallbackRequest();
+        $request['buyer_email'] = $customer->getEmail();
+
+        $callback = new TestableCallbackModel();
+        $order = $callback->processRequest($request);
+
+        $this->assertEquals($customer->getId(), $order->getCustomerId(), 'customer account reused');
     }
 
     public function testCustomerFromOtherWebsiteNotReused()
     {
-        $this->markTestIncomplete();
+        $weirdWebsite = Mage::getModel('core/website')
+            ->save();
+
+        $customer = Mage::getModel('customer/customer')
+            ->setEmail(uniqid() . '@example.org')
+            ->setWebsiteId($weirdWebsite->getId())
+            ->save();
+
+        $this->assertTrue(!!$customer->getId(), 'customer saved');
+
+        $request = $this->buildOrderCallbackRequest();
+        $request['buyer_email'] = $customer->getEmail();
+
+        $callback = new TestableCallbackModel();
+        $order = $callback->processRequest($request);
+
+        $this->assertNotEquals($customer->getId(), $order->getCustomerId(), 'customer account reused');
     }
 
     /**
