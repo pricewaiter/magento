@@ -212,7 +212,10 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $this->addItemsToOrder($order, $request, $store, $customer);
 
-        $order->addStatusHistoryComment("This order has been programmatically created by the PriceWaiter Name Your Price Widget.");
+        $comment = $this->getNewOrderComment($request);
+        if ($comment) {
+            $order->addStatusHistoryComment($comment);
+        }
 
         return $order;
     }
@@ -316,6 +319,22 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         return false;
+    }
+
+    /**
+     * @param  Array  $request
+     * @return String Comment to be added to the order generated from $request.
+     */
+    public function getNewOrderComment(Array $request)
+    {
+        $helper = $this->getHelper();
+
+        return sprintf(
+            'Ordered via PriceWaiter (%s). Paid via %s (%s)',
+            $helper->getOfferUrl($request['pricewaiter_id']),
+            $request['payment_method'],
+            $request['transaction_id']
+        );
     }
 
     /**

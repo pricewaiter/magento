@@ -52,13 +52,26 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getApiUrl()
     {
-        $apiUrl = getenv('PRICEWAITER_API_URL');
+        $url = getenv('PRICEWAITER_API_URL');
 
-        if ($apiUrl) {
-            return $apiUrl;
+        if ($url) {
+            return $url;
         }
 
         return self::PRICEWAITER_API_URL;
+    }
+
+    /**
+     * @param  String $id
+     * @return String URL to view the given offer on PriceWaiter.
+     */
+    public function getOfferUrl($id)
+    {
+        $url = $this->getRetailerUrl();
+        $url = rtrim($url, '/');
+        $url .= '/offers/' . rawurlencode($id);
+
+        return $url;
     }
 
     /**
@@ -72,6 +85,20 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         $url .= '/1/order/verify';
 
         return $url;
+    }
+
+    /**
+     * @return String The URL of the PriceWaiter Retailer area.
+     */
+    public function getRetailerUrl()
+    {
+        $url = getenv('PRICEWAITER_RETAILER_URL');
+
+        if ($url) {
+            return $url;
+        }
+
+        return self::PRICEWAITER_RETAILER_URL;
     }
 
     public function isEnabledForStore()
