@@ -24,7 +24,7 @@ class TestableCallbackModel extends PriceWaiter_NYPWidget_Model_Callback
         return $sent;
     }
 
-    public function verifyPriceWaiterOrderData(Array $request)
+    public function verifyRequest(Array $request)
     {
         return $this->shouldVerify;
     }

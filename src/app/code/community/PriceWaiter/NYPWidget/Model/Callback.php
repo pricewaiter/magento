@@ -364,7 +364,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     public function processRequest(Array $request)
     {
-        if (!$this->verifyPriceWaiterOrderData($request)) {
+        if (!$this->verifyRequest($request)) {
             throw new PriceWaiter_NYPWidget_Exception_InvalidOrderData();
         }
 
@@ -486,7 +486,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      * to the PriceWaiter Order Verification endpoint.
      * @param  Array  $data
      */
-    public function verifyPriceWaiterOrderData(Array $data)
+    public function verifyRequest(Array $data)
     {
         $verifyUrl = $this->getHelper()->getOrderVerificationUrl();
 
