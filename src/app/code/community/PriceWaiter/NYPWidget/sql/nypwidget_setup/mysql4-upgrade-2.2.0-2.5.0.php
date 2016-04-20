@@ -19,14 +19,15 @@
 $installer = $this;
 $installer->startSetup();
 
-// Remove "Processing - PriceWaiter" order status if not in use.
+// 1. Figure out if any orders used the old "Processing - PriceWaiter" setting
 $processingOrders = Mage::getModel('sales/order')->getCollection()
     ->addFieldToFilter('status', 'pricewaiter_processing')
     ->addAttributeToSelect('created_at');
 
 $isPriceWaiterProcessingUsed = $processingOrders->count() > 0;
 
-if ($processingOrders->count() === 0) {
+// 2. If not, delete it.
+if (!$isPriceWaiterProcessingUsed) {
 
     $status = Mage::getModel('sales/order_status')
         ->getCollection()
@@ -38,24 +39,20 @@ if ($processingOrders->count() === 0) {
     }
 }
 
-// Set default order status property (globally)
-$defaultStatus = Mage::getConfig()->getNode('pricewaiter/orders/default_status');
-if (!$defaultStatus) {
+// 3. Figure out what the default status should be for new orders
+$defaultOrderStatus = null;
 
-    // We need to assign one.
-
+if ($isPriceWaiterProcessingUsed) {
     // Keep using "Processing - PriceWaiter" if we have been.
-    if ($isPriceWaiterProcessingUsed) {
-        $defaultStatus = 'pricewaiter_processing';
-    } else {
-        // Otherwise, just use the default "processing" status
-        $status = Mage::getModel('sales/order_status')
-            ->loadDefaultByState(Mage_Sales_Model_Order::STATE_PROCESSING);
-        $defaultStatus = $status->getStatus();
-    }
+    $defaultOrderStatus = 'pricewaiter_processing';
+} else {
+    // Otherwise, just use the default status for the "processing" state
+    $status = Mage::getModel('sales/order_status')
+        ->loadDefaultByState(Mage_Sales_Model_Order::STATE_PROCESSING);
+    $defaultOrderStatus = $status->getStatus();
 }
 
-if ($defaultStatus) {
-    Mage::getConfig()->setNode('default/pricewaiter/orders/default_status', $defaultStatus);
+// 4. Assign value for default order status setting for each store
+if ($defaultOrderStatus) {
+    $this->setConfigData('pricewaiter/orders/default_status', $defaultOrderStatus);
 }
-

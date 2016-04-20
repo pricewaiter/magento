@@ -147,8 +147,11 @@
         <pricewaiter>
             <configuration>
                 <enabled>0</enabled>
-                <log>1</log>
             </configuration>
+            <orders>
+                <default_status>processing</default_status>
+                <log>1</log>
+            </orders>
             <customer_groups>
                 <disable>0</disable>
                 <group_select>0</group_select>
