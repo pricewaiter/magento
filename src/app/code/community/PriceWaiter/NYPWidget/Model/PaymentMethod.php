@@ -24,6 +24,9 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
 {
     protected $_code = 'nypwidget';
 
+    // Custom info block to display payment details on order in admin.
+    protected $_infoBlockType = 'nypwidget/payment_info_pricewaiter';
+
     protected $_isGateway = false;
     protected $_canOrder = true;
     protected $_canAuthorize = true;
