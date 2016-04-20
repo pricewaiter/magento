@@ -79,6 +79,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getOrderVerificationUrl()
     {
+        $url = getenv('PRICEWAITER_ORDER_VERIFICATION_URL');
+        if ($url) {
+            return $url;
+        }
+
         // Build verification URL off base API url.
         $url = $this->getApiUrl();
         $url = rtrim($url, '/');
@@ -399,6 +404,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      * @param {String} $sku SKU of the product
      * @param {Array} $productOptions An array of options for the product, name => value
      * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     * @throws  PriceWaiter_NYPWidget_Exception_Product_NotFound If no product can be found.
      */
     public function getProductWithOptions($sku, $productOptions)
     {
@@ -433,6 +439,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
             $parentProduct = $product;
             $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+
+            if (!$product) {
+                throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+            }
+
             $product->load($product->getId());
         }
 

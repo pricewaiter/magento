@@ -19,49 +19,80 @@
 
 class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Front_Action
 {
+    /**
+     * Header used to pass error messages back to PriceWaiter.
+     */
+    const ERROR_MESSAGE_HEADER = 'X-Platform-Error';
+
+    /**
+     * Header used to pass error codes back to PriceWaiter.
+     */
+    const ERROR_CODE_HEADER = 'X-Platform-Error-Code';
+
+    /**
+     * Header used to pass the generated order id back to PriceWaiter.
+     */
+    const ORDER_ID_HEADER = 'X-Platform-Order-Id';
 
     public function indexAction()
     {
-        if (!$this->getRequest()->isPost()) {
-            $this->_log("HTTP Request is invalid.");
+        $httpRequest = $this->getRequest();
+        $httpResponse = $this->getResponse();
+
+        if (!$httpRequest->isPost()) {
+            // Pretend like this page isn't even *here*
+            $this->silentNotFound($httpResponse);
             return;
         }
 
-        Mage::helper('nypwidget')->setHeaders();
+        // Add debugging headers
+        Mage::helper('nypwidget')->setHeaders($httpResponse);
 
-        try {
-            $request = $this->getRequest()->getPost();
-            if (!array_key_exists('pricewaiter_id', $request)) {
-                $this->_log($request);
-                $this->_log("PriceWaiter Notification is missing required fields.");
-                return;
-            }
+        try
+        {
+            $data = $httpRequest->getPost();
+
             $this->_log("Incoming PriceWaiter order notification.");
-            $this->_log($request);
+            $this->_log($data);
 
-            Mage::getModel('nypwidget/callback')->processRequest($request);
+            $order = Mage::getModel('nypwidget/callback')->processRequest($data);
 
-            // TODO: Add order Increment ID to response
-            // Mage::app()->getResponse()->setHeader('X-Platform-Order-Id', $order->getIncrementId());
+            // Success!
+            $httpResponse->setHeader(self::ORDER_ID_HEADER, $order->getIncrementId(), true);
 
-            // TODO: Logging
-            //
-            // Mage::log("The Name Your Price Widget has created order #"
-            //     . $order->getIncrementId() . " with order ID " . $order->getId());
-            // $this->_log("The Name Your Price Widget has created order #"
-            //     . $order->getIncrementId() . " with order ID " . $order->getId());
+            $this->_log("The Name Your Price Widget has created order #"
+                . $order->getIncrementId() . " with order ID " . $order->getId());
 
-        } catch (Exception $e) {
-
-            // TODO: This kind of stuff
-            // Mage::app()->getResponse()->setHeader('HTTP/1.0 500 Internal Server Error', 500, true);
-            // Mage::app()->getResponse()->setHeader('X-Platform-Error', $e->getMessage(), true);
-            // $this->_log("PriceWaiter Name Your Price Widget was unable to create order. Check log for details.");
-            // $this->_log($e->getMessage());
-
-            Mage::logException($e);
-            $this->_log($e);
         }
+        catch(Exception $ex)
+        {
+
+            if (is_a($ex, 'PriceWaiter_NYPWidget_Exception_Abstract')) {
+
+                // These are "normal" errors indicating problems we've thought of
+                // during order processing.
+                $httpResponse->setHttpResponseCode($ex->httpStatusCode);
+
+                if (!empty($ex->errorCode)) {
+                    $httpResponse->setHeader('X-Platform-Error-Code', $ex->errorCode, true);
+                }
+            } else {
+                $httpResponse->setHttpResponseCode(500);
+            }
+
+            $httpResponse->setHeader(self::ERROR_MESSAGE_HEADER, $ex->getMessage(), true);
+
+            // Mage::logException($e);
+        }
+    }
+
+    /**
+     * Returns a "not found" page as though this route did not even exist...
+     * @param  Mage_Core_Controller_Response_Http $response
+     */
+    protected function silentNotFound(Mage_Core_Controller_Response_Http $httpResponse)
+    {
+        $httpResponse->setHttpResponseCode(404);
     }
 
     private function _log($message)
@@ -70,5 +101,6 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
             Mage::log($message, null, "PriceWaiter_Callback.log");
         }
     }
+
 
 }

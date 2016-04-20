@@ -237,7 +237,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             $valueKey = "product_option_value{$i}";
             $value = $request[$valueKey];
 
-            $requestOptions[$name] = $value;
+            $options[$name] = $value;
         }
 
         return $options;
@@ -507,22 +507,41 @@ class PriceWaiter_NYPWidget_Model_Callback
     /**
      * Attempts to validate incoming PriceWaiter order data by POSTing it back
      * to the PriceWaiter Order Verification endpoint.
-     * @param  Array  $data
+     * @param  Array  $request
      */
-    public function verifyRequest(Array $data)
+    public function verifyRequest(Array $request)
     {
         $verifyUrl = $this->getHelper()->getOrderVerificationUrl();
-
-        $valid = false;
         $ch = curl_init($verifyUrl);
 
-        if ($ch) {
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        if (!$ch) {
+            return false;
+        }
 
-            $response = curl_exec($ch);
-            $valid = ($response === '1');
+        // NOTE: Building $postFields string manually to avoid multipart/form-data content type
+        //       assigned by default when using Array.
+        $postFields = http_build_query(
+            $request,
+            '',
+            '&',
+            // NOTE: PHP_QUERY_RFC1738 added in PHP 5.4
+            defined('PHP_QUERY_RFC1738') ? PHP_QUERY_RFC1738 : 0
+        );
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+
+        if (defined('CURLOPT_SAFE_UPLOAD')) {
+            // Disable curl's dumb '@filename' upload option
+            curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
+        }
+
+        $response = curl_exec($ch);
+        $valid = ($response === '1');
+
+        if (!$valid && $request['pricewaiter_id'] !== '666') {
+            var_dump($request);
         }
 
         return $valid;
