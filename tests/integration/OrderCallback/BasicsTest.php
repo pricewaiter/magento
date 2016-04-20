@@ -81,12 +81,21 @@ class Integration_OrderCallback_Basics
         'country' => 'US',
     );
 
+    public $payment = array(
+        'method' => 'authorize_net',
+        'method_nice' => 'Authorize.net',
+        'cc_type' => 'Visa',
+        'magento_cc_type' => 'VI',
+        'cc_last4' => '4242',
+    );
+
     /**
      * @return Array
      */
     public function buildOrderCallbackRequest()
     {
         $product = $this->simpleProduct;
+        $payment = $this->payment;
         $apiKey = $this->apiKey;
 
         $request = [
@@ -95,7 +104,8 @@ class Integration_OrderCallback_Basics
             'pricewaiter_id' => uniqid(),
             'order_completed_timestamp' => '2015-01-03T14:19:37-07:00',
             'api_key' => $apiKey,
-            'payment_method' => 'authorize_net',
+            'payment_method' => $payment['method'],
+            'payment_method_nice' => $payment['method_nice'],
             'transaction_id' => uniqid(),
             'currency' => 'USD',
             'quantity' => 2,
@@ -103,6 +113,8 @@ class Integration_OrderCallback_Basics
             'shipping_method' => 'UPS Ground',
             'shipping' => '10.50',
             'tax' => '14.00',
+            'cc_type' => $payment['cc_type'],
+            'cc_last4' => $payment['cc_last4'],
         ];
 
         // maths
@@ -453,12 +465,22 @@ class Integration_OrderCallback_Basics
      */
     public function testOrderPayment(Array $args)
     {
+        $p = $this->payment;
+
         list($request, $order) = $args;
 
         $payment = $order->getPayment();
         $this->assertTrue(!!$payment, "payment exists");
 
         $this->assertEquals($request['transaction_id'], $payment->getTransactionId());
+        $this->assertEquals($p['magento_cc_type'], $payment->getCcType());
+        $this->assertEquals($p['cc_last4'], $payment->getCcLast4());
+
+        // Check that PW payment method is stashed on payment
+        $this->assertNotNull($payment->getAdditionalData(), 'payment has additional data');
+        $data = unserialize($payment->getAdditionalData());
+        $this->assertTrue(is_array($data), 'getAdditionalData() contains serialized array');
+        $this->assertEquals($p['method'], $data['pricewaiter_payment_method']);
     }
 
     /**

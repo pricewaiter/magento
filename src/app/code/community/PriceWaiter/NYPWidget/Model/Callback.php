@@ -452,6 +452,30 @@ class PriceWaiter_NYPWidget_Model_Callback
             ->setCustomerPaymentId(0)
             ->setTransactionId($request['transaction_id']);
 
+        // Extra details for credit card payments
+        if (!empty($request['cc_type'])) {
+            $ccType = $this->translateCcType($request['cc_type']);
+            if ($ccType) {
+                $orderPayment->setCcType($ccType);
+            }
+        }
+
+        if (!empty($request['cc_last4'])) {
+            $orderPayment->setCcLast4($request['cc_last4']);
+        }
+
+        // Stash PW-specific stuff in "additional data"
+        $additionalData = array(
+            'pricewaiter_payment_method' => $request['payment_method'],
+        );
+
+        if (!empty($request['payment_method_nice'])) {
+            $additionalData['pricewaiter_payment_method_nice'] =
+                $request['payment_method_nice'];
+        }
+
+        $orderPayment->setAdditionalData(serialize($additionalData));
+
         $order->setPayment($orderPayment);
     }
 
@@ -630,6 +654,42 @@ class PriceWaiter_NYPWidget_Model_Callback
         $customer->sendNewAccountEmail('registered', '', $store->getId());
 
         return true;
+    }
+
+    /**
+     * @internal Translates an incoming PriceWaiter cc_type into a 2-character Magento credit card type.
+     * @param  String $type A credit card type, e.g. "Visa".
+     * @return String|false A 2-character credit card type code or false if none can be resolved.
+     */
+    public function translateCcType($type)
+    {
+        /**
+         * @var Mage_Payment_Model_Config
+         */
+        $config = Mage::getSingleton('payment/config');
+
+        // $types is an array in the format:
+        // array(
+        //     'VI' => 'Visa',
+        // )
+        $types = $config->getCcTypes();
+
+        $magentoTypeCodes = array();
+        $normalizedNames = array();
+
+        foreach($types as $code => $name) {
+            $magentoTypeCodes[] = $code;
+            $normalizedNames[] = strtolower(preg_replace('/[^\w\d]/', '', $name));
+        }
+
+        $map = array_combine($normalizedNames, $magentoTypeCodes);
+        $normalizedType = strtolower(preg_replace('/[^\w\d]/', '', $type));
+
+        if (isset($map[$normalizedType])) {
+            return $map[$normalizedType];
+        }
+
+        return false;
     }
 
     private function _log($message)
