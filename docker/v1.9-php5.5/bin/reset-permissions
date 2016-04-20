@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd /var/www/htdocs
+
+echo "Resetting Magento permissions per http://devdocs.magento.com/guides/m1x/install/installer-privileges_after.html"
+
+find . -type f -exec chmod 400 {} \;
+find . -type d -exec chmod 500 {} \;
+find var/ -type f -exec chmod 600 {} \;
+find media/ -type f -exec chmod 600 {} \;
+find var/ -type d -exec chmod 700 {} \;
+find media/ -type d -exec chmod 700 {} \;
+
+chown -R www-data:www-data .
