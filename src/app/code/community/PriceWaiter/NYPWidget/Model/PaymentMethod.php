@@ -60,6 +60,20 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
         return false;
     }
 
+    public function getConfigData($field, $storeId = null)
+    {
+        if ($field !== 'order_status') {
+            return parent::getConfigData($field, $storeId);
+        }
+
+        if ($storeId === null) {
+            $storeId = $this->getStore();
+        }
+
+        $status = Mage::helper('nypwidget')->getDefaultOrderStatus($storeId);
+        return $status;
+    }
+
     public function getConfigPaymentAction()
     {
         $request = $this->getCurrentOrderCallbackRequest();

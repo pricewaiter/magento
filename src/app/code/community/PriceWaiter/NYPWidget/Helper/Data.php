@@ -29,6 +29,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     const ORDER_VERIFICATION_API_PATH = '/1/order/verify';
 
+    const XML_PATH_DEFAULT_ORDER_STATUS = 'pricewaiter/orders/default_status';
+
     private $_product = false;
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
@@ -59,6 +61,14 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return self::PRICEWAITER_API_URL;
+    }
+
+    /**
+     * @return String The status to assign to new PriceWaiter orders.
+     */
+    public function getDefaultOrderStatus($store = null)
+    {
+        return Mage::getStoreConfig(self::XML_PATH_DEFAULT_ORDER_STATUS, $store);
     }
 
     /**

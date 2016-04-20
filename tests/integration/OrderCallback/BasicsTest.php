@@ -525,4 +525,40 @@ class Integration_OrderCallback_Basics
         return array($request, $order, $callback);
     }
 
+    public function testOrderStatusSettingRespected()
+    {
+        $helper = Mage::helper('nypwidget');
+
+        $store = $helper->getStoreByPriceWaiterApiKey($this->apiKey);
+        $oldStatus = $helper->getDefaultOrderStatus($store);
+
+        $store->setConfig(
+            PriceWaiter_NYPWidget_Helper_Data::XML_PATH_DEFAULT_ORDER_STATUS,
+            'payment_review'
+        );
+        $this->assertEquals(
+            'payment_review',
+            $helper->getDefaultOrderStatus(),
+            'correctly overwrote default order status setting'
+        );
+
+        try
+        {
+            list($request, $order) = $this->testNormalOrderCallback();
+            $this->assertEquals('payment_review', $order->getStatus());
+        }
+        catch (Exception $ex)
+        {
+            $store->setConfig(
+                PriceWaiter_NYPWidget_Helper_Data::XML_PATH_DEFAULT_ORDER_STATUS,
+                $oldStatus
+            );
+            throw $ex;
+        }
+
+        $store->setConfig(
+            PriceWaiter_NYPWidget_Helper_Data::XML_PATH_DEFAULT_ORDER_STATUS,
+            $oldStatus
+        );
+    }
 }
