@@ -177,10 +177,19 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_widgetUrl . '/nyp/script/widget.js';
     }
 
-    public function getApiUrl()
+    /**
+     * @return String URL to which to POST order data to verify it came from PriceWaiter.
+     */
+    public function getOrderVerificationUrl()
     {
-        return $this->_apiUrl . '/1/order/verify?api_key='
-            . Mage::getStoreConfig('pricewaiter/configuration/api_key');
+        $url = getenv('PRICEWAITER_ORDER_VERIFICATION_URL');
+
+        if ($url) {
+            return $url;
+        }
+
+        // Default to building off API url.
+        return "{$this->_apiUrl}/1/order/verify";
     }
 
     public function getProductPrice($product)

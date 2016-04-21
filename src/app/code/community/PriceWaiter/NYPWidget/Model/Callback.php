@@ -32,7 +32,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         // Build URL to check validity of order notification.
-        $url = Mage::helper('nypwidget')->getApiUrl();
+        $url = Mage::helper('nypwidget')->getOrderVerificationUrl();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
