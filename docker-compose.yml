@@ -3,6 +3,9 @@ mysql:
     environment:
         - MYSQL_ROOT_PASSWORD=password
 
+order_verifier:
+    build: docker/order_verifier
+
 phpmyadmin:
     build: docker/phpmyadmin
     ports:
@@ -20,11 +23,13 @@ v19php55:
     - PRICEWAITER_API_URL=http://dockerhost:8008
     - PRICEWAITER_RETAILER_URL=http://localhost:8009
     - PRICEWAITER_WIDGET_URL=http://dockerhost:8006
+    - PRICEWAITER_ORDER_VERIFICATION_URL=http://order_verifier/1/order/verify
   extra_hosts:
     # Important: Tell tests how to find magento host internally.
     - "magento.local:127.0.0.1"
   links:
     - mysql
+    - order_verifier
   ports:
     - "1955:1955"
   volumes:
