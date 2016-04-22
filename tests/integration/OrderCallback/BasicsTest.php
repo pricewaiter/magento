@@ -127,12 +127,12 @@ class Integration_OrderCallback_Basics
         $item = $items->getFirstItem();
 
         $expectedValues = [
-            'getProductId' => $this->simpleProduct['id'],
-            'getProductType' => $this->simpleProduct['type'],
-            'getSku' => $this->simpleProduct['sku'],
+            'getProductId' => $this->product['id'],
+            'getProductType' => $this->product['type'],
+            'getSku' => $this->product['sku'],
             'getStoreId' => $order->getStoreId(),
             'getOrderId' => $order->getId(),
-            'getName' => $this->simpleProduct['name'],
+            'getName' => $this->product['name'],
         ];
 
         foreach($expectedValues as $getter => $expectedValue) {
