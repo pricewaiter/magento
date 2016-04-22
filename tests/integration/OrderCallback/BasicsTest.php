@@ -1,6 +1,6 @@
 <?php
 
-require(__DIR__ . '/Base.php');
+require_once(__DIR__ . '/Base.php');
 
 /**
  * Tests around PriceWaiter order callback.
@@ -42,21 +42,6 @@ class Integration_OrderCallback_Basics
         $this->doOrderCallback(array(
             'pricewaiter_id' => $pwOrder->getPricewaiterId(),
         ));
-    }
-
-    public function testInventoryDecremented()
-    {
-        $product = Mage::getModel('catalog/product')
-            ->load($this->simpleProduct['id']);
-        $stock = $product->getStockItem();
-        $prevInventory = $stock->getQty();
-
-        list($request, $order) = $this->testNormalOrderCallback();
-
-        $stock->load($stock->getId());
-        $currentInventory = $stock->getQty();
-
-        $this->assertEquals($prevInventory - $request['quantity'], $currentInventory, 'inventory was decremented');
     }
 
     /**

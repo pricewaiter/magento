@@ -619,8 +619,14 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     protected function saveAndPlaceOrder(Mage_Sales_Model_Order $order)
     {
+        // NOTE: Magento's built-in inventory handling operates during the conversion
+        //       of quotes -> orders. Since we write orders directly (without a quote),
+        //       we have to handle inventory ourselves.
+        $inventory = Mage::getModel('nypwidget/callback_inventory', $order);
+
         $transaction = Mage::getModel('core/resource_transaction');
         $transaction->addObject($order);
+        $transaction->addCommitCallback(array($inventory, 'registerPricewaiterSale'));
         $transaction->addCommitCallback(array($order, 'place'));
         $transaction->addCommitCallback(array($order, 'save'));
         $transaction->save();

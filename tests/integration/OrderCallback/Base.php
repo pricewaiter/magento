@@ -205,6 +205,9 @@ abstract class Integration_OrderCallback_Base
 
         $stock = $product->getStockItem();
 
+        // Necessary to get around stale data in stock item.
+        $stock->load($stock->getId());
+
         return $stock->getQty();
     }
 
