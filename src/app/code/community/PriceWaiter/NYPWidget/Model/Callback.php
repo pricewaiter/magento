@@ -65,26 +65,29 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         // Build the pricing information of the product
-        $subTotal = 0;
-        $rowTotal = ($request['unit_price'] * $request['quantity']) + $request['tax'];
-
         $orderItem = Mage::getModel('sales/order_item')
             ->setStoreId($store->getId())
             ->setQuoteItemId(0)
             ->setQuoteParentItemId(null)
             ->setProductId($product->getId())
             ->setProductType($product->getTypeId())
-            ->setQtyBackordered(null)
             ->setTotalQtyOrdered($request['quantity'])
             ->setQtyOrdered($request['quantity'])
             ->setName($product->getName())
             ->setSku($product->getSku())
-            ->setPrice($request['unit_price'])
-            ->setBasePrice($request['unit_price'])
-            ->setOriginalPrice($product->getPrice())
-            ->setTaxAmount($request['tax'])
-            ->setRowTotal($rowTotal)
-            ->setBaseRowTotal($request['unit_price'] * $request['quantity']);
+            ->setIsNominal(0);
+
+        // Delegate out to some more unit-testable code to calculate all the
+        // various amount fields present on the order item.
+        $amounts = $this->calculateOrderItemAmounts(
+            $request,
+            $product->getPrice(),
+            array($store, 'roundPrice')
+        );
+        foreach($amounts as $key => $value) {
+            $orderItem->setData($key, $value);
+            $orderItem->setData("base_$key", $value);
+        }
 
         $additionalOptions = array();
         foreach($this->buildProductOptionsArray($request) as $option => $value) {
@@ -212,6 +215,13 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $this->addItemsToOrder($order, $request, $store, $customer);
 
+        $amounts = $this->calculateOrderAmounts($request, array($store, 'roundPrice'));
+
+        foreach($amounts as $key => $value) {
+            $order->setData($key, $value);
+            $order->setData("base_$key", $value);
+        }
+
         $comment = $this->getNewOrderComment($request);
         if ($comment) {
             $order->addStatusHistoryComment($comment);
@@ -241,6 +251,62 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         return $options;
+    }
+
+    /**
+     * @internal Calculates pricing-related fields to go on the order.
+     * @param  Array  $request
+     * @return Array
+     */
+    public function calculateOrderAmounts(Array $request, Callable $rounder)
+    {
+        $amountPerItem = $request['unit_price'];
+        $qty = $request['quantity'];
+        $subtotal = $rounder($amountPerItem * $qty);
+        $shipping = $request['shipping'];
+        $tax = $request['tax'];
+        $taxPerItem = $rounder($tax / $qty);
+        $total = $rounder(($amountPerItem * $qty) + $shipping + $tax);
+
+        return array(
+            'discount_amount' => 0,
+            'grand_total' => $total,
+            'shipping_amount' => $shipping,
+            'shipping_discount_amount' => 0,
+            'shipping_incl_tax' => $shipping,
+            'shipping_tax_amount' => 0,
+            'subtotal' => $subtotal,
+            'subtotal_incl_tax' => $rounder(($amountPerItem * $qty) + $tax),
+            'tax_amount' => $tax,
+        );
+    }
+
+    /**
+     * @internal Calculates pricing-related fields to be set on an order item.
+     * @param  Array                      $request
+     * @param  Mage_Catalog_Model_Product $product
+     */
+    public function calculateOrderItemAmounts(Array $request, $productPrice, Callable $rounder)
+    {
+        $amountPerItem = $request['unit_price'];
+        $qty = $request['quantity'];
+        $subtotal = $rounder($amountPerItem * $qty);
+        $tax = $request['tax'];
+        $taxPerItem = $rounder($tax / $qty);
+
+        return array(
+            'discount_amount' => 0,
+            'discount_percent' => 0,
+            'original_price' => $productPrice,
+            'price' => $amountPerItem,
+            'price_incl_tax' => $amountPerItem,
+            'row_total' => $subtotal,
+            'row_total_incl_tax' => $subtotal,
+            // NOTE: We apply tax to the entire order, not per-item.
+            'tax_amount' => 0,
+            'tax_before_discount' => 0,
+            'tax_percent' => 0,
+        );
     }
 
     /**
