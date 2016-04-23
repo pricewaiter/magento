@@ -36,8 +36,9 @@ class Unit_OrderAmount extends PHPUnit_Framework_TestCase
                     'grand_total' => '377.19',
                     'shipping_amount' => '12.34',
                     'shipping_tax_amount' => 0,
-                    'subtotal' => '355.48',
-                    'tax_amount' => '9.37',
+                    'subtotal' => '364.85',
+                    // NOTE: subtotal includes tax; tax details are on the order item.
+                    'tax_amount' => '0',
                     'shipping_discount_amount' => 0,
                     'subtotal_incl_tax' => '364.85',
                     'shipping_incl_tax' => '12.34',
@@ -76,14 +77,12 @@ class Unit_OrderAmount extends PHPUnit_Framework_TestCase
                     'discount_percent' => 0,
                     'original_price' => '150.0000',
                     'price' => '88.87',
-                    'price_incl_tax' => '88.87',
+                    'price_incl_tax' => '91.21',
                     'row_total' => '355.48',
-                    'row_total_incl_tax' => '355.48',
-                    // NOTE: Applying tax to the entire order, rather than per-item
-                    //       jives closer with how PriceWaiter thinks.
-                    'tax_amount' => 0,
-                    'tax_before_discount' => 0,
-                    'tax_percent' => 0,
+                    'row_total_incl_tax' => '364.85',
+                    'tax_amount' => '9.37',
+                    'tax_before_discount' => '9.37',
+                    'tax_percent' => '2.64',
                 ),
             ),
         );

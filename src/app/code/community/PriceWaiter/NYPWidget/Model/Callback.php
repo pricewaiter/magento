@@ -262,10 +262,14 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         $amountPerItem = $request['unit_price'];
         $qty = $request['quantity'];
-        $subtotal = $rounder($amountPerItem * $qty);
         $shipping = $request['shipping'];
         $tax = $request['tax'];
         $taxPerItem = $rounder($tax / $qty);
+        $subtotal = $rounder($amountPerItem * $qty);
+
+        // NOTE: Tax is added to the individual order item, so we zero it out on the order.
+        $subtotalInclTax = $rounder(($amountPerItem * $qty) + $tax);
+
         $total = $rounder(($amountPerItem * $qty) + $shipping + $tax);
 
         return array(
@@ -275,9 +279,9 @@ class PriceWaiter_NYPWidget_Model_Callback
             'shipping_discount_amount' => 0,
             'shipping_incl_tax' => $shipping,
             'shipping_tax_amount' => 0,
-            'subtotal' => $subtotal,
-            'subtotal_incl_tax' => $rounder(($amountPerItem * $qty) + $tax),
-            'tax_amount' => $tax,
+            'subtotal' => $subtotalInclTax,
+            'subtotal_incl_tax' => $subtotalInclTax,
+            'tax_amount' => 0,
         );
     }
 
@@ -299,13 +303,12 @@ class PriceWaiter_NYPWidget_Model_Callback
             'discount_percent' => 0,
             'original_price' => $productPrice,
             'price' => $amountPerItem,
-            'price_incl_tax' => $amountPerItem,
+            'price_incl_tax' => $rounder($amountPerItem + ($tax / $qty)),
             'row_total' => $subtotal,
-            'row_total_incl_tax' => $subtotal,
-            // NOTE: We apply tax to the entire order, not per-item.
-            'tax_amount' => 0,
-            'tax_before_discount' => 0,
-            'tax_percent' => 0,
+            'row_total_incl_tax' => $rounder(($amountPerItem * $qty) + $tax),
+            'tax_amount' => $tax,
+            'tax_before_discount' => $tax,
+            'tax_percent' => $rounder(($tax / ($amountPerItem * $qty)) * 100),
         );
     }
 
