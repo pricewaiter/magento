@@ -26,7 +26,7 @@ v19php55:
     - PRICEWAITER_ORDER_VERIFICATION_URL=http://order_verifier/1/order/verify
   extra_hosts:
     # Important: Tell tests how to find magento host internally.
-    - "magento.local:127.0.0.1"
+    - "magento:127.0.0.1"
   links:
     - mysql
     - order_verifier
