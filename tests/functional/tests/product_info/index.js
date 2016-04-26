@@ -34,6 +34,13 @@ module.exports = function productInfoSuite(dataset) {
             regular_price_currency: dataset.product.regular_price_currency,
         };
 
+        // Allow for optional fields in response
+        ['regular_price', 'regular_price_currency'].forEach(optionalKey => {
+            if (expectedResponse[optionalKey] === undefined) {
+                delete expectedResponse[optionalKey];
+            }
+        });
+
         const requestOptions = {
             url: dataset.urls.productInfo,
             method: 'POST',

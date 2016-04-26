@@ -2,9 +2,9 @@
 
 ## Development Flow
 
-0. Ensure your Docker machine is accessible as **magento.local**: `echo "$(docker-machine ip dev) magento.local" >> /etc/hosts`
+0. Ensure your Docker machine is accessible as **magento**: `echo "$(docker-machine ip dev) magento" >> /etc/hosts`
 1. Start the docker environment up: `docker-compose up`
-    1. Magento 1.9 + PHP 5.5 available on [http://magento.local:1955](http://magento.local:1955) (Username: `admin`, password: `password123`)
+    1. Magento 1.9 + PHP 5.5 available on [http://magento:1955](http://magento:1955) (Username: `admin`, password: `password123`)
 2. Write code :saxophone:
 3. Run tests :tada:
 
@@ -24,7 +24,7 @@ Runs `phpunit --testsuite=integration` (see `tests/integration`). Integration te
 
 ## phpMyAdmin
 
-phpMyAdmin runs on [http://magento.local:7777](http://magento.local:7777). There is a separate database for each Magento installation.
+phpMyAdmin runs on [http://magento:7777](http://magento:7777). There is a separate database for each Magento installation.
 
 ## Releasing a New Version
 

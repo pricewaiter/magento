@@ -4,7 +4,7 @@
   "description": "Functional tests for the PriceWaiter Magento extension.",
   "scripts": {
     "start": "mocha --opts mocha.opts index.js",
-    "local": "MAGENTO_BASE_URL=http://magento.local:1955 PRICEWAITER_API_KEY=MAGENTO PRICEWAITER_SHARED_SECRET=SECRET npm start"
+    "local": "MAGENTO_BASE_URL=http://magento:1955 PRICEWAITER_API_KEY=MAGENTO PRICEWAITER_SHARED_SECRET=SECRET mocha --opts mocha.opts index.js"
   },
   "author": "",
   "devDependencies": {
