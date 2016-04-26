@@ -56,7 +56,7 @@ RUN curl -Lo /usr/local/bin/composer https://getcomposer.org/composer.phar && \
 # container. So instead we *download* the Magento source files and extract them.
 ENV MAGENTO_VERSION 1.9.2.2
 ENV MAGENTO_VERSION_BY_NAME magento-mirror-$MAGENTO_VERSION
-ENV MAGENTO_HOSTNAME magento.local
+ENV MAGENTO_HOSTNAME magento
 ENV MAGENTO_PORT 1955
 ENV MAGENTO_BASE_URL http://${MAGENTO_HOSTNAME}:${MAGENTO_PORT}
 
@@ -66,7 +66,7 @@ RUN n98-magerun install \
     --only-download
 
 # Ensure we serve Magento on the same port internally & externally (i.e., we want
-# http://magento.local:1955 to work both inside the Docker container and outside.
+# http://magento:1955 to work both inside the Docker container and outside.
 RUN sed -i -e "s/Listen 80/Listen $MAGENTO_PORT/" /etc/apache2/apache2.conf
 EXPOSE $MAGENTO_PORT
 

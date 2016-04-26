@@ -9,6 +9,12 @@ const SUITES = [
             './tests/product_info',
         ],
     },
+    {
+        name: 'Order Callback',
+        modules: [
+            './tests/order_callback',
+        ],
+    },
 ];
 
 const DATASETS = [];

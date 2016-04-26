@@ -1,4 +1,4 @@
-const { expect, assert } = require('chai');
+const { expect } = require('chai');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const request = require('request');
@@ -10,11 +10,7 @@ module.exports = function productInfoSuite(dataset) {
         return `sha256=${hash}`;
     }
 
-    const PRICEWAITER_SHARED_SECRET = process.env.PRICEWAITER_SHARED_SECRET;
-
     it('returns expected data', (done) => {
-
-        assert(PRICEWAITER_SHARED_SECRET, 'PRICEWAITER_SHARED_SECRET env is available');
 
         const body = querystring.stringify(
             Object.assign(
@@ -26,7 +22,7 @@ module.exports = function productInfoSuite(dataset) {
             )
         );
 
-        const signature = sign(body, PRICEWAITER_SHARED_SECRET);
+        const signature = sign(body, dataset.sharedSecret);
 
         const expectedResponse = {
             allow_pricewaiter: true,
@@ -37,6 +33,13 @@ module.exports = function productInfoSuite(dataset) {
             regular_price: dataset.product.regular_price,
             regular_price_currency: dataset.product.regular_price_currency,
         };
+
+        // Allow for optional fields in response
+        ['regular_price', 'regular_price_currency'].forEach(optionalKey => {
+            if (expectedResponse[optionalKey] === undefined) {
+                delete expectedResponse[optionalKey];
+            }
+        });
 
         const requestOptions = {
             url: dataset.urls.productInfo,
@@ -65,7 +68,7 @@ module.exports = function productInfoSuite(dataset) {
                 /* eslint-enable no-console */
             }
 
-            const expectedSignature = sign(responseBody, PRICEWAITER_SHARED_SECRET);
+            const expectedSignature = sign(responseBody, dataset.sharedSecret);
             expect(resp.headers).to.have.property('x-pricewaiter-signature', expectedSignature);
 
             const parsedBody = JSON.parse(responseBody);

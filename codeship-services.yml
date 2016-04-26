@@ -2,11 +2,14 @@ functional_tests_v19php55:
   build: .
   dockerfile: ./docker/functional-tests/Dockerfile
   environment:
-    MAGENTO_BASE_URL: 'http://magento.local:1955'
+    MAGENTO_BASE_URL: 'http://magento:1955'
     PRICEWAITER_API_KEY: MAGENTO
     PRICEWAITER_SHARED_SECRET: SECRET
   links:
-    - "v19php55:magento.local"
+    - "v19php55:magento"
+
+order_verifier:
+    build: docker/order_verifier
 
 v19php55:
   build:
@@ -17,13 +20,15 @@ v19php55:
     - MAGENTO_DB_USER=root
     # Use these variables to link into your PriceWaiter docker environment running locally.
     - PRICEWAITER_API_URL=http://dockerhost:8008
+    - PRICEWAITER_ORDER_VERIFICATION_URL=http://order_verifier/1/order/verify
     - PRICEWAITER_RETAILER_URL=http://localhost:8009
     - PRICEWAITER_WIDGET_URL=http://dockerhost:8006
   extra_hosts:
     # Important: Tell tests how to find magento host internally.
-    - "magento.local:127.0.0.1"
+    - "magento:127.0.0.1"
   links:
     - mysql
+    - order_verifier
   ports:
     - "1955:1955"
 
