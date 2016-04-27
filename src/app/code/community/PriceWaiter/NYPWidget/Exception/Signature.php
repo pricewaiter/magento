@@ -7,5 +7,5 @@
 class PriceWaiter_NYPWidget_Exception_Signature
     extends PriceWaiter_NYPWidget_Exception_Abstract
 {
-    public $errorCode = 'ESIGNATURE';
+    public $errorCode = 'signature';
 }
