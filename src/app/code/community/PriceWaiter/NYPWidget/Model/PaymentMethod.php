@@ -42,6 +42,9 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
 
     public function authorize(Varien_Object $payment, $amount)
     {
+        // Don't close transactions for auth-only.
+        $payment->setIsTransactionClosed(0);
+
         return $this;
     }
 
@@ -76,16 +79,41 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
 
     public function getConfigPaymentAction()
     {
-        $request = $this->getCurrentOrderCallbackRequest();
-        $isTest = !empty($request['test']);
-
         // For test orders (which will be immediately canceled) we don't
         // want to "capture" payment, since that removes our ability to cancel.
-        if ($isTest) {
+        if ($this->isCurrentRequestTest()) {
+            return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
+        }
+
+        // Detect auth-only transactions and, uh, only auth them.
+        if ($this->isCurrentRequestAuthorizeOnly()) {
             return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
         }
 
         return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE;
+    }
+
+    /**
+     * @return boolean Whether the current order callback request being processed is authorize only (no capture).
+     */
+    protected function isCurrentRequestAuthorizeOnly()
+    {
+        $request = $this->getCurrentOrderCallbackRequest();
+
+        return (
+            is_array($request) &&
+            isset($request['transaction_type']) &&
+            strcasecmp($request['transaction_type'], 'auth') === 0
+        );
+    }
+
+    /**
+     * @return boolean Whether the current order callback request being processed is a test.
+     */
+    protected function isCurrentRequestTest()
+    {
+        $request = $this->getCurrentOrderCallbackRequest();
+        return is_array($request) && !empty($request['test']);
     }
 
     /**

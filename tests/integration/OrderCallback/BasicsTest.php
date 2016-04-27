@@ -141,55 +141,6 @@ class Integration_OrderCallback_Basics
         }
     }
 
-    /**
-     * @depends testNormalOrderCallback
-     */
-    public function testOrderPayment(Array $args)
-    {
-        $p = $this->payment;
-
-        list($request, $order) = $args;
-
-        $payment = $order->getPayment();
-        $this->assertTrue(!!$payment, "payment exists");
-
-        $this->assertEquals($request['transaction_id'], $payment->getTransactionId());
-        $this->assertEquals($p['magento_cc_type'], $payment->getCcType());
-        $this->assertEquals($p['cc_last4'], $payment->getCcLast4());
-
-        // Check that PW payment method is stashed on payment
-        $this->assertNotNull($payment->getAdditionalData(), 'payment has additional data');
-        $data = unserialize($payment->getAdditionalData());
-        $this->assertTrue(is_array($data), 'getAdditionalData() contains serialized array');
-        $this->assertEquals($p['method'], $data['pricewaiter_payment_method']);
-    }
-
-    /**
-     * @depends testNormalOrderCallback
-     */
-    public function testOrderPaymentTransaction(Array $args)
-    {
-        list($request, $order) = $args;
-        $payment = $order->getPayment();
-
-        $txn = Mage::getModel('sales/order_payment_transaction')
-            ->setOrderPaymentObject($payment)
-            ->loadByTxnId($payment->getTransactionId());
-
-        $this->assertTrue(!!$txn->getId(), 'transaction found');
-
-        $this->assertEquals('capture', $txn->getTxnType());
-        $this->assertTrue(!!$txn->getIsClosed(), 'transaction is closed');
-    }
-
-    /**
-     * Checks that for auth-only PW payments, the resulting transaction is AUTH type.
-     */
-    public function testOrderPaymentTransactionForAuth()
-    {
-        $this->markTestIncomplete();
-    }
-
     public function testOrderWithBlankShippingMethod()
     {
         $callback = new TestableCallbackModel();
