@@ -532,6 +532,10 @@ class PriceWaiter_NYPWidget_Model_Callback
             $orderPayment->setCcLast4($request['cc_last4']);
         }
 
+        if (!empty($request['avs_result'])) {
+            $orderPayment->setCcAvsStatus($request['avs_result']);
+        }
+
         // Stash PW-specific stuff in "additional data"
         $additionalData = array(
             'pricewaiter_payment_method' => $request['payment_method'],

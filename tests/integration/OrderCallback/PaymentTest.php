@@ -8,7 +8,9 @@ class Integration_OrderCallback_Payment
 
     public function testNormalOrderCallback()
     {
-        return $this->doOrderCallback();
+        return $this->doOrderCallback(array(
+            'avs_result' => 'Y'
+        ));
     }
 
     /**
@@ -45,6 +47,17 @@ class Integration_OrderCallback_Payment
         $data = unserialize($payment->getAdditionalData());
         $this->assertTrue(is_array($data), 'getAdditionalData() contains serialized array');
         $this->assertEquals($p['method'], $data['pricewaiter_payment_method']);
+    }
+
+    /**
+     * @depends testNormalOrderCallback
+     */
+    public function testOrderPaymentAVS(Array $args)
+    {
+        list($request, $order) = $args;
+
+        $payment = $order->getPayment();
+        $this->assertEquals('Y', $payment->getCcAvsStatus());
     }
 
     /**
