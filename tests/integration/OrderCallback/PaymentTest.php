@@ -139,6 +139,9 @@ class Integration_OrderCallback_Payment
      */
     public function testAuthOnlyNoInvoice(Array $args)
     {
-        $this->markTestIncomplete();
+        list($request, $order) = $args;
+
+        $invoices = $order->getInvoiceCollection()->getAllIds();
+        $this->assertCount(0, $invoices, 'order has no invoices');
     }
 }
