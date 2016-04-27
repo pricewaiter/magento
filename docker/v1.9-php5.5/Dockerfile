@@ -19,9 +19,6 @@ RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm
 
-# Bring in custom .npmrc for private module access
-COPY ./docker/.npmrc /root/
-
 RUN usermod -u 1000 www-data
 RUN a2enmod rewrite
 RUN sed -i -e 's/\/var\/www\/html/\/var\/www\/htdocs/' /etc/apache2/apache2.conf
