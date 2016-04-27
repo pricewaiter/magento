@@ -152,10 +152,9 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $request["buyer_{$type}_address3"],
             )))
             ->setCity($request["buyer_{$type}_city"])
-            //->setRegion($state)
-            ->setRegion_id($regionModel->getId())
+            ->setRegionId($regionModel->getId())
             ->setPostcode($request["buyer_{$type}_zip"])
-            ->setCountry_id($country)
+            ->setCountryId($country)
 
             // Phone numbers
             ->setTelephone($request["buyer_{$type}_phone"])

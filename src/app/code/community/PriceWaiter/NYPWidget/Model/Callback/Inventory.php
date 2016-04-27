@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Manages decrementing inventory for orders written via PriceWaiter order
- * callback. Similar to
+ * Manages decrementing inventory for orders written via PriceWaiter order callback.
  */
 class PriceWaiter_NYPWidget_Model_Callback_Inventory
 {
