@@ -170,7 +170,18 @@ abstract class Integration_OrderCallback_Base
             $request["buyer_shipping_{$key}"] = $value;
         }
 
-        $request['product_option_count'] = 0;
+        if (empty($this->product['options'])) {
+            $request['product_option_count'] = 0;
+        } else {
+            $request['product_option_count'] = count($this->product['options']);
+            $i = 0;
+            foreach($this->product['options'] as $name => $value) {
+                $i++;
+                $request["product_option_name{$i}"] = $name;
+                $request["product_option_value{$i}"] = $value;
+            }
+        }
+
         $request['product_sku'] = $product['sku'];
 
         return array_merge($request, $additionalData);
@@ -181,8 +192,12 @@ abstract class Integration_OrderCallback_Base
         // Put some more in stock if needed
         $minRequiredQty = 100;
 
+        $id = isset($this->product['id_for_inventory']) ?
+            $this->product['id_for_inventory'] :
+            $this->product['id'];
+
         $product = Mage::getModel('catalog/product')
-            ->load($this->product['id']);
+            ->load($id);
 
         $stock = $product->getStockItem();
 

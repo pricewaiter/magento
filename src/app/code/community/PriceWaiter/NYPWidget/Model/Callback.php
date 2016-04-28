@@ -90,10 +90,10 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         $additionalOptions = array();
-        foreach($this->buildProductOptionsArray($request) as $option => $value) {
+        foreach($this->buildProductOptionsArray($request) as $label => $value) {
             $additionalOptions[] = array(
-                'label' => $request['product_option_name' . $i],
-                'value' => $request['product_option_value' . $i]
+                'label' => $label,
+                'value' => $value,
             );
         }
 
@@ -238,8 +238,12 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         $options = array();
 
+        $count = intval($request['product_option_count']);
+
         // Decode product_option_name<N> and product_option_value<N>-style incoming data.
-        for ($i = $request['product_option_count']; $i > 0; $i--) {
+        // Note that we start numbering at 1.
+
+        for ($i = 1; $i <= $count; $i++) {
             $nameKey = "product_option_name{$i}";
             $name = $request[$nameKey];
 
