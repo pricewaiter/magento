@@ -62,6 +62,11 @@ RUN n98-magerun install \
     --installationFolder=/var/www/htdocs \
     --only-download
 
+# Adjust permissions so Magento Connect can be used.
+RUN chown -R www-data:www-data /var/www/htdocs
+RUN find /var/www/htdocs -type d -exec chmod 775 {} \;
+RUN find /var/www/htdocs -type f -exec chmod 664 {} \;
+
 # Ensure we serve Magento on the same port internally & externally (i.e., we want
 # http://magento:1955 to work both inside the Docker container and outside.
 RUN sed -i -e "s/Listen 80/Listen $MAGENTO_PORT/" /etc/apache2/apache2.conf

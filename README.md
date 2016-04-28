@@ -26,20 +26,6 @@ Runs `phpunit --testsuite=integration` (see `tests/integration`). Integration te
 
 phpMyAdmin runs on [http://magento:7777](http://magento:7777). There is a separate database for each Magento installation.
 
-## Using Magento Connect
-
-To set filesystem permissions to enable using Magento Connect, run the `enable-magento-connect` script inside the container:
-
-```
-docker exec -it magento_v19php55 enable-magento-connect
-```
-
-To reset filesystem permissions afterward, use `reset-magento-permissions`:
-
-```
-docker exec -it magento_v19php55 reset-magento-permissions
-```
-
 ## Releasing a New Version
 
 _TODO: Write this part._
