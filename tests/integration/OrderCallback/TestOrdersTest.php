@@ -11,8 +11,6 @@ class Integration_OrderCallback_TestOrders
      */
     public function testOrderCallback()
     {
-        $prevInventory = $this->getCurrentProductInventory();
-
         list($request, $order, $callback) = $this->doOrderCallback(array(
             'test' => '1'
         ));
@@ -20,12 +18,12 @@ class Integration_OrderCallback_TestOrders
         return array($request, $order, $callback, $prevInventory);
     }
 
-    /**
-     * @depends testOrderCallback
-     */
-    public function testInventoryNotDecremented(Array $args)
+    public function testInventoryNotDecremented()
     {
-        list($request, $order, $callback, $prevInventory) = $args;
+        $prevInventory = $this->getCurrentProductInventory();
+
+        list($request, $order, $callback) = $this->testOrderCallback();
+
         $this->assertEquals($prevInventory, $this->getCurrentProductInventory());
     }
 
