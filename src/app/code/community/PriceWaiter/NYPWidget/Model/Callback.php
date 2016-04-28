@@ -402,14 +402,12 @@ class PriceWaiter_NYPWidget_Model_Callback
         $helper = $this->getHelper();
         $url = $helper->getOfferUrl($request['pricewaiter_id']);
 
+        $safeUrl = htmlentities($url, ENT_QUOTES);
+
         return sprintf(
-            'Ordered via PriceWaiter (<a href="%s" target="_blank">%s</a>).
-            <br>
-            Paid via %s (%s)',
-            $url,
-            $url,
-            $request['payment_method'],
-            $request['transaction_id']
+            'Ordered via PriceWaiter (<a href="%s" target="_blank">%s</a>).',
+            $safeUrl,
+            $safeUrl
         );
     }
 
