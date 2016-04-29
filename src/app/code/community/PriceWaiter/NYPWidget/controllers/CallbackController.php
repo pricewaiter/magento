@@ -64,25 +64,28 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
                 . $order->getIncrementId() . " with order ID " . $order->getId());
 
         }
-        catch(Exception $ex)
+        catch (Exception $ex)
         {
+            // Augment duplicate order errors with the existing order id.
+            if ($ex instanceof PriceWaiter_NYPWidget_Exception_DuplicateOrder) {
+                $httpResponse->setHeader(self::ORDER_ID_HEADER, $ex->getExistingOrderId(), true);
+            }
 
-            if (is_a($ex, 'PriceWaiter_NYPWidget_Exception_Abstract')) {
-
-                // These are "normal" errors indicating problems we've thought of
-                // during order processing.
+            if ($ex instanceof PriceWaiter_NYPWidget_Exception_Abstract) {
+                // These are normal errors indicating problems we've previously thought of
+                // occurring during error processing.
                 $httpResponse->setHttpResponseCode($ex->httpStatusCode);
 
                 if (!empty($ex->errorCode)) {
-                    $httpResponse->setHeader('X-Platform-Error-Code', $ex->errorCode, true);
+                    $httpResponse->setHeader(self::ERROR_CODE_HEADER, $ex->errorCode, true);
                 }
+
             } else {
+                // These are not.
                 $httpResponse->setHttpResponseCode(500);
             }
 
             $httpResponse->setHeader(self::ERROR_MESSAGE_HEADER, $ex->getMessage(), true);
-
-            // Mage::logException($e);
         }
     }
 

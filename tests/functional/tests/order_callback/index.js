@@ -109,4 +109,14 @@ module.exports = function orderCallbackSuite(dataset) {
             expect(resp.headers).to.have.property('x-platform-order-id').match(/^\d+$/);
         })
     );
+
+    it('detects duplicate orders', () =>
+        makeOrderCallbackRequest(goodRequestBody).then(({ resp }) => {
+            expect(resp).to.have.property('statusCode', 400);
+            expect(resp.headers).to.have.property('x-platform-error');
+            expect(resp.headers).to.have.property('x-platform-error-code', 'duplicate_order');
+            expect(resp.headers).to.have.property('x-platform-order-id').match(/^\d+$/);
+        })
+    );
+
 };

@@ -17,4 +17,9 @@ class PriceWaiter_NYPWidget_Exception_DuplicateOrder
             $id
         ));
     }
+
+    public function getExistingOrderId()
+    {
+        return $this->data['existing_order_id'];
+    }
 }
