@@ -24,6 +24,10 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     const DEFAULT_SHIPPING_DESCRIPTION = 'PriceWaiter';
 
+    const LOGFILE = 'PriceWaiter_Callback.log';
+
+    const XML_PATH_ORDER_LOGGING = 'pricewaiter/orders/log';
+
     /**
      * @var PriceWaiter_NYPWidget_Helper_Data
      */
@@ -440,32 +444,23 @@ class PriceWaiter_NYPWidget_Model_Callback
         return !empty($request['test']);
     }
 
-    public function logIncomingOrder(Array $request)
-    {
-        $message = "The Name Your Price Widget has received a valid order notification.";
-
-        if ($this->isTestOrder($request)) {
-            $message .= ' This is a TEST order that will be created and canceled.';
-        }
-
-        $this->getHelper()->log($message);
-    }
-
     /**
      * @param  Array  $request
      * @return Mage_Sales_Model_Order
      */
     public function processRequest(Array $request)
     {
-        if (!$this->verifyRequest($request)) {
-            throw new PriceWaiter_NYPWidget_Exception_InvalidOrderData();
-        }
+        $this->logIncomingRequest($request);
 
         // Hint to our custom payment method about the incoming request
         PriceWaiter_NYPWidget_Model_PaymentMethod::setCurrentOrderCallbackRequest($request);
 
         try
         {
+            if (!$this->verifyRequest($request)) {
+                throw new PriceWaiter_NYPWidget_Exception_InvalidOrderData();
+            }
+
             $store = $this->getStore($request);
 
             $existingOrder = $this->getExistingOrder($request);
@@ -480,6 +475,8 @@ class PriceWaiter_NYPWidget_Model_Callback
 
             // Ok, done with the order.
             $this->saveAndPlaceOrder($order);
+
+            $this->logOrderCreated($request, $order);
 
             // --- After this point, we have a *live* order in the system. ---
 
@@ -496,6 +493,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
         catch (Exception $ex)
         {
+            $this->logException($request, $ex);
             PriceWaiter_NYPWidget_Model_PaymentMethod::resetCurrentOrderCallbackRequest();
             throw $ex;
         }
@@ -671,6 +669,69 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         return implode('', $password);
+    }
+
+    protected function isLogEnabled($store = null)
+    {
+        return !!Mage::getStoreConfig(
+            self::XML_PATH_ORDER_LOGGING,
+            $store
+        );
+    }
+
+    /**
+     * @internal
+     */
+    protected function logException(Array $request, Exception $ex)
+    {
+        $id = isset($request['pricewaiter_id']) ? $request['pricewaiter_id'] : '';
+
+        $message = $ex->getMessage();
+        $code = isset($ex->errorCode) ? $ex->errorCode : null;
+
+        return $this->log(
+            'Error processing order callback for PriceWaiter offer #%s: %s (%s)',
+            $id,
+            $message,
+            $code
+        );
+    }
+
+    /**
+     * @internal
+     */
+    protected function logIncomingRequest(Array $request)
+    {
+        $id = isset($request['pricewaiter_id']) ? $request['pricewaiter_id'] : '';
+        return $this->log('Received order callback for PriceWaiter offer %s', $id);
+    }
+
+    /**
+     * @internal
+     */
+    protected function logOrderCreated(Array $request, Mage_Sales_Model_Order $order)
+    {
+        $id = isset($request['pricewaiter_id']) ? $request['pricewaiter_id'] : '';
+        $orderId = $order->getIncrementId();
+        return $this->log('Created order #%s for PriceWaiter offer %s', $orderId, $id);
+    }
+
+
+    /**
+     * Runs the arguments through sprintf and passes them to the order callback log.
+     * @return PriceWaiter_NYPWidget_Model_Callback $this
+     */
+    protected function log()
+    {
+        if (!$this->isLogEnabled()) {
+            return $this;
+        }
+
+        $args = func_get_args();
+        $message = call_user_func_array('sprintf', $args);
+
+        Mage::log($message, null, self::LOGFILE);
+        return $this;
     }
 
     /**

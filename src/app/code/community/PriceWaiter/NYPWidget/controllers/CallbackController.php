@@ -47,22 +47,17 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
 
         // Add debugging headers
         Mage::helper('nypwidget')->setHeaders($httpResponse);
+        $pricewaiterId = '';
 
         try
         {
             $data = $httpRequest->getPost();
 
-            $this->_log("Incoming PriceWaiter order notification.");
-            $this->_log($data);
-
-            $order = Mage::getModel('nypwidget/callback')->processRequest($data);
+            $order = Mage::getModel('nypwidget/callback')
+                ->processRequest($data);
 
             // Success!
             $httpResponse->setHeader(self::ORDER_ID_HEADER, $order->getIncrementId(), true);
-
-            $this->_log("The Name Your Price Widget has created order #"
-                . $order->getIncrementId() . " with order ID " . $order->getId());
-
         }
         catch (Exception $ex)
         {
@@ -88,13 +83,4 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
             $httpResponse->setHeader(self::ERROR_MESSAGE_HEADER, $ex->getMessage(), true);
         }
     }
-
-    private function _log($message)
-    {
-        if (Mage::getStoreConfig('pricewaiter/configuration/log')) {
-            Mage::log($message, null, "PriceWaiter_Callback.log");
-        }
-    }
-
-
 }
