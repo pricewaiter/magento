@@ -23,10 +23,14 @@ v19php55:
     - PRICEWAITER_API_URL=http://dockerhost:8008
     - PRICEWAITER_RETAILER_URL=http://localhost:8009
     - PRICEWAITER_WIDGET_URL=http://dockerhost:8006
+    # Comment this line out if you want to use "real" order verification via PRICEWAITER_API_URL
     - PRICEWAITER_ORDER_VERIFICATION_URL=http://order_verifier/1/order/verify
   extra_hosts:
     # Important: Tell tests how to find magento host internally.
     - "magento:127.0.0.1"
+    # Uncomment to enable talking to a PW instance running on "dockerhost" urls.
+    # Replace IP with the output of `docker-machine ip dev` or equivalent.
+    # - "dockerhost:192.168.99.100"
   links:
     - mysql
     - order_verifier
