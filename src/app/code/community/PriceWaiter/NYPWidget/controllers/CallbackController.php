@@ -41,7 +41,7 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
 
         if (!$httpRequest->isPost()) {
             // Pretend like this page isn't even *here*
-            $this->silentNotFound($httpResponse);
+            $this->norouteAction();
             return;
         }
 
@@ -87,15 +87,6 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
 
             $httpResponse->setHeader(self::ERROR_MESSAGE_HEADER, $ex->getMessage(), true);
         }
-    }
-
-    /**
-     * Returns a "not found" page as though this route did not even exist...
-     * @param  Mage_Core_Controller_Response_Http $response
-     */
-    protected function silentNotFound(Mage_Core_Controller_Response_Http $httpResponse)
-    {
-        $httpResponse->setHttpResponseCode(404);
     }
 
     private function _log($message)
