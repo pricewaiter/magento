@@ -27,6 +27,12 @@ class PriceWaiter_NYPWidget_ProductinfoController extends Mage_Core_Controller_F
         $productConfiguration = array();
         parse_str(urldecode($postFields['_magento_product_configuration']), $productConfiguration);
 
+        // always lookup the product with a low quantity
+        // the below code will fail if the product is out of stock
+        if ($productConfiguration && isset($productConfiguration['qty'])) {
+            $productConfiguration['qty'] = 1;
+        }
+
         // Create a cart and add the product to it
         // This is necessary to make Magento calculate the cost of the item in the correct context.
         try {
