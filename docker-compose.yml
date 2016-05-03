@@ -38,6 +38,7 @@ v19php55:
     - "1955:1955"
   volumes:
     - ./app:/var/www/htdocs/.modman/pricewaiter/app
+    - ./build:/var/www/htdocs/.modman/pricewaiter/build
     - ./js:/var/www/htdocs/.modman/pricewaiter/js
     - ./skin:/var/www/htdocs/.modman/pricewaiter/skin
     - ./tests:/var/www/htdocs/.modman/pricewaiter/tests
