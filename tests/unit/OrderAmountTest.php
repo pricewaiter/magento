@@ -74,7 +74,7 @@ class Unit_OrderAmount extends PHPUnit_Framework_TestCase
                 'tax' => '9.37',
                 'expectedValues' => array(
                     'discount_amount' => '244.52',
-                    'discount_percent' => '0.41',
+                    'discount_percent' => '40.75',
                     'original_price' => '150.0000',
                     'price' => '150.00',
                     'price_incl_tax' => '152.34',

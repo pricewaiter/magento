@@ -299,7 +299,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $taxBeforeDiscount = $regularSubtotal * $taxPercent;
 
         $discountAmount = $regularSubtotal - $subtotal;
-        $discountPercent = $discountAmount / $regularSubtotal;
+        $discountPercent = $discountAmount / $regularSubtotal * 100;
 
         return array(
             'discount_amount' => $rounder($discountAmount),
