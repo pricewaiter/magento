@@ -37,7 +37,9 @@ v19php55:
   ports:
     - "1955:1955"
   volumes:
-    - ./src:/var/www/htdocs/.modman/pricewaiter/src
+    - ./app:/var/www/htdocs/.modman/pricewaiter/app
+    - ./js:/var/www/htdocs/.modman/pricewaiter/js
+    - ./skin:/var/www/htdocs/.modman/pricewaiter/skin
     - ./tests:/var/www/htdocs/.modman/pricewaiter/tests
     # Download source into lib/magento-1.9 and uncomment these to volume it in.
     # - ./lib/magento-1.9/app/code/core:/var/www/htdocs/app/code/core

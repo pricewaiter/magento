@@ -6,7 +6,6 @@ npm-debug.log
 nypwidget-*
 testing.sh
 TODO
-js/pricewaiter/*js
 node_modules
 package.xml
 **/pwconfig.local.php
