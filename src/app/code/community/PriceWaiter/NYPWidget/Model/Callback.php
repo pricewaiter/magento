@@ -619,10 +619,6 @@ class PriceWaiter_NYPWidget_Model_Callback
         $response = curl_exec($ch);
         $valid = ($response === '1');
 
-        if (!$valid && $request['pricewaiter_id'] !== '666') {
-            var_dump($request);
-        }
-
         return $valid;
     }
 
