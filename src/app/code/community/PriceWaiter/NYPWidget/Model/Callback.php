@@ -201,12 +201,19 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $this->addItemsToOrder($order, $request, $store, $customer);
 
-        $amounts = $this->calculateOrderAmounts($request, array($store, 'roundPrice'));
+        $product = $this->findProduct($request);
+        if (!$product) {
+            throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+        }
+
+        $amounts = $this->calculateOrderAmounts($request, $product->getPrice(), array($store, 'roundPrice'));
 
         foreach($amounts as $key => $value) {
             $order->setData($key, $value);
             $order->setData("base_$key", $value);
         }
+
+        $order->setDiscountDescription('PriceWaiter');
 
         $comment = $this->getNewOrderComment($request);
         if ($comment) {
@@ -248,30 +255,30 @@ class PriceWaiter_NYPWidget_Model_Callback
      * @param  Array  $request
      * @return Array
      */
-    public function calculateOrderAmounts(Array $request, Callable $rounder)
+    public function calculateOrderAmounts(Array $request, $productPrice, Callable $rounder)
     {
         $amountPerItem = $request['unit_price'];
         $qty = $request['quantity'];
         $shipping = $request['shipping'];
         $tax = $request['tax'];
-        $taxPerItem = $rounder($tax / $qty);
-        $subtotal = $rounder($amountPerItem * $qty);
+        $subtotal = $amountPerItem * $qty;
 
-        // NOTE: Tax is added to the individual order item, so we zero it out on the order.
-        $subtotalInclTax = $rounder(($amountPerItem * $qty) + $tax);
+        $regularSubtotal = $productPrice * $qty;
+        $taxBeforeDiscount = $regularSubtotal * $taxPercent;
+        $discountAmount = $regularSubtotal - $subtotal;
 
-        $total = $rounder(($amountPerItem * $qty) + $shipping + $tax);
+        $total = $rounder($subtotal + $shipping + $tax);
 
         return array(
-            'discount_amount' => 0,
+            'discount_amount' => $rounder(-$discountAmount),
             'grand_total' => $total,
             'shipping_amount' => $shipping,
             'shipping_discount_amount' => 0,
             'shipping_incl_tax' => $shipping,
             'shipping_tax_amount' => 0,
-            'subtotal' => $subtotalInclTax,
-            'subtotal_incl_tax' => $subtotalInclTax,
-            'tax_amount' => 0,
+            'subtotal' => $rounder($regularSubtotal),
+            'subtotal_incl_tax' => $rounder($regularSubtotal + $tax),
+            'tax_amount' => $rounder($tax),
         );
     }
 
@@ -284,21 +291,27 @@ class PriceWaiter_NYPWidget_Model_Callback
     {
         $amountPerItem = $request['unit_price'];
         $qty = $request['quantity'];
-        $subtotal = $rounder($amountPerItem * $qty);
+        $subtotal = $amountPerItem * $qty;
         $tax = $request['tax'];
-        $taxPerItem = $rounder($tax / $qty);
+        $taxPercent = $tax / ($amountPerItem * $qty);
+
+        $regularSubtotal = $productPrice * $qty;
+        $taxBeforeDiscount = $regularSubtotal * $taxPercent;
+
+        $discountAmount = $regularSubtotal - $subtotal;
+        $discountPercent = $discountAmount / $regularSubtotal;
 
         return array(
-            'discount_amount' => 0,
-            'discount_percent' => 0,
+            'discount_amount' => $rounder($discountAmount),
+            'discount_percent' => $rounder($discountPercent),
             'original_price' => $productPrice,
-            'price' => $amountPerItem,
-            'price_incl_tax' => $rounder($amountPerItem + ($tax / $qty)),
-            'row_total' => $subtotal,
-            'row_total_incl_tax' => $rounder(($amountPerItem * $qty) + $tax),
+            'price' => $productPrice,
+            'price_incl_tax' => $rounder($productPrice + ($tax / $qty)),
+            'row_total' => $rounder($regularSubtotal),
+            'row_total_incl_tax' => $rounder($regularSubtotal + $tax),
             'tax_amount' => $tax,
-            'tax_before_discount' => $tax,
-            'tax_percent' => $rounder(($tax / ($amountPerItem * $qty)) * 100),
+            'tax_before_discount' => $rounder($taxBeforeDiscount),
+            'tax_percent' => $rounder($taxPercent * 100),
         );
     }
 
