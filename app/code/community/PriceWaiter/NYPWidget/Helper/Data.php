@@ -2,15 +2,8 @@
 
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    /**
-     * Default PriceWaiter API url.
-     */
     const PRICEWAITER_API_URL = 'https://api.pricewaiter.com';
-
-    /**
-     * Path to the order verification API.
-     */
-    const ORDER_VERIFICATION_API_PATH = '/1/order/verify';
+    const PRICEWAITER_RETAILER_URL = 'https://retailer.pricewaiter.com';
 
     const XML_PATH_DEFAULT_ORDER_STATUS = 'pricewaiter/orders/default_status';
 
@@ -18,15 +11,10 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
 
-    private $_retailerUrl = 'https://retailer.pricewaiter.com';
     private $_widgetUrl = 'https://widget.pricewaiter.com';
 
     public function __construct()
     {
-        if (!!getenv('PRICEWAITER_RETAILER_URL')) {
-            $this->_retailerUrl = getenv('PRICEWAITER_RETAILER_URL');
-        }
-
         if (!!getenv('PRICEWAITER_WIDGET_URL')) {
             $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
         }
@@ -212,9 +200,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getPriceWaiterSettingsUrl()
     {
-        $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
-
-        return sprintf("%s/", $this->_retailerUrl);
+        return $this->getRetailerUrl();
     }
 
     public function getWidgetUrl()
