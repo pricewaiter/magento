@@ -52,6 +52,7 @@ $commitMessage = "Version $nextVersion
 $releaseNotes";
 
 system('git commit -m' . escapeshellarg($commitMessage));
+system('git tag ' . escapeshellarg("v$nextVersion"));
 
 function _get_current_version()
 {
