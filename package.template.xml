@@ -23,8 +23,8 @@
     <dependencies>
         <required>
             <php>
-                <min>5.2.0</min>
-                <max>6.0.0</max>
+                <min>5.3.0</min>
+                <max>8.0.0</max>
             </php>
         </required>
     </dependencies>
