@@ -1,0 +1,20 @@
+#!/bin/bash
+# TODO: Allow switching container in some convenient way.
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+ROOT_DIR="$SCRIPT_DIR/.."
+BUILD_DIR="$ROOT_DIR/build"
+
+CONTAINER=magento_v19php55_1
+
+docker ps --format '{{.Names}}' | grep $CONTAINER > /dev/null
+IS_RUNNING=$?
+
+if [ $IS_RUNNING == 0 ]; then
+    rm "$BUILD_DIR/*.tgz"
+    CMD="cd \$PRICEWAITER_DIR && vendor/bin/magegen build $@ && mv *.tgz build/"
+    docker exec -it $CONTAINER sh -c "$CMD" && \
+    echo "Built tarball $(ls -b $BUILD_DIR/*.tgz)"
+else
+    echo "Magento container is not running. Hint: start it using docker-compose up"
+fi
