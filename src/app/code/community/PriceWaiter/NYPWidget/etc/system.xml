@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
- Copyright 2013-2015 Price Waiter, LLC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
 <config>
     <sections>
         <pricewaiter>
@@ -111,8 +96,31 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </api_secret>
+                    </fields>
+                </configuration>
+                <orders translate="label">
+                    <label>Orders</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>2</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <default_status translate="label comment">
+                            <label>Status for Incoming Orders</label>
+                            <comment>
+                                <![CDATA[Orders from PriceWaiter will be given this status when they first enter the system.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_status>
                         <log translate="label comment">
-                            <label>Log Callback Information</label>
+                            <label>Log Incoming Orders</label>
                             <comment>
                                 <![CDATA[Log information about order
                                          notifications from PriceWaiter. For
@@ -128,7 +136,7 @@
                             <show_in_store>1</show_in_store>
                         </log>
                     </fields>
-                </configuration>
+                </orders>
                 <customer_groups translate="label">
                     <label>Disable button by Customer Groups</label>
                     <frontend_type>text</frontend_type>

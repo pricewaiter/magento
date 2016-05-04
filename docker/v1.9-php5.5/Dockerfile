@@ -19,9 +19,6 @@ RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm
 
-# Bring in custom .npmrc for private module access
-COPY ./docker/.npmrc /root/
-
 RUN usermod -u 1000 www-data
 RUN a2enmod rewrite
 RUN sed -i -e 's/\/var\/www\/html/\/var\/www\/htdocs/' /etc/apache2/apache2.conf
@@ -64,6 +61,11 @@ RUN n98-magerun install \
     --magentoVersionByName=$MAGENTO_VERSION_BY_NAME \
     --installationFolder=/var/www/htdocs \
     --only-download
+
+# Adjust permissions so Magento Connect can be used.
+RUN chown -R www-data:www-data /var/www/htdocs
+RUN find /var/www/htdocs -type d -exec chmod 775 {} \;
+RUN find /var/www/htdocs -type f -exec chmod 664 {} \;
 
 # Ensure we serve Magento on the same port internally & externally (i.e., we want
 # http://magento:1955 to work both inside the Docker container and outside.

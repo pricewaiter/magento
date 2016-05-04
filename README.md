@@ -26,6 +26,10 @@ Runs `phpunit --testsuite=integration` (see `tests/integration`). Integration te
 
 phpMyAdmin runs on [http://magento:7777](http://magento:7777). There is a separate database for each Magento installation.
 
+## Connecting to PriceWaiter
+
+To get data flowing between Magento and PriceWaiter running locally, you need to tell them about each other. This is best accomplished using [`extra_hosts` in the `docker-compose.yml` file](https://docs.docker.com/compose/compose-file/#extra-hosts).
+
 ## Releasing a New Version
 
 _TODO: Write this part._

@@ -11,6 +11,9 @@ functional_tests_v19php55:
 order_verifier:
     build: docker/order_verifier
 
+order_verifier:
+    build: docker/order_verifier
+
 v19php55:
   build:
     path: .

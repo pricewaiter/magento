@@ -76,14 +76,18 @@ module.exports = function orderCallbackSuite(dataset) {
     it('responds to invalid data appropriately', () =>
         makeOrderCallbackRequest(badRequestBody).then(({ resp, body }) => {
 
-            if (resp.statusCode !== 500) {
+            if (resp.statusCode !== 400) {
                 /* eslint-disable no-console */
                 console.log(body);
                 /* eslint-enable no-console */
             }
 
-            expect(resp).to.have.property('statusCode', 500);
+            expect(resp).to.have.property('statusCode', 400);
             expect(resp.headers).to.have.property('x-platform-error');
+            expect(resp.headers).to.have.property(
+                'x-platform-error-code',
+                'invalid_order_data'
+            );
             expect(resp.headers).not.to.have.property('x-platform-order-id');
         })
     );
@@ -105,4 +109,14 @@ module.exports = function orderCallbackSuite(dataset) {
             expect(resp.headers).to.have.property('x-platform-order-id').match(/^\d+$/);
         })
     );
+
+    it('detects duplicate orders', () =>
+        makeOrderCallbackRequest(goodRequestBody).then(({ resp }) => {
+            expect(resp).to.have.property('statusCode', 400);
+            expect(resp.headers).to.have.property('x-platform-error');
+            expect(resp.headers).to.have.property('x-platform-error-code', 'duplicate_order');
+            expect(resp.headers).to.have.property('x-platform-order-id').match(/^\d+$/);
+        })
+    );
+
 };
