@@ -13,7 +13,8 @@ IS_RUNNING=$?
 if [ $IS_RUNNING == 0 ]; then
     rm "$BUILD_DIR/*.tgz"
     CMD="cd \$PRICEWAITER_DIR && vendor/bin/magegen build $@ && mv *.tgz build/"
-    docker exec -it $CONTAINER sh -c "$CMD"
+    docker exec -it $CONTAINER sh -c "$CMD" && \
+    echo "Built tarball $(ls -b $BUILD_DIR/*.tgz)"
 else
     echo "Magento container is not running. Hint: start it using docker-compose up"
 fi
