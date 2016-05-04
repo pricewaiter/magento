@@ -40,6 +40,7 @@ v19php55:
     - ./app:/var/www/htdocs/.modman/pricewaiter/app
     - ./build:/var/www/htdocs/.modman/pricewaiter/build
     - ./js:/var/www/htdocs/.modman/pricewaiter/js
+    - ./package.template.xml:/var/www/htdocs/.modman/pricewaiter/package.template.xml
     - ./skin:/var/www/htdocs/.modman/pricewaiter/skin
     - ./tests:/var/www/htdocs/.modman/pricewaiter/tests
     # Download source into lib/magento-1.9 and uncomment these to volume it in.
