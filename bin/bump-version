@@ -1,0 +1,79 @@
+#!/usr/bin/env php
+<?php
+
+$FILES = [
+    'package.template.xml',
+    'app/code/community/PriceWaiter/NYPWidget/etc/config.xml',
+];
+
+$currentVersion = _get_current_version();
+while (true) {
+    echo "Current version is $currentVersion. What should the next version be? ";
+    $nextVersion = trim(readline());
+
+    if (!preg_match('/^\d+\.\d+\.\d+$/', $nextVersion)) {
+        continue;
+    }
+
+    if (version_compare($currentVersion, $nextVersion) >= 0) {
+        continue;
+    }
+
+    break;
+}
+
+while (true) {
+    echo "Please enter release notes (single line): ";
+    $releaseNotes = trim(readline());
+
+    if ($releaseNotes === '') {
+        continue;
+    }
+
+    echo "'$releaseNotes' Ok (Y/N)? ";
+    $ok = readline();
+    if (preg_match('/^y/i', $ok)) {
+        break;
+    }
+}
+
+foreach($FILES as $f) {
+    echo "Updating $f...\n";
+    _set_version_and_release_notes(
+        __DIR__ . '/../' . $f,
+        $nextVersion,
+        $releaseNotes
+    );
+    system('git add ' . escapeshellarg($f));
+}
+
+$commitMessage = "Version $nextVersion
+
+$releaseNotes";
+
+system('git commit -m' . escapeshellarg($commitMessage));
+
+function _get_current_version()
+{
+    $xmlFile = __DIR__ . '/../package.template.xml';
+
+    // where i'm from we parse xml with regexes and we like it
+    preg_match(
+        '/<version>(.*?)<\/version>/',
+        file_get_contents($xmlFile),
+        $m
+    );
+    return $m[1];
+}
+
+function _set_version_and_release_notes($file, $version, $notes)
+{
+    $version = htmlentities($version);
+    $notes = htmlentities($notes);
+
+    $xml = file_get_contents($file);
+    $xml = preg_replace('#<version>.*?</version>#', "<version>$version</version>", $xml);
+    $xml = preg_replace('#<notes>.*?</notes>#', "<notes>$notes</notes>", $xml);
+
+    file_put_contents($file, $xml);
+}
