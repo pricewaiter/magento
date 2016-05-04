@@ -1,12 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+require_once(__DIR__ . '/_xml.php');
+
 $FILES = [
     'package.template.xml',
     'app/code/community/PriceWaiter/NYPWidget/etc/config.xml',
 ];
 
-$currentVersion = _get_current_version();
+$currentVersion = _pw_get_version();
 while (true) {
     echo "Current version is $currentVersion. What should the next version be? ";
     $nextVersion = trim(readline());
@@ -53,19 +55,6 @@ $releaseNotes";
 
 system('git commit -m' . escapeshellarg($commitMessage));
 system('git tag ' . escapeshellarg("v$nextVersion"));
-
-function _get_current_version()
-{
-    $xmlFile = __DIR__ . '/../package.template.xml';
-
-    // where i'm from we parse xml with regexes and we like it
-    preg_match(
-        '/<version>(.*?)<\/version>/',
-        file_get_contents($xmlFile),
-        $m
-    );
-    return $m[1];
-}
 
 function _set_version_and_release_notes($file, $version, $notes)
 {

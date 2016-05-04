@@ -33,5 +33,4 @@ To get data flowing between Magento and PriceWaiter running locally, you need to
 ## Releasing a New Version
 
 1. Update the version number: `bin/bump-version`
-2. ???
-3. Profit!
+2. Push to the public git repo: `bin/publish`
