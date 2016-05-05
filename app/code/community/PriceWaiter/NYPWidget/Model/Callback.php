@@ -86,14 +86,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         $orderItem->setProductOptions(array('additional_options' => $additionalOptions));
 
-        // Build and apply the order totals
-        $subTotal += $rowTotal;
         $order->addItem($orderItem);
-
-        $order->setSubtotal($subTotal)
-            ->setBaseSubtotal($subTotal)
-            ->setGrandTotal($subTotal + $request['shipping'])
-            ->setBaseGrandTotal($subTotal + $request['shipping']);
     }
 
     /**
@@ -264,7 +257,6 @@ class PriceWaiter_NYPWidget_Model_Callback
         $subtotal = $amountPerItem * $qty;
 
         $regularSubtotal = $productPrice * $qty;
-        $taxBeforeDiscount = $regularSubtotal * $taxPercent;
         $discountAmount = $regularSubtotal - $subtotal;
 
         $total = $rounder($subtotal + $shipping + $tax);
@@ -657,7 +649,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $numberOfChars = strlen($this->passwordCharacters);
 
         for ($i = 0; $i < $length; $i++) {
-            $password[] = $this->passwordCharacters[mt_rand(0, $numberOfChars)];
+            $password[] = $this->passwordCharacters[mt_rand(0, $numberOfChars - 1)];
         }
 
         return implode('', $password);

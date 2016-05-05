@@ -15,7 +15,7 @@ class Integration_OrderCallback_TestOrders
             'test' => '1'
         ));
 
-        return array($request, $order, $callback, $prevInventory);
+        return array($request, $order, $callback);
     }
 
     public function testInventoryNotDecremented()

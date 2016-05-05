@@ -122,6 +122,7 @@ class Integration_OrderCallback_Basics
         list($request, $order) = $args;
 
         $items = $order->getItemsCollection();
+        var_dump($order->getId());
         $this->assertCount(1, $items);
 
         $item = $items->getFirstItem();
@@ -149,7 +150,7 @@ class Integration_OrderCallback_Basics
         $request['shipping_method'] = '';
         $order = $callback->processRequest($request);
 
-        $this->assertInstanceOf(Mage_Sales_Model_Order, $order);
+        $this->assertInstanceOf('Mage_Sales_Model_Order', $order);
 
         $this->assertNotEmpty($order->getShippingDescription(), 'there is *something* in the shipping description field');
 
