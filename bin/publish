@@ -33,6 +33,17 @@ system('git merge --squash master');
 # 3a. Remove files that don't make sense to push publically.
 system('git mv -f README-public.md README.md');
 
+$filesToRemove = [
+    'codeship-services.yml',
+    'codeship-steps.yml',
+    'docker-compose.yml',
+    'bin',
+];
+
+foreach ($filesToRemove as $f) {
+    system('git rm -rf ' . escapeshellarg($f));
+}
+
 $commitMessage = "v$VERSION
 
 $RELEASE_NOTES";
