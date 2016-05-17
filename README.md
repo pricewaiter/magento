@@ -32,5 +32,19 @@ To get data flowing between Magento and PriceWaiter running locally, you need to
 
 ## Releasing a New Version
 
-1. Update the version number: `bin/bump-version`
-2. Push to the public git repo: `bin/publish`
+### 1. Update the Version Number
+
+`bin/bump-version` will set a new version number in all the places one needs to be set, then commit + tag the changes. `git push --tags` afterward and you'll be set.
+
+### 2. Build a Tarball and Upload to Magento Connect
+
+`bin/build-tarball` will put a `.tgz` file in the `build/` directory. Note that the build script runs *inside* the Docker environment, so it will need to be running.
+
+### 3. Push Changes to the Public Repo
+
+First, add the `public-repo` git remote:
+
+`git remote add git@github.com:pricewaiter/magento.git`
+
+`bin/publish` will push a squashed commit with all changes for the version to the public Magento repo.
+This `README.md` file will be replaced with the `README-public.md` file.
