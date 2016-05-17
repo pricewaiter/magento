@@ -35,7 +35,7 @@ $filesToMonkeyWith = [
     'README.md' => false,
     'README-public.md' => 'README.md'
 ];
-foreach($filesToRemove as $file => $action) {
+foreach($filesToMonkeyWith as $file => $action) {
     if ($action === false) {
         system('git rm ' . escapeshellarg($file));
     } else {
