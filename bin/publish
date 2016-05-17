@@ -31,17 +31,7 @@ system(
 system('git merge --squash master');
 
 # 3a. Remove files that don't make sense to push publically.
-$filesToMonkeyWith = [
-    'README.md' => false,
-    'README-public.md' => 'README.md'
-];
-foreach($filesToMonkeyWith as $file => $action) {
-    if ($action === false) {
-        system('git rm ' . escapeshellarg($file));
-    } else {
-        system('git mv ' . escapeshellarg($file) . ' ' . escapeshellarg($action));
-    }
-}
+system('git mv -f README-public.md README.md');
 
 $commitMessage = "v$VERSION
 
