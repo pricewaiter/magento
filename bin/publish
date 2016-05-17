@@ -7,16 +7,16 @@ $VERSION = _pw_get_version();
 $RELEASE_NOTES = _pw_get_release_notes();
 
 $PUBLIC_REMOTE = 'public-repo';
-$PUBLIC_REPO = 'git@github.com:pricewaiter/magento.git';
 $PUBLIC_BRANCH = 'master';
-
-system('git remote rm ' . escapeshellarg($PUBLIC_REMOTE));
-system('git remote add ' . escapeshellarg($PUBLIC_REMOTE) . ' ' . escapeshellarg($PUBLIC_REPO));
 
 # 1. Pull in latest from public repo
 system('git fetch ' . escapeshellarg($PUBLIC_REMOTE), $code);
 if ($code !== 0) {
-    echo "Remote $PUBLIC_REMOTE not set up. Please add it and try again.\n";
+    echo <<<END
+Remote $PUBLIC_REMOTE not set up. Please add it and try again.
+
+
+END;
     exit($code);
 }
 
@@ -48,7 +48,7 @@ $commitMessage = "v$VERSION
 $RELEASE_NOTES";
 system('git commit -m ' . escapeshellarg($commitMessage));
 
-echo "About to push to public repo ($PUBLIC_REPO). Continue (y/n)? ";
+echo "About to push to public repo. Continue (y/n)? ";
 $resp = readline();
 if ($resp === 'y' || $resp === 'Y') {
 
