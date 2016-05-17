@@ -1,0 +1,1 @@
+/* Left empty to ensure removal of previous version on upgrade */

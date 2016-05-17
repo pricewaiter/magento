@@ -1,0 +1,4 @@
+# Don't commit Magento sample data files.
+# To speed up builds you can curl them into this directory.
+# If they're not in this directory, `docker build` will download them as needed.
+*.tar.gz

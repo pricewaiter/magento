@@ -1,0 +1,371 @@
+#!/usr/bin/env php
+<?php
+
+# This script picks up a Magento installation (+ sample data) previously
+# downloaded (during docker build process). It then:
+#
+#   - Waits for mysql to be available
+#   - Creates a Magento database if needed
+#   - Loads sample data (if found)
+#   - Installs Magento (if required)
+#   - Runs any command passed in via commandline args
+#
+# For example:
+#
+#   install-magento-then apache2-foreground
+#
+# Will ensure Magento is running, then start Apache running (and serving Magento)
+# in the foreground.
+
+$installer = new DockerMagentoInstaller();
+
+$attempt = 0;
+$maxAttempts = 10;
+$delay = 1;
+
+while (true) {
+
+    $attempt++;
+
+    echo "Checking for database readiness ($attempt / $maxAttempts)...\n";
+
+    if ($installer->testDatabaseConnection()) {
+        echo "✓ Connected to {$installer->dbHost}\n";
+        break;
+    }
+
+    if ($attempt >= $maxAttempts) {
+        echo "Failed to connect to {$installer->dbHost}\n";
+        exit(1);
+    }
+
+    echo "Could not connect to {$installer->dbHost}. Delaying {$delay}s...\n";
+    sleep($delay);
+    $delay *= 2;
+}
+
+// We've connected to db.
+$databaseExisted = !$installer->createDatabaseIfNeeded();
+$sampleDataLoaded = false;
+$magentoInstalled = false;
+
+if ($databaseExisted) {
+    // Assume that this is a 'docker-compose up' using a previously-installed Magento instance.
+    $sampleDataLoaded = true;
+    $magentoInstalled = true;
+
+} else {
+    // Continue installation process.
+    $sampleDataLoaded = $installer->loadSampleData();
+    $magentoInstalled = $installer->installMagento() && $installer->configureMagentoAfterInstall();
+}
+
+if ($magentoInstalled) {
+
+    $nextCommand = implode(' ', array_map('escapeshellarg', array_slice($argv, 1)));
+
+    if ($nextCommand) {
+        passthru($nextCommand);
+    } else {
+        exit(0);
+    }
+} else {
+    exit(666);
+}
+
+// -----------------------------------------------------------------------------
+
+class DockerMagentoInstaller
+{
+    public $debug = true;
+    public $dbHost = 'mysql';
+    public $dbName;
+    public $dbUser;
+    public $dbPassword;
+    public $baseUrl;
+    public $installationFolder = '/var/www/htdocs';
+    public $fsUser = 'www-data';
+    public $fsGroup = 'www-data';
+    public $sampleDataFolder;
+    public $deleteSampleDataFolderAfterInstall = true;
+    public $pricewaiterApiKey;
+    public $pricewaiterSharedSecret;
+
+    public function __construct()
+    {
+        $this->dbName = getenv('MAGENTO_DB_NAME');
+        if (!$this->dbName) {
+            $version = str_replace('.', '_', getenv('MAGENTO_VERSION'));
+            $this->dbName = "magento_$version";
+        }
+
+        $this->dbUser = getenv('MAGENTO_DB_USER');
+        $this->dbUser = $this->dbUser ? $this->dbUser : 'root';
+
+        $this->dbPassword = getenv('MAGENTO_DB_PASSWORD');
+        $this->dbPassword = $this->dbPassword ? $this->dbPassword : getenv('MYSQL_ENV_MYSQL_ROOT_PASSWORD');
+
+        $this->baseUrl = getenv('MAGENTO_BASE_URL');
+
+        $this->sampleDataFolder = getenv('HOME') . '/_magento_sample_data';
+
+        $this->pricewaiterApiKey = getenv('PRICEWAITER_API_KEY');
+        $this->pricewaiterSharedSecret = getenv('PRICEWAITER_SHARED_SECRET');
+    }
+
+    public function configureMagentoAfterInstall()
+    {
+        $magerunCommands = array(
+
+            // Turn off caches
+            array('cache:disable', array()),
+
+            // Turn on PriceWaiter
+            array('config:set', array(
+                'pricewaiter/configuration/enabled',
+                '1',
+            )),
+
+            array('config:set', array(
+                'pricewaiter/configuration/api_key',
+                $this->pricewaiterApiKey,
+            )),
+
+            array('config:set', array(
+                'pricewaiter/configuration/api_secret',
+                $this->pricewaiterSharedSecret,
+            )),
+        );
+
+        foreach ($magerunCommands as $c) {
+            list($cmd, $args) = $c;
+            $result = $this->runCommand("n98-magerun $cmd", $args);
+            if ($result !== 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Ensures the Magento database exists.
+     * @return Boolean True if it was created. False if it already existed.
+     */
+    public function createDatabaseIfNeeded()
+    {
+        $pdo = $this->createDatabaseConnection();
+
+        $dbQuery = $pdo->query('SHOW DATABASES;');
+        $databases = array();
+        while ($row = $dbQuery->fetch()) {
+            $databases[$row['Database']] = true;
+        }
+
+        if (!empty($databases[$this->dbName])) {
+            echo "Database {$this->dbName} already exists.\n";
+            return false;
+        }
+
+        echo "Database {$this->dbName} does not exist. Creating...\n";
+
+        $sql = 'CREATE DATABASE `' . $this->dbName . '`';
+        $pdo->query($sql);
+
+        return true;
+    }
+
+    /**
+     * Installs Magento, assuming the source files are already on the filesystem.
+     */
+    public function installMagento()
+    {
+        $args = array(
+            'no-interaction'     => true,
+            'baseUrl'            => $this->baseUrl,
+            'dbHost'             => $this->dbHost,
+            'dbUser'             => $this->dbUser,
+            'dbPass'             => $this->dbPassword,
+            'dbName'             => $this->dbName,
+            'installationFolder' => $this->installationFolder,
+            'noDownload'         => true,
+            // NOTE: 'forceUseDb' arg requires a value, just providing it is not enough.
+            'forceUseDb'         => 'true',
+        );
+
+        if ($this->debug) {
+            $args[] = '-vvv';
+        }
+
+        $result = $this->runCommand('n98-magerun install', $args);
+
+        if ($result !== 0) {
+            return false;
+        }
+
+        // Enable symlinks (this makes modman work.)
+        $this->runCommand('n98-magerun dev:symlinks', array(
+            'on' => true,
+            'global' => true,
+        ));
+
+        return true;
+    }
+
+    public function loadSampleData()
+    {
+        // NOTE: This duplicates some code in n98-magerun, but the goal is
+        // to reduce the `up` time and move all downloading to the Docker image build.
+
+        if (!is_dir($this->sampleDataFolder)) {
+            echo "sampleDataFolder not found. Not loading sample data.\n";
+            return false;
+        }
+
+        $files = glob($this->sampleDataFolder . '/*');
+        $files = array_filter($files ? $files : array(), function($f) {
+            return preg_match('/\.tar\.gz$/i', $f);
+        });
+
+        if (empty($files)) {
+            echo "No sample data files found in {$this->sampleDataFolder}.\n";
+            return false;
+        }
+
+        // TODO: Filter $files by version
+
+        foreach ($files as $f) {
+            $this->loadSampleDataFile($f);
+        }
+
+        return true;
+    }
+
+    public function loadSampleDataFile($file)
+    {
+        echo "Loading sample data file {$file}...\n";
+
+        $prevDir = getcwd();
+        chdir($this->sampleDataFolder);
+
+        $cmd = 'tar -xzf ' . escapeshellarg($file);
+        $this->runCommand($cmd);
+
+        $extractDir = implode('/', array(
+            $this->sampleDataFolder,
+            basename(str_replace(array('.tar.gz'), '', $file)),
+        ));
+
+        // Extracted file contains a .sql file
+        foreach (glob($extractDir . '/*.sql') as $sqlFile) {
+            $this->loadSqlFile($sqlFile);
+            unlink($sqlFile);
+        }
+
+        // All other files/dirs should be recursively copied into /var/www/htdocs
+        foreach (glob($extractDir . '/*') as $f) {
+            $this->recursiveCopy($f, "{$this->installationFolder}/");
+        }
+
+        if ($this->deleteSampleDataFolderAfterInstall) {
+            $this->recursiveDelete($this->sampleDataFolder);
+        }
+
+        chdir($prevDir);
+    }
+
+    public function loadSqlFile($file)
+    {
+        // NOTE: mysql CLI is easiest way to load a SQL dump.
+
+        $cmd = array(
+            'mysql',
+            '-h' . escapeshellarg($this->dbHost),
+            '-u' . escapeshellarg($this->dbUser),
+            '-p' . escapeshellarg($this->dbPassword),
+            $this->dbName,
+            '<',
+            escapeshellarg($file)
+        );
+
+        $result = $this->runCommand(implode(' ', $cmd));
+        return $result === 0;
+    }
+
+    public function recursiveCopy($src, $dest)
+    {
+        $cmd = array(
+            'cp -r',
+            escapeshellarg($src),
+            escapeshellarg($dest),
+        );
+
+        $this->runCommand(implode(' ', $cmd));
+    }
+
+    public function recursiveDelete($dir)
+    {
+        $cmd = array(
+            'rm -rf',
+            escapeshellarg($dir)
+        );
+
+        $this->runCommand(implode(' ', $cmd));
+    }
+
+    /**
+     * @return Boolean True if we can connect to DB host, false otherwise.
+     */
+    public function testDatabaseConnection()
+    {
+        try
+        {
+            $this->createDatabaseConnection();
+            return true;
+        }
+        catch (PDOException $ex) {
+            echo "Error connecting to {$this->dbHost}: " . $ex->getMessage() . "\n";
+            return false;
+        }
+    }
+
+    private function createDatabaseConnection($useDbname = false)
+    {
+        $dsn = "mysql:host={$this->dbHost}";
+
+        if ($useDbname) {
+            $dsn = "$dsn;dbname={$this->dbName}";
+        }
+
+        return new PDO($dsn, $this->dbUser, $this->dbPassword);
+    }
+
+    private function runCommand($cmd, Array $args = array())
+    {
+        $fullCmd = array($cmd);
+
+        foreach($args as $arg => $value) {
+
+            if (is_numeric($arg)) {
+                // Assume $value is ready to be added directly
+                // (used for args like '-v')
+                $fullCmd[] = $value;
+                continue;
+            }
+
+            if ($value === true) {
+                $fullCmd[] = "--$arg";
+                continue;
+            }
+
+            $fullCmd[] = "--$arg=" . escapeshellarg($value);
+        }
+
+        $fullCmd = implode(' ', $fullCmd);
+        echo "Running $fullCmd\n";
+
+        system($fullCmd, $returnVar);
+        return $returnVar;
+    }
+
+}

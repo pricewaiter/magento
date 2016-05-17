@@ -1,0 +1,35 @@
+#!/bin/bash
+
+RETRY_DELAY=3
+
+# Ensure that Magento server is up and reachable
+while :
+do
+    curl \
+        --retry 50 \
+        --retry-delay $RETRY_DELAY \
+        --silent \
+        $MAGENTO_BASE_URL > /dev/null
+
+    CURL_RESULT=$?
+
+    # On success, continue with script
+    if [ $CURL_RESULT == 0 ]; then
+        break
+    fi
+
+    if [ $CURL_RESULT == 7 ]; then
+        # NOTE: curl uses 7 to indicate "connection refused". Which we want to retry on.
+        sleep $RETRY_DELAY
+    fi
+
+    if [ $CURL_RESULT != 7 ]; then
+        exit $?
+    fi
+
+done
+
+# ...then run mocha
+cd /usr/src
+npm start
+exit $?

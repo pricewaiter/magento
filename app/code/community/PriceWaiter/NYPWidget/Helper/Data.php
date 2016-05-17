@@ -1,51 +1,90 @@
 <?php
 
-/*
- * Copyright 2013-2015 Price Waiter, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    const PRICEWAITER_API_URL = 'https://api.pricewaiter.com';
+    const PRICEWAITER_RETAILER_URL = 'https://retailer.pricewaiter.com';
+
+    const XML_PATH_DEFAULT_ORDER_STATUS = 'pricewaiter/orders/default_status';
+
     private $_product = false;
-    private $_testing = false;
     private $_buttonEnabled = null;
     private $_conversionToolsEnabled = null;
 
-    private $_apiUrl = 'https://api.pricewaiter.com';
-    private $_retailerUrl = 'https://retailer.pricewaiter.com';
     private $_widgetUrl = 'https://widget.pricewaiter.com';
 
     public function __construct()
     {
-        if (!!getenv('PRICEWAITER_API_URL')) {
-            $this->_apiUrl = getenv('PRICEWAITER_API_URL');
-        }
-
-        if (!!getenv('PRICEWAITER_RETAILER_URL')) {
-            $this->_retailerUrl = getenv('PRICEWAITER_RETAILER_URL');
-        }
-
         if (!!getenv('PRICEWAITER_WIDGET_URL')) {
             $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
         }
     }
 
-    public function isTesting()
+    /**
+     * @return String URL of the PriceWaiter API.
+     */
+    public function getApiUrl()
     {
-        return $this->_testing;
+        $url = getenv('PRICEWAITER_API_URL');
+
+        if ($url) {
+            return $url;
+        }
+
+        return self::PRICEWAITER_API_URL;
+    }
+
+    /**
+     * @return String The status to assign to new PriceWaiter orders.
+     */
+    public function getDefaultOrderStatus($store = null)
+    {
+        return Mage::getStoreConfig(self::XML_PATH_DEFAULT_ORDER_STATUS, $store);
+    }
+
+    /**
+     * @param  String $id
+     * @return String URL to view the given offer on PriceWaiter.
+     */
+    public function getOfferUrl($id)
+    {
+        $url = $this->getRetailerUrl();
+        $url = rtrim($url, '/');
+        $url .= '/offers/' . rawurlencode($id);
+
+        return $url;
+    }
+
+    /**
+     * @return String URL to which to POST order data for verification.
+     */
+    public function getOrderVerificationUrl()
+    {
+        $url = getenv('PRICEWAITER_ORDER_VERIFICATION_URL');
+        if ($url) {
+            return $url;
+        }
+
+        // Build verification URL off base API url.
+        $url = $this->getApiUrl();
+        $url = rtrim($url, '/');
+        $url .= '/1/order/verify';
+
+        return $url;
+    }
+
+    /**
+     * @return String The URL of the PriceWaiter Retailer area.
+     */
+    public function getRetailerUrl()
+    {
+        $url = getenv('PRICEWAITER_RETAILER_URL');
+
+        if ($url) {
+            return $url;
+        }
+
+        return self::PRICEWAITER_RETAILER_URL;
     }
 
     public function isEnabledForStore()
@@ -161,9 +200,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getPriceWaiterSettingsUrl()
     {
-        $apiKey = Mage::getStoreConfig('pricewaiter/configuration/api_key');
-
-        return sprintf("%s/", $this->_retailerUrl);
+        return $this->getRetailerUrl();
     }
 
     public function getWidgetUrl()
@@ -177,11 +214,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->_widgetUrl . '/nyp/script/widget.js';
     }
 
-    public function getApiUrl()
-    {
-        return $this->_apiUrl . '/1/order/verify?api_key='
-            . Mage::getStoreConfig('pricewaiter/configuration/api_key');
-    }
 
     public function getProductPrice($product)
     {
@@ -269,19 +301,29 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $javascript;
     }
 
-    public function getStoreByApiKey($apiKey)
+    /**
+     * Returns the Magento store configured with the given PriceWaiter API key, or false if none is found.
+     * @param  String $apiKey
+     * @return Mage_Core_Model_Store|false
+     * @throws PriceWaiter
+     */
+    public function getStoreByPriceWaiterApiKey($apiKey)
     {
         $stores = Mage::app()->getStores();
 
-        // Find the store with the matching API key by checking the key for each store
-        // in Magento
         foreach ($stores as $store) {
-            if ($apiKey == Mage::getStoreConfig('pricewaiter/configuration/api_key', $store->getId())) {
+
+            $storeApiKey = Mage::getStoreConfig(
+                'pricewaiter/configuration/api_key',
+                $store->getId()
+            );
+
+            if (strcasecmp($apiKey, $storeApiKey) === 0) {
                 return $store;
             }
         }
 
-        return Mage::app()->getStore();
+        return false;
     }
 
     /**
@@ -341,6 +383,7 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      * @param {String} $sku SKU of the product
      * @param {Array} $productOptions An array of options for the product, name => value
      * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     * @throws  PriceWaiter_NYPWidget_Exception_Product_NotFound If no product can be found.
      */
     public function getProductWithOptions($sku, $productOptions)
     {
@@ -375,6 +418,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 
             $parentProduct = $product;
             $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+
+            if (!$product) {
+                throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+            }
+
             $product->load($product->getId());
         }
 
