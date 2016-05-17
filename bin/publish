@@ -60,6 +60,13 @@ if ($resp === 'y' || $resp === 'Y') {
         escapeshellarg("HEAD:$PUBLIC_BRANCH")
     ]));
 
+    # 5. Tag and push the tag to the public repo
+    system(implode(' ', [
+        'git push',
+        escapeshellarg($PUBLIC_REMOTE),
+        escapeshellarg("HEAD:refs/tags/v$VERSION"),
+    ]));
+
 } else {
     echo "Ok, forget it then.\n";
 }
