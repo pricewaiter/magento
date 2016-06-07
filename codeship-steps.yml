@@ -1,7 +1,7 @@
 - type: serial
   steps:
     - service: v19php55
-      command: install-magento-then run-codeship-tests
+      command: install-magento-then configure-pricewaiter-then run-codeship-tests
     - service: functional_tests_v19php55
       command: run-codeship-tests
 
