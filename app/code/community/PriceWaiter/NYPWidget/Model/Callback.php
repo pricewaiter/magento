@@ -644,7 +644,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     protected function generatePassword($length)
     {
-        $password = [];
+        $password = array();
 
         $numberOfChars = strlen($this->passwordCharacters);
 
