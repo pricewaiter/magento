@@ -33,10 +33,10 @@ class PriceWaiter_NYPWidget_Model_Callback
 
     /**
      * @internal Adds items to the given order and calculates final total.
-     * @param Mage_Sales_Model_Order       $order    [description]
-     * @param Array                        $request  [description]
-     * @param Mage_Core_Model_Store        $store    [description]
-     * @param Mage_Customer_Model_Customer $customer [description]
+     * @param Mage_Sales_Model_Order       $order
+     * @param Array                        $request
+     * @param Mage_Core_Model_Store        $store
+     * @param Mage_Customer_Model_Customer $customer
      */
     public function addItemsToOrder(
         Mage_Sales_Model_Order $order,
@@ -644,7 +644,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     protected function generatePassword($length)
     {
-        $password = [];
+        $password = array();
 
         $numberOfChars = strlen($this->passwordCharacters);
 

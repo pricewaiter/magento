@@ -21,7 +21,7 @@ class PriceWaiter_NYPWidget_Model_PaymentMethod extends Mage_Payment_Model_Metho
     protected $_canUseCheckout = false;
     protected $_canUseForMultishipping = false;
 
-    private static $_currentOrderCallbackRequest = [];
+    private static $_currentOrderCallbackRequest = array();
 
     public function authorize(Varien_Object $payment, $amount)
     {
