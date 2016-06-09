@@ -28,7 +28,7 @@ system(
 );
 
 # 3. Squash merge master onto our temporary branch
-system('git merge --squash master');
+system('git merge -X theirs --squash master');
 
 # 3a. Remove files that don't make sense to push publically.
 system('git mv -f README-public.md README.md');
@@ -55,7 +55,7 @@ if ($resp === 'y' || $resp === 'Y') {
 
     # 4. Push temp branch to public repo
     system(implode(' ', [
-        'git push',
+        'git push -f',
         escapeshellarg($PUBLIC_REMOTE),
         escapeshellarg("HEAD:$PUBLIC_BRANCH")
     ]));
