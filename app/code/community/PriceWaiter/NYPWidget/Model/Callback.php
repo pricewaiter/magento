@@ -248,7 +248,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      * @param  Array  $request
      * @return Array
      */
-    public function calculateOrderAmounts(Array $request, $productPrice, Callable $rounder)
+    public function calculateOrderAmounts(Array $request, $productPrice, $rounder)
     {
         $amountPerItem = $request['unit_price'];
         $qty = $request['quantity'];
@@ -259,18 +259,18 @@ class PriceWaiter_NYPWidget_Model_Callback
         $regularSubtotal = $productPrice * $qty;
         $discountAmount = $regularSubtotal - $subtotal;
 
-        $total = $rounder($subtotal + $shipping + $tax);
+        $total = call_user_func($rounder, $subtotal + $shipping + $tax);
 
         return array(
-            'discount_amount' => $rounder(-$discountAmount),
+            'discount_amount' => call_user_func($rounder, -$discountAmount),
             'grand_total' => $total,
             'shipping_amount' => $shipping,
             'shipping_discount_amount' => 0,
             'shipping_incl_tax' => $shipping,
             'shipping_tax_amount' => 0,
-            'subtotal' => $rounder($regularSubtotal),
-            'subtotal_incl_tax' => $rounder($regularSubtotal + $tax),
-            'tax_amount' => $rounder($tax),
+            'subtotal' => call_user_func($rounder, $regularSubtotal),
+            'subtotal_incl_tax' => call_user_func($rounder, $regularSubtotal + $tax),
+            'tax_amount' => call_user_func($rounder, $tax),
         );
     }
 
@@ -279,7 +279,7 @@ class PriceWaiter_NYPWidget_Model_Callback
      * @param  Array                      $request
      * @param  Mage_Catalog_Model_Product $product
      */
-    public function calculateOrderItemAmounts(Array $request, $productPrice, Callable $rounder)
+    public function calculateOrderItemAmounts(Array $request, $productPrice, $rounder)
     {
         $amountPerItem = $request['unit_price'];
         $qty = $request['quantity'];
@@ -294,16 +294,16 @@ class PriceWaiter_NYPWidget_Model_Callback
         $discountPercent = $discountAmount / $regularSubtotal * 100;
 
         return array(
-            'discount_amount' => $rounder($discountAmount),
-            'discount_percent' => $rounder($discountPercent),
+            'discount_amount' => call_user_func($rounder, $discountAmount),
+            'discount_percent' => call_user_func($rounder, $discountPercent),
             'original_price' => $productPrice,
             'price' => $productPrice,
-            'price_incl_tax' => $rounder($productPrice + ($tax / $qty)),
-            'row_total' => $rounder($regularSubtotal),
-            'row_total_incl_tax' => $rounder($regularSubtotal + $tax),
+            'price_incl_tax' => call_user_func($rounder, $productPrice + ($tax / $qty)),
+            'row_total' => call_user_func($rounder, $regularSubtotal),
+            'row_total_incl_tax' => call_user_func($rounder, $regularSubtotal + $tax),
             'tax_amount' => $tax,
-            'tax_before_discount' => $rounder($taxBeforeDiscount),
-            'tax_percent' => $rounder($taxPercent * 100),
+            'tax_before_discount' => call_user_func($rounder, $taxBeforeDiscount),
+            'tax_percent' => call_user_func($rounder, $taxPercent * 100),
         );
     }
 
@@ -604,13 +604,12 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         // NOTE: Building $postFields string manually to avoid multipart/form-data content type
         //       assigned by default when using Array.
-        $postFields = http_build_query(
-            $request,
-            '',
-            '&',
-            // NOTE: PHP_QUERY_RFC1738 added in PHP 5.4
-            defined('PHP_QUERY_RFC1738') ? PHP_QUERY_RFC1738 : 0
-        );
+        //       PHP 5.4 Added a 4th arg, which we want to use if available to us.
+        $buildQueryArgs = array($request, '', '&');
+        if (defined('PHP_QUERY_RFC1738')) {
+            $buildQueryArgs[] = PHP_QUERY_RFC1738;
+        }
+        $postFields = call_user_func_array('http_build_query', $buildQueryArgs);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, true);
