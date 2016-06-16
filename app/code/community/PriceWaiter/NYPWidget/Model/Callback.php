@@ -604,13 +604,12 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         // NOTE: Building $postFields string manually to avoid multipart/form-data content type
         //       assigned by default when using Array.
-        $postFields = http_build_query(
-            $request,
-            '',
-            '&',
-            // NOTE: PHP_QUERY_RFC1738 added in PHP 5.4
-            defined('PHP_QUERY_RFC1738') ? PHP_QUERY_RFC1738 : 0
-        );
+        //       PHP 5.4 Added a 4th arg, which we want to use if available to us.
+        $buildQueryArgs = array($request, '', '&');
+        if (defined('PHP_QUERY_RFC1738')) {
+            $buildQueryArgs[] = PHP_QUERY_RFC1738;
+        }
+        $postFields = call_user_func_array('http_build_query', $buildQueryArgs);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, true);
