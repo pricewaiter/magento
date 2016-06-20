@@ -16,7 +16,7 @@ class Integration_ProductInfo_Simple
         $this->setProductInStock(true);
         $info = $this->doProductInfoRequest();
 
-        $this->assertEquals([
+        $this->assertEquals(array(
             'inventory' => 100,
             'allow_pricewaiter' => true,
             'can_backorder' => false,
@@ -24,7 +24,7 @@ class Integration_ProductInfo_Simple
             'retail_price_currency' => 'USD',
             'regular_price' => $this->regular,
             'regular_price_currency' => 'USD',
-        ], $info);
+        ), $info);
     }
 
     public function testProductExceedingInventory()
@@ -32,7 +32,7 @@ class Integration_ProductInfo_Simple
         $this->setProductInStock(true, 100);
         $info = $this->doProductInfoRequest(1337);
 
-        $this->assertEquals([
+        $this->assertEquals(array(
             'inventory' => 100,
             'allow_pricewaiter' => true,
             'can_backorder' => false,
@@ -40,7 +40,7 @@ class Integration_ProductInfo_Simple
             'retail_price_currency' => 'USD',
             'regular_price' => $this->regular,
             'regular_price_currency' => 'USD',
-        ], $info);
+        ), $info);
     }
 
     public function testProductOutOfStock()
@@ -48,10 +48,10 @@ class Integration_ProductInfo_Simple
         $this->setProductInStock(false);
         $info = $this->doProductInfoRequest(10);
 
-        $this->assertEquals([
+        $this->assertEquals(array(
             'inventory' => 0,
             'allow_pricewaiter' => true,
             'can_backorder' => false,
-        ], $info);
+        ), $info);
     }
 }

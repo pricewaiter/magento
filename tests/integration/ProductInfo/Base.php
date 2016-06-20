@@ -24,12 +24,12 @@ abstract class Integration_ProductInfo_Base
     {
         $product = $this->product;
 
-        $request = [
+        $request = array(
             "form_key" => uniqid(true),
             "product" => 399,
             "related_product" => '',
             "qty" => $quantity,
-        ];
+        );
 
         return $request;
     }

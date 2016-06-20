@@ -24,16 +24,16 @@ class Integration_ProductInfo_Configurable
 
     protected function buildProductInfoRequest($quantity = 1)
     {
-        $request = [
+        $request = array(
             "form_key" => uniqid(true),
             "product" => 414,
-            "super_attribute" => [
+            "super_attribute" => array(
                 92 => 25,
                 180 => 59,
-            ],
+            ),
             "related_product" => '',
             "qty" => $quantity,
-        ];
+        );
 
         return $request;
     }
