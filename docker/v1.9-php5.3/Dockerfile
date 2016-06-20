@@ -1,4 +1,4 @@
-FROM pricewaiter/docker-magento:v19php55
+FROM pricewaiter/docker-magento:latest-v19php53
 
 ENV MAGENTO_HOSTNAME magento
 ENV MAGENTO_PORT 1955
@@ -10,7 +10,7 @@ RUN sed -i -e "s/Listen 80/Listen $MAGENTO_PORT/" /etc/apache2/apache2.conf
 EXPOSE $MAGENTO_PORT
 
 # Bring in our custom scripts
-COPY docker/v1.9-php5.5/bin/* /usr/local/bin/
+COPY docker/v1.9-php5.3/bin/* /usr/local/bin/
 
 ####################################################################################################
 # Set up PriceWaiter extension inside Docker container
