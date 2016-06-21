@@ -87,15 +87,15 @@ class Integration_OrderCallback_Basics
         $addr = $order->$addressGetter();
         $this->assertInstanceOf('Mage_Sales_Model_Order_Address', $addr, "$addressGetter returned something");
 
-        $expectedStreet = array_filter([
+        $expectedStreet = array_filter(array(
             $request["buyer_{$type}_address"],
             $request["buyer_{$type}_address2"],
             $request["buyer_{$type}_address3"],
-        ]);
+        ));
         $this->assertGreaterThan(0, count($expectedStreet), 'test data includes street');
         $this->assertEquals($expectedStreet, $addr->getStreet());
 
-        $expectedValues = [
+        $expectedValues = array(
             'getCity' => $request["buyer_{$type}_city"],
             'getCountryId' => $request["buyer_{$type}_country"],
             'getFax' => '',
@@ -106,7 +106,7 @@ class Integration_OrderCallback_Basics
             'getRegionCode' => $request["buyer_{$type}_state"],
             'getSuffix' => '',
             'getTelephone' => $request["buyer_{$type}_phone"],
-        ];
+        );
 
         foreach($expectedValues as $getter => $expectedValue) {
             $this->assertNotNull($expectedValue); // make sure we actually have a value to compare
@@ -127,14 +127,14 @@ class Integration_OrderCallback_Basics
 
         $item = $items->getFirstItem();
 
-        $expectedValues = [
+        $expectedValues = array(
             'getProductId' => $this->product['id'],
             'getProductType' => $this->product['type'],
             'getSku' => $this->product['sku'],
             'getStoreId' => $order->getStoreId(),
             'getOrderId' => $order->getId(),
             'getName' => $this->product['name'],
-        ];
+        );
 
         foreach($expectedValues as $getter => $expectedValue) {
             $this->assertNotNull($expectedValue, "no expected value to test against $getter");

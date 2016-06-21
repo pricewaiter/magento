@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Pre-configures the PriceWaiter Magento extension and executes the next command.
+
+set -euo pipefail
+
+n98-magerun config:set "pricewaiter/configuration/enabled" 1
+n98-magerun config:set "pricewaiter/configuration/api_key" "$PRICEWAITER_API_KEY"
+n98-magerun config:set "pricewaiter/configuration/api_secret" "$PRICEWAITER_SHARED_SECRET"
+
+"$@"
