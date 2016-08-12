@@ -133,11 +133,12 @@ class Integration_OrderCallback_Basics
             'getStoreId' => $order->getStoreId(),
             'getOrderId' => $order->getId(),
             'getName' => $this->product['name'],
+            'getIsVirtual' => false,
         );
 
         foreach($expectedValues as $getter => $expectedValue) {
             $this->assertNotNull($expectedValue, "no expected value to test against $getter");
-            $this->assertEquals($expectedValue, $item->$getter());
+            $this->assertSame($expectedValue, $item->$getter());
         }
     }
 
