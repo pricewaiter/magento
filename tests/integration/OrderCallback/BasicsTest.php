@@ -122,7 +122,6 @@ class Integration_OrderCallback_Basics
         list($request, $order) = $args;
 
         $items = $order->getItemsCollection();
-        var_dump($order->getId());
         $this->assertCount(1, $items);
 
         $item = $items->getFirstItem();
@@ -140,6 +139,25 @@ class Integration_OrderCallback_Basics
             $this->assertNotNull($expectedValue, "no expected value to test against $getter");
             $this->assertEquals($expectedValue, $item->$getter());
         }
+    }
+
+    /**
+     * @depends testNormalOrderCallback
+     */
+    public function testItemWeee(Array $args)
+    {
+        // Magento 1.8 and lower does not guard against getWeeeTaxApplied() *not*
+        // containing a serialized array.
+        // See pricewaiter/magento-dev#86.
+
+        list ($request, $order) = $args;
+
+        $items = $order->getItemsCollection();
+        $this->assertCount(1, $items);
+        $item = $items->getFirstItem();
+
+        $actual = unserialize($item->getWeeeTaxApplied());
+        $this->assertEquals(array(), $actual);
     }
 
     public function testOrderWithBlankShippingMethod()
