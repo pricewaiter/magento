@@ -62,7 +62,9 @@ class PriceWaiter_NYPWidget_Model_Callback
             ->setQtyOrdered($request['quantity'])
             ->setName($product->getName())
             ->setSku($product->getSku())
-            ->setIsNominal(0);
+            ->setIsNominal(0)
+            ->setIsVirtual($product->getIsVirtual())
+            ->setWeeeTaxApplied(serialize(array()));
 
         // Delegate out to some more unit-testable code to calculate all the
         // various amount fields present on the order item.
