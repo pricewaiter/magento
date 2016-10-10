@@ -13,9 +13,9 @@ phpmyadmin:
     links:
         - mysql
 
-v19php53:
+v19php55:
   build: .
-  dockerfile: ./docker/v1.9-php5.3/Dockerfile
+  dockerfile: ./docker/v1.9-php5.5/Dockerfile
   environment:
     - MAGENTO_DB_PASSWORD=password
     - MAGENTO_DB_USER=root
@@ -44,5 +44,22 @@ v19php53:
     - ./skin:/var/www/htdocs/.modman/pricewaiter/skin
     - ./tests:/var/www/htdocs/.modman/pricewaiter/tests
     # Download source into lib/magento-1.9 and uncomment these to volume it in.
-    # - ./lib/magento-1.9/app/code/core:/var/www/htdocs/app/code/core
-    # - ./lib/magento-1.9/lib:/var/www/htdocs/lib
+    - ./lib/magento-1.9/app/code/core:/var/www/htdocs/app/code/core
+    - ./lib/magento-1.9/lib:/var/www/htdocs/lib
+
+v19php55-tests:
+    build: .
+    dockerfile: ./docker/functional-tests/Dockerfile
+    links:
+        - "v19php55:magento"
+    environment:
+        - MAGENTO_BASE_URL=http://magento:1955
+        - PRICEWAITER_API_KEY=MAGENTO
+        - PRICEWAITER_SHARED_SECRET=SECRET
+    volumes:
+        - ./tests/functional/datasets:/usr/src/datasets
+        - ./tests/functional/tests:/usr/src/tests
+    # NOTE: bin/run-functional-tests uses this container, but it is not required for normal Magento usage.
+    #       If you know of a better way to have this container in the docker-compose.yml but
+    #       not automatically bring it up, feel free to modify.
+    command: "sh -c 'echo This is a run-only container. It will just stay up to avoid bringing down other containers.;while (true); do sleep 1; done;'"

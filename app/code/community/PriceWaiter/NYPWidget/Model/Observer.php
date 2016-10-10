@@ -30,4 +30,52 @@ class PriceWaiter_NYPWidget_Model_Observer
 
         return true;
     }
+
+    /**
+     * Called when the customer logs out.
+     * @param  Varien_Event_Observer $observer
+     */
+    public function handleCustomerLogout(Varien_Event_Observer $observer)
+    {
+        // Reset the PriceWaiter Buyer ID in session
+        $session = Mage::getSingleton('nypwidget/session');
+        $session->reset();
+    }
+
+    /**
+     * Called when a quote is converted into an order.
+     * Used to tie the order to any PriceWaiter Deals used to establish the pricing.
+     *
+     * @param  Varien_Event_Observer $observer
+     */
+    public function tieOrderToPriceWaiterDeals(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $quote = $event->getQuote();
+        $order = $event->getOrder();
+
+        try
+        {
+            $res = Mage::getResourceModel('nypwidget/deal_usage');
+            $deals = $res->getDealsUsedByQuote($quote);
+
+            if (empty($deals)) {
+                return;
+            }
+
+            $transaction = Mage::getModel('core/resource_transaction');
+
+            foreach($deals as $deal) {
+                $deal->setOrderId($order->getId());
+                $transaction->addObject($deal);
+            }
+
+            $transaction->save();
+        }
+        catch (Exception $ex)
+        {
+            // Never let our code prevent an order from being processed.
+            Mage::logException($ex);
+        }
+    }
 }

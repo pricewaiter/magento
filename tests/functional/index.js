@@ -4,9 +4,44 @@ const path = require('path');
 
 const SUITES = [
     {
-        name: 'Product Info',
+        name: 'Ping',
         modules: [
-            './tests/product_info',
+            require('./tests/ping'),
+        ],
+    },
+    {
+        name: 'Create Deal',
+        modules: [
+            function (dataset, createApiClient) {
+                require('./tests/endpoint_basics')(
+                    'create_deal',
+                    dataset.urls.createDeal,
+                    dataset.version,
+                    createApiClient
+                );
+            },
+            './tests/create_deal/basics',
+            './tests/create_deal/test_deals',
+        ],
+    },
+    {
+        name: 'Revoke Deal',
+        modules: [
+            function (dataset, createApiClient) {
+                require('./tests/endpoint_basics')(
+                    'revoke_deal',
+                    dataset.urls.revokeDeal,
+                    dataset.version,
+                    createApiClient
+                );
+            },
+            './tests/revoke_deal/basics',
+        ],
+    },
+    {
+        name: 'Checkout',
+        modules: [
+            './tests/checkout/basics',
         ],
     },
     {
@@ -21,6 +56,11 @@ const DATASETS = [];
 fs.readdirSync(path.join(__dirname, 'datasets/magento_v19')).forEach(f => {
 
     if (!/\.js$/.test(f)) {
+        return;
+    }
+
+    // skip bundle product tests for now - not supported
+    if (/bundle/.test(f)) {
         return;
     }
 
@@ -48,12 +88,8 @@ DATASETS.forEach(dataset => {
 
         const makeApiRequest = require('@pricewaiter/integration-api-client')(options);
 
-        return function makeApiRequestWithTweaks(url, body, version) {
-            return makeApiRequest.call(this, {
-                url,
-                body,
-                version,
-            })
+        return function makeApiRequestWithTweaks(body) {
+            return makeApiRequest.call(this, body)
                 .then(r => {
 
                     if (typeof dataset.validateResponse === 'function') {

@@ -21,7 +21,7 @@ class Integration_OrderCallback_Inventory
     }
 
     /**
-     * @expectedException PriceWaiter_NYPWidget_Exception_OutOfStock
+     * @expectedException PriceWaiter_NYPWidget_Exception_Product_OutOfStock
      */
     public function testOutOfStockThrows()
     {

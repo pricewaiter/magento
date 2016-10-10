@@ -433,53 +433,6 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return $product;
     }
 
-    public function getGroupedQuantity($productConfiguration)
-    {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $quantities = array();
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $quantities[] = $associatedProduct->getStockItem()->getQty();
-        }
-
-        return min($quantities);
-    }
-
-    public function getGroupedFinalPrice($productConfiguration)
-    {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $finalPrice = 0;
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $finalPrice += ($associatedProduct->getFinalPrice() * $productConfiguration['super_group'][$associatedProductId]);
-        }
-        return $finalPrice;
-    }
-
-    public function getGroupedCost($productConfiguration)
-    {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $costs = array();
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $costs[] = $associatedProduct->getData('cost');
-        }
-
-        return min($costs);
-    }
-
-    public function setHeaders()
-    {
-        $magentoEdition = 'Magento ' . Mage::getEdition();
-        $magentoVersion = Mage::getVersion();
-        $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
-        Mage::app()->getResponse()->setHeader('X-Platform', $magentoEdition, true);
-        Mage::app()->getResponse()->setHeader('X-Platform-Version', $magentoVersion, true);
-        Mage::app()->getResponse()->setHeader('X-Platform-Extension-Version', $extensionVersion, true);
-
-        return true;
-    }
-
     public function getCategoriesAsJSON($product)
     {
         $categorization = array();

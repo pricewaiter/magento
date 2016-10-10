@@ -132,7 +132,7 @@ abstract class Integration_OrderCallback_Base
         $payment = $this->payment;
         $apiKey = $this->apiKey;
 
-        $request = array(
+        $request = [
             // Default to new customer per-order.
             'buyer_email' => uniqid() . '@example.org',
             'pricewaiter_id' => uniqid(),
@@ -149,7 +149,7 @@ abstract class Integration_OrderCallback_Base
             'tax' => '14.00',
             'cc_type' => $payment['cc_type'],
             'cc_last4' => $payment['cc_last4'],
-        );
+        ];
 
         // maths
         $request['total'] = (

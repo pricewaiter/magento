@@ -44,17 +44,15 @@ module.exports = Object.assign({}, simpleProduct, {
     },
 
     getAddToCartForm() {
-
-        const form = {
-            product: this.product.id.toString(),
-        };
+        const result = simpleProduct.getAddToCartForm.call(this);
+        result._magento_product_type = 'bundle';
 
         this.product.options.forEach(opt => {
-            form[`bundle_option[${opt.id}]`] = opt.value_id.toString();
-            form[`bundle_option_qty[${opt.id}]`] = '1';
+            result[`bundle_option[${opt.id}]`] = opt.value_id.toString();
+            result[`bundle_option_qty[${opt.id}]`] = '1';
         });
 
-        return form;
+        return result;
     },
 
 });

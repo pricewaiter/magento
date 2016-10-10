@@ -5,7 +5,7 @@ SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ROOT_DIR="$SCRIPT_DIR/.."
 BUILD_DIR="$ROOT_DIR/build"
 
-CONTAINER=magento_v19php53_1
+CONTAINER=magento_v19php55_1
 
 docker ps --format '{{.Names}}' | grep $CONTAINER > /dev/null
 IS_RUNNING=$?

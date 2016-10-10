@@ -1,5 +1,5 @@
 const { expect, assert } = require('chai');
-const querystring = require('querystring');
+const qs = require('querystring');
 
 const MAGENTO_BASE_URL = process.env.MAGENTO_BASE_URL;
 assert(MAGENTO_BASE_URL, 'MAGENTO_BASE_URL is defined');
@@ -37,9 +37,43 @@ module.exports = {
 
     version: '2016-03-01',
 
+    supports: {
+        couponCodes: false,
+        testDeals: false,
+    },
+
     urls: {
+        cart: `${MAGENTO_BASE_URL}/checkout/cart`,
+        createDeal: `${MAGENTO_BASE_URL}/pricewaiter/createdeal`,
+        ping: `${MAGENTO_BASE_URL}/pricewaiter/ping`,
+        revokeDeal: `${MAGENTO_BASE_URL}/pricewaiter/revokedeal`,
         orderCallback: `${MAGENTO_BASE_URL}/index.php/pricewaiter/callback`,
         productInfo: `${MAGENTO_BASE_URL}/pricewaiter/productinfo`,
+        listOrders: `${MAGENTO_BASE_URL}/pricewaiter/listorders`,
+    },
+
+    dealItems: [
+        {
+            product: {
+                sku: 'hde012',
+            },
+            amount_per_item: {
+                cents: 9999,
+                value: '99.99',
+            },
+            quantity: {
+                min: 3,
+                max: 3,
+            },
+            metadata: {
+            },
+        },
+    ],
+
+    getDealItems() {
+        const items = [].concat(this.dealItems);
+        items[0].metadata = this.buildOfferMetadata();
+        return items;
     },
 
     product: {
@@ -82,7 +116,7 @@ module.exports = {
     buildOfferMetadata() {
 
         const metadata = {
-            _magento_product_configuration: querystring.stringify(this.getAddToCartForm()),
+            _magento_product_configuration: qs.stringify(this.getAddToCartForm()),
         };
 
         // HACK: Platform JS currently double-encodes this.
@@ -97,7 +131,7 @@ module.exports = {
             form_key: 'eXuDEldwlIECwEeU',
             product: this.product.id,
             related_product: '',
-            qty: '1',
+            qty: this.dealItems[0].quantity.min,
         };
     },
 
@@ -117,4 +151,28 @@ module.exports = {
             .match(/^3\.\d+\.\d+$/);
     },
 
+    validateCheckoutUrl(deal, url) {
+        expect(url).to.contain(deal.id);
+    },
+
+    /**
+     * @param  {Array} responses An array of objects with `url`, `response` and `body` properties.
+     */
+    validateCheckoutUrlFlow(responsesWithBodies) {
+        expect(responsesWithBodies).to.have.length(2);
+
+        const paths = responsesWithBodies
+            .map(r =>
+                r.url
+                    .replace(MAGENTO_BASE_URL, '')
+                    .replace(/\?.*/, '')
+            );
+
+        // First item in list is the checkout_url
+        paths.shift();
+
+        expect(paths).to.deep.equal([
+            '/checkout/cart/',
+        ]);
+    },
 };

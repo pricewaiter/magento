@@ -6,7 +6,7 @@
 class PriceWaiter_NYPWidget_Exception_InvalidRegion
     extends PriceWaiter_NYPWidget_Exception_Abstract
 {
-    public $errorCode = 'invalid_region';
+    public $errorCode = 'magento_invalid_region';
 
     /**
      * @var String

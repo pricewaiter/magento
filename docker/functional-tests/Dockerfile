@@ -1,5 +1,6 @@
 # Docker image that runs functional tests (written in JS) against a running Magento instance.
-FROM node:5
+FROM node:6
+ENV NPM_CONFIG_LOGLEVEL warn
 
 COPY ./docker/functional-tests/bin/* /usr/local/bin/
 

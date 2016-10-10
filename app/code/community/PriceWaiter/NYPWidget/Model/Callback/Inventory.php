@@ -48,13 +48,8 @@ class PriceWaiter_NYPWidget_Model_Callback_Inventory
         }
         catch (Mage_Core_Exception $ex)
         {
-            // There's not really a great way to be *sure* this is the "not enough inventory" error
-            // without examining the (localizable) error message.
-            throw new PriceWaiter_NYPWidget_Exception_OutOfStock(
-                $ex->getMessage(),
-                0,
-                $ex
-            );
+            $translatedEx = PriceWaiter_NYPWidget_Exception_Abstract::translateMagentoException($ex);
+            throw $translatedEx;
         }
 
         // 2. If that resulted in items going out of stock, they need to be saved + reindexed.

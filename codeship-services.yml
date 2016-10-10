@@ -1,4 +1,4 @@
-functional_tests_v19php53:
+functional_tests_v19php55:
   build: .
   dockerfile: ./docker/functional-tests/Dockerfile
   environment:
@@ -6,7 +6,7 @@ functional_tests_v19php53:
     PRICEWAITER_API_KEY: MAGENTO
     PRICEWAITER_SHARED_SECRET: SECRET
   links:
-    - "v19php53:magento"
+    - "v19php55:magento"
 
 order_verifier:
     build: docker/order_verifier
@@ -14,10 +14,10 @@ order_verifier:
 order_verifier:
     build: docker/order_verifier
 
-v19php53:
+v19php55:
   build:
     path: .
-    dockerfile_path: ./docker/v1.9-php5.3/Dockerfile
+    dockerfile_path: ./docker/v1.9-php5.5/Dockerfile
   environment:
     - MAGENTO_DB_PASSWORD=password
     - MAGENTO_DB_USER=root

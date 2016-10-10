@@ -29,7 +29,7 @@ class PriceWaiter_NYPWidget_CallbackController extends Mage_Core_Controller_Fron
         }
 
         // Add debugging headers
-        Mage::helper('nypwidget')->setHeaders($httpResponse);
+        Mage::helper('nypwidget/about')->setResponseHeaders($httpResponse);
         $pricewaiterId = '';
 
         try
