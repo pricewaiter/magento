@@ -50,7 +50,7 @@ class PriceWaiter_NYPWidget_Model_Deal extends Mage_Core_Model_Abstract
 
         $storeId = $this->getStoreIdForApiKey($request->getApiKey());
         if (!$storeId) {
-            throw new PriceWaiter_NYPWidget_Exception_InvalidStore();
+            throw new PriceWaiter_NYPWidget_Exception_ApiKey();
         }
         $this->setStoreId($storeId);
 

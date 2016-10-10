@@ -133,7 +133,7 @@ class Unit_DealModelTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PriceWaiter_NYPWidget_Exception_InvalidStore
+     * @expectedException PriceWaiter_NYPWidget_Exception_ApiKey
      */
     public function testInvalidStoreThrows()
     {
