@@ -454,9 +454,18 @@ class PriceWaiter_NYPWidget_Model_Offer_Item
 
         $handler = $this->getHandlerForProduct($product);
 
+        $addToCartForm = new Varien_Object($addToCartForm);
+
+        // Slight HACK: Ensure that we're always considering 1 of the main product at a time.
+        //              We support > 1 qty for *child* products (such as items in a bundle),
+        //              but don't want quantities to affect price calculations for parent products.
+        if ($addToCartForm->hasQty()) {
+            $addToCartForm->setQty(1);
+        }
+
         return array(
             $product,
-            new Varien_Object($addToCartForm),
+            $addToCartForm,
             $handler,
         );
     }
