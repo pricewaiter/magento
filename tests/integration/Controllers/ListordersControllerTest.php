@@ -62,7 +62,7 @@ class Integration_Controllers_ListordersControllerTest
                     'state' => 'paid',
                     'currency' => 'USD',
                     'subtotal' => array(
-                        'value' => number_format($order->getSubtotal(), 4, '.', ''),
+                        'value' => '150',
                     ),
                     'pricewaiter_deals' => array(
                         $deals[3]->getId(),
@@ -100,6 +100,29 @@ class Integration_Controllers_ListordersControllerTest
         $this->assertEquals($order->getIncrementId(), $formatted->id);
     }
 
+    public function testFormatOrderWithActualOrder()
+    {
+        $id = '41';
+        $order = Mage::getModel('sales/order')
+            ->load($id);
+        $this->assertNotEmpty($order->getId(), 'fixture data found');
+
+        $controller = $this->getControllerInstance();
+        $formatted = $controller->formatOrder($order, array());
+
+        $this->assertEquals(
+            (object)array(
+                'id' => '100000049',
+                'state' => 'paid',
+                'currency' => 'USD',
+                'subtotal' => (object)array(
+                    'value' => '750',
+                ),
+                'pricewaiter_deals' => array(),
+            ),
+            $formatted
+        );
+    }
 
     public function getControllerInstance($body = null)
     {

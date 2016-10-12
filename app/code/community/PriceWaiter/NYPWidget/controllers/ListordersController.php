@@ -67,7 +67,12 @@ class PriceWaiter_NYPWidget_ListordersController extends PriceWaiter_NYPWidget_C
             'state' => $state,
             'currency' => $order->getOrderCurrency()->getCode(),
             'subtotal' => (object)array(
-                'value' => strval($order->getSubtotal()),
+                'value' => strval(
+                    // "subtotal" here means "order total minus shipping and tax"
+                    $order->getGrandTotal() -
+                    $order->getShippingAmount() -
+                    $order->getTaxAmount()
+                ),
             ),
             'pricewaiter_deals' => $dealIds,
         );
