@@ -31,14 +31,19 @@ abstract class Integration_AbstractProductTest extends PHPUnit_Framework_TestCas
      * @param  string                     $spec
      * @return PriceWaiter_NYPWidget_Model_Deal
      */
-    public function createDeal(Mage_Catalog_Model_Product $product, $addToCartForm, $spec = null)
+    public function createDeal(Mage_Catalog_Model_Product $product, $addToCartForm, $spec = null, $buyerId =null)
     {
         // Allow createDeal($product, $spec)
-        if (is_null($spec) && is_string($addToCartForm)) {
+        if (is_string($addToCartForm)) {
+            $buyerId = $spec;
             $spec = $addToCartForm;
             $addToCartForm = array(
                 'product' => $product->getId(),
             );
+        }
+
+        if (!$buyerId) {
+            $buyerId = uniqid();
         }
 
         list($discount, $minQty, $maxQty) = $this->parseDealSpec($spec);
@@ -73,7 +78,7 @@ abstract class Integration_AbstractProductTest extends PHPUnit_Framework_TestCas
                     ),
                     'coupon_code_prefix' => 'PW',
                     "buyer" => array(
-                        "id" => uniqid(),
+                        "id" => $buyerId,
                         "email" => "user@example.org",
                         "marketing_opt_in" => false,
                         "location" => array(

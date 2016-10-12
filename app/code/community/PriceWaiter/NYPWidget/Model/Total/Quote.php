@@ -37,11 +37,12 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
 
         $deals = $this->getPriceWaiterDeals();
 
-
         // In case of collision, favor more recent deals over less recent.
         usort($deals, array(__CLASS__, 'sortDealsRecentFirst'));
 
-        $dealIds = array();
+        $appliedDeals = array();
+        $appliedDealIds = array();
+
         $discountedQuoteItems = array();
         $pwDiscount = 0;
 
@@ -54,9 +55,10 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
             }
 
             $pwDiscount += $applied;
-            $dealIds[] = $deal->getId();
-        }
 
+            $appliedDeals[] = $deal;
+            $appliedDealIds[] = $deal->getId();
+        }
 
         // Note that we have used one or more deals for this quote.
         // This connection will get picked up later when quote is
@@ -67,13 +69,13 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
         $res = Mage::getResourceModel('nypwidget/deal_usage');
         $res->recordDealUsageForQuote(
             $address->getQuote(),
-            $deals
+            $appliedDeals
         );
 
         // Track deal usage and discount amounts. fetch(), below, will pick them up.
         // Note that these fields are *not* perisisted directly to the DB.
         $address->setPriceWaiterDiscount($pwDiscount);
-        $address->setPriceWaiterDealIds($dealIds);
+        $address->setPriceWaiterDealIds($appliedDealIds);
 
         return $this;
     }
@@ -416,6 +418,14 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
      */
     protected function shouldCollectAddress(Mage_Sales_Model_Quote_Address $addr)
     {
+        // HACK: We only support collecting for items on the shipping address for now.
+        //       To properly support all address types we need a minor db migration +
+        //       reworking of recordDealUsageForQuote() to accept address id as well as
+        //       quote id.
+        if ($addr->getAddressType() !== Mage_Sales_Model_Quote_Address::TYPE_SHIPPING) {
+            return false;
+        }
+
         // Things that stop us from performing collection:
         // 1. Quote has salesrules applied
         // 2. (Probably redundant) quote has coupon_code

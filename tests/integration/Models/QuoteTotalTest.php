@@ -251,6 +251,38 @@ class Integration_Models_QuoteTotalTest extends Integration_AbstractProductTest
         $this->assertEquals(-5, $addr->getDiscountAmount(), 'second deal still applied');
     }
 
+    public function testNonAppliedDealsNotLinkedToQuote()
+    {
+        $simpleProduct = $this->getSimpleProduct();
+        list($configurableProduct, $addToCartForm) = $this->getConfigurableProduct();
+
+        $buyerId = uniqid();
+        $deal = $this->createDeal($simpleProduct, '$5 off 1', $buyerId);
+        $nonAppliedDeal = $this->createDeal($configurableProduct, $addToCartForm, '$10 off 1', $buyerId);
+
+        $quote = $this->createQuote(
+            $simpleProduct
+        );
+
+        $this->collectQuote(
+            $quote,
+            $deal,
+            $nonAppliedDeal
+        );
+
+        $res = Mage::getResourceModel('nypwidget/deal_usage');
+        $deals = $res->getDealsUsedByQuote($quote);
+
+        $this->assertCount(1, $deals, 'Only 1 deal used by quote');
+
+        $appliedDeal = array_shift($deals);
+        $this->assertEquals(
+            $deal->getId(),
+            $appliedDeal->getId(),
+            'Correct deal linked to quote'
+        );
+    }
+
     /**
      * Runs collectTotals() with certain PW deals applied.
      * @param  Mage_Sales_Model_Quote $quote
