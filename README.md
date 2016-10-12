@@ -30,6 +30,36 @@ phpMyAdmin runs on [http://magento:7777](http://magento:7777). There is a separa
 
 To get data flowing between Magento and PriceWaiter running locally, you need to tell them about each other. This is best accomplished using [`extra_hosts` in the `docker-compose.yml` file](https://docs.docker.com/compose/compose-file/#extra-hosts).
 
+## Sending Mail
+
+By default, the dev container **does not** send email. Getting it to do so involves some minor hacking of the Magento source.
+
+First, modify the `getMail()` method in `app/code/core/Mage/Core/Model/Email/Template.php` to look like this:
+
+```php
+    /**
+     * Retrieve mail object instance
+     *
+     * @return Zend_Mail
+     */
+    public function getMail()
+    {
+        if (is_null($this->_mail)) {
+            // BEGIN HACK: Send to external SMTP server
+            $host = 'mailcatcher';
+            $port = 1025;
+            $transport = new Zend_Mail_Transport_Smtp($host, compact('port'));
+            Zend_Mail::setDefaultTransport($transport);
+            // END HACK
+            $this->_mail = new Zend_Mail('utf-8');
+        }
+        return $this->_mail;
+    }
+```
+
+Then, ensure the `v19php55` container can talk to a `mailcatcher` instance via the hostname `mailcatcher`
+(you can use `extra_hosts` or `external_links` in `docker-compose.yml` for this).
+
 ## Releasing a New Version
 
 ### 1. Update the Version Number
