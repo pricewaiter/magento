@@ -159,7 +159,7 @@ class PriceWaiter_NYPWidget_Model_Embed
         // If possible, set the base price.
         // For configurables etc, platform JS will have to take over and
         // dynamically calculate price.
-        $price = $product->getPrice();
+        $price = $product->getFinalPrice();
         if ($price > 0) {
             $result->price = $price;
         }

@@ -110,6 +110,15 @@ class Integration_Models_EmbedTest
         );
     }
 
+    public function testProductVarUsesSpecialPrice()
+    {
+        $id = '384'; // Park Row Throw
+        $product = $this->getProduct($id, 'simple');
+
+        $obj = Mage::getModel('nypwidget/embed')->buildProductObject($product);
+        $this->assertEquals(120, $obj->price, 'Price is correct');
+    }
+
     public function testIncludeCustomerInfo()
     {
         $customer = Mage::getModel('customer/customer')
