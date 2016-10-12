@@ -140,7 +140,16 @@ class PriceWaiter_NYPWidget_Model_Offer_Item_Pricing
      */
     protected function getEffectiveQtyForProduct(Mage_Catalog_Model_Product $product)
     {
+        $isChild = !!$product->getParentProductId();
+        if (!$isChild) {
+            // Don't consider quantity for parent products
+            return 1;
+        }
+
+        // For child products (i.e., items in a bundle, use cart qty as multiplier to determine price
+
         $qty = $product->getCartQty();
+
         if ($qty > 0) {
             return intval($qty);
         }
