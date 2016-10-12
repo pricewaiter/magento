@@ -17,7 +17,7 @@ class PriceWaiter_NYPWidget_ProductinfoController
         // Validate the request
         // - return 400 if signature cannot be verified
         $signature = $httpRequest->getHeader('X-PriceWaiter-Signature');
-        if (Mage::helper('nypwidget')->isPriceWaiterRequestValid($signature, $requestBody) == false) {
+        if (!$this->isPriceWaiterRequestValid($signature, $requestBody)) {
             $httpResponse->setHttpResponseCode(400);
             return false;
         }
@@ -35,9 +35,8 @@ class PriceWaiter_NYPWidget_ProductinfoController
 
             // And finally, return it.
             $json = json_encode($result);
-            $signature = Mage::helper('nypwidget')->getResponseSignature($json);
 
-            $httpResponse->setHeader('X-PriceWaiter-Signature', $signature);
+            $httpResponse->setHeader('X-PriceWaiter-Signature', $this->getResponseSignature($json));
             $httpResponse->setHeader('Content-Type', 'application/json');
             $httpResponse->setBody($json);
         }
@@ -60,8 +59,7 @@ class PriceWaiter_NYPWidget_ProductinfoController
     )
     {
         $result = array(
-            // TODO: Support product / category level disabling for this flag.
-            'allow_pricewaiter' => Mage::helper('nypwidget')->isEnabledForStore($store),
+            'allow_pricewaiter' => true, // See pricewaiter/magento-dev#115
         );
 
         // 1. Add pricing information
@@ -117,5 +115,42 @@ class PriceWaiter_NYPWidget_ProductinfoController
         }
 
         return Mage::getModel('nypwidget/offer_item', $data, $store);
+    }
+
+    /**
+     * Returns a signature that can be added to the head of a PriceWaiter API response.
+     * @param {String} $responseBody The full body of the request to sign.
+     * @return {String} Signature that should be set as the X-PriceWaiter-Signature header.
+     */
+    public function getResponseSignature($responseBody)
+    {
+        $secret = Mage::helper('nypwidget')->getSecret();
+        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $secret, false);
+        return $signature;
+    }
+
+    /**
+     * Validates that the current request came from PriceWaiter.
+     * @param {String} $signatureHeader Full value of the X-PriceWaiter-Signature header.
+     * @param {String} $requestBody Complete body of incoming request.
+     * @return {Boolean} Wehther the request actually came from PriceWaiter.
+     */
+    public function isPriceWaiterRequestValid($signatureHeader = null, $requestBody = null)
+    {
+        if ($signatureHeader === null || $requestBody === null) {
+            return false;
+        }
+
+        $secret = Mage::helper('nypwidget')->getSecret();
+
+        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $secret, false);
+
+        if (function_exists('hash_equals')) {
+            // Favor PHP's secure hash comparison function in 5.6 and up.
+            // For a robust drop-in compatibility shim, see: https://github.com/indigophp/hash-compat
+            return hash_equals($detected, $signatureHeader);
+        }
+
+        return $detected === $signatureHeader;
     }
 }

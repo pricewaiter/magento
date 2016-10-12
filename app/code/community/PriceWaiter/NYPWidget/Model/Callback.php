@@ -365,7 +365,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $productSku = $request['product_sku'];
         $productOptions = $this->buildProductOptionsArray($request);
 
-        $product = $this->getHelper()->getProductWithOptions($productSku, $productOptions);
+        $product = $this->getProductWithOptions($productSku, $productOptions);
 
         return $product->getId() ? $product : false;
     }
@@ -403,6 +403,61 @@ class PriceWaiter_NYPWidget_Model_Callback
             $safeUrl,
             $safeUrl
         );
+    }
+
+    /**
+     * Finds the Product that matches the given options and SKU
+     * @param {String} $sku SKU of the product
+     * @param {Array} $productOptions An array of options for the product, name => value
+     * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     * @throws  PriceWaiter_NYPWidget_Exception_Product_NotFound If no product can be found.
+     */
+    public function getProductWithOptions($sku, $productOptions)
+    {
+        $product = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToFilter('sku', $sku)
+            ->addAttributeToSelect('*')
+            ->getFirstItem();
+
+        $additionalCost = null;
+
+        if ($product->getTypeId() == 'configurable') {
+            // Do configurable product specific stuff
+            $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+
+            // Find our product based on attributes
+            foreach ($attrs as $attr) {
+                if (array_key_exists($attr['label'], $productOptions)) {
+                    foreach ($attr['values'] as $value) {
+                        if ($value['label'] == $productOptions[$attr['label']]) {
+                            $valueIndex = $value['value_index'];
+                            // If this attribute has a price assosciated with it, add it to the price later
+                            if ($value['pricing_value'] != '') {
+                                $additionalCost += $value['pricing_value'];
+                            }
+                            break;
+                        }
+                    }
+                    unset($productOptions[$attr['label']]);
+                    $productOptions[$attr['attribute_id']] = $valueIndex;
+                }
+            }
+
+            $parentProduct = $product;
+            $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+
+            if (!$product) {
+                throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+            }
+
+            $product->load($product->getId());
+        }
+
+        if ($additionalCost) {
+            $product->setPrice($product->getPrice() + $additionalCost);
+        }
+
+        return $product;
     }
 
     /**

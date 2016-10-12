@@ -27,7 +27,7 @@ class PriceWaiter_NYPWidget_Helper_About extends Mage_Core_Helper_Abstract
     {
         try
         {
-            return Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
+            return (string)Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
         }
         catch (Exception $ex)
         {
