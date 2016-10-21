@@ -6,7 +6,14 @@
 1. Start the docker environment up: `docker-compose up`
     1. Magento 1.9 + PHP 5.3 available on [http://magento:1955](http://magento:1955) (Username: `admin`, password: `password123`)
 2. Write code :saxophone:
-3. Run tests :tada:
+3. Run PHP Code Sniffer :nose:
+4. Run tests :tada:
+
+## PHP Code Sniffer
+
+`bin/phpcs` will run PHP Code Sniffer against the extension source. `bin/phpcs --help` to see the available options, but the most useful variation is probably **`bin/phpcs --severity=10`**, which is the level we need to pass for Magento Technical Review.
+
+Also, `bin/phpcbf` will run the Code Beautifier against the source and fix any warnings / errors it can :sparkles: automatically :sparkles:
 
 ## Tests
 
