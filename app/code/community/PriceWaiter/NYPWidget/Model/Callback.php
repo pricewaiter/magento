@@ -336,6 +336,34 @@ class PriceWaiter_NYPWidget_Model_Callback
     }
 
     /**
+     * Examines an incoming request and returns values to set for credit
+     * card expiration date.
+     * @param  array  $request
+     * @return array Array in the format ($month, $year).
+     */
+    public function figureOutCcExpiryDate(array $request)
+    {
+        if (empty($request['cc_type'])) {
+            // No credit card used, so don't set expiration month/year
+            return array('', '');
+        }
+
+        $month = isset($request['cc_exp_month']) ? $request['cc_exp_month'] : '';
+        $year = isset($request['cc_exp_year']) ? $request['cc_exp_year'] : '';
+
+        if (!($month || $year)) {
+            // HACK: PriceWaiter did not actually send an expiry date, but
+            //       we have to set *something*. Fill in "next month" as a
+            //       placeholder. See issue #125 for details.
+            $nextMonth = strtotime('+1 month');
+            $month = date('m', $nextMonth);
+            $year = date('Y', $nextMonth);
+        }
+
+        return array($month, $year);
+    }
+
+    /**
      * @internal Either returns an existing customer (by email) or creates a new one.
      * @param  Array                 $request
      * @param  Mage_Core_Model_Store $store
@@ -525,6 +553,11 @@ class PriceWaiter_NYPWidget_Model_Callback
         if (!empty($request['avs_result'])) {
             $orderPayment->setCcAvsStatus($request['avs_result']);
         }
+
+        list($expMonth, $expYear) = $this->figureOutCcExpiryDate($request);
+        $orderPayment
+            ->setCcExpYear($expYear)
+            ->setCcExpMonth($expMonth);
 
         // Stash PW-specific stuff in "additional data"
         $additionalData = array(

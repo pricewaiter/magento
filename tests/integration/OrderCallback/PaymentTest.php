@@ -144,4 +144,44 @@ class Integration_OrderCallback_Payment
         $invoices = $order->getInvoiceCollection()->getAllIds();
         $this->assertCount(0, $invoices, 'order has no invoices');
     }
+
+    /**
+     * @depends testNormalOrderCallback
+     */
+    public function testExpirationDateMadeUp(array $args)
+    {
+        $expectedMonth = date('m', strtotime('+1 month'));
+        $expectedYear = date('Y', strtotime('+1 month'));
+
+        list($request, $order) = $args;
+        $this->assertSame($expectedMonth, $order->getPayment()->getCcExpMonth());
+        $this->assertSame($expectedYear, $order->getPayment()->getCcExpYear());
+    }
+
+    public function testExpirationDateInCallback()
+    {
+        list($request, $order) = $this->doOrderCallback(array(
+            'avs_result' => 'Y',
+            'cc_exp_month' => '5',
+            'cc_exp_year' => '2005',
+        ));
+
+        $payment = $order->getPayment();
+        $this->assertSame('5', $payment->getCcExpMonth());
+        $this->assertSame('2005', $payment->getCcExpYear());
+    }
+
+    public function testNoExpirationDateWhenNoCcType()
+    {
+        list($request, $order) = $this->doOrderCallback(array(
+            'avs_result' => 'Y',
+            'cc_type' => '',
+            'cc_exp_month' => '5',
+            'cc_exp_year' => '2005',
+        ));
+
+        $payment = $order->getPayment();
+        $this->assertEquals('', $payment->getCcExpMonth());
+        $this->assertEquals('', $payment->getCcExpYear());
+    }
 }
