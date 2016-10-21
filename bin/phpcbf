@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs PHP Code Beautifier (phpcbf) against the source tree
+
+docker-compose run \
+    --rm \
+    -T \
+    phpcs \
+    run-phpcbf --colors $@
