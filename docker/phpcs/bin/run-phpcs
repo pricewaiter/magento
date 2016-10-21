@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo ARGS "$@"
-
 $PHPCS_CMD \
     --standard=MEQP1 \
     /usr/src/ext/src \
