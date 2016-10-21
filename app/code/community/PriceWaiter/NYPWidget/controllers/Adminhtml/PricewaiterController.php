@@ -91,4 +91,18 @@ class PriceWaiter_NYPWidget_Adminhtml_PriceWaiterController extends Mage_Adminht
             'secret' => $secret
         )));
     }
+
+    /**
+     * @internal
+     */
+    protected function _isAllowed()
+    {
+        // We have to override this method for Magento Technical Validation.
+        // The idea is that versions of Magento < 1.9.2 (or missing
+        // SUPEE-6285 patch) just return `true` here by default, which can
+        // inadvertently enable access to admin users w/o permissions.
+        // We don't really use ACLs, so this shouldn't matter much, but
+        // here we fill in what 1.9.2 does:
+        return Mage::getSingleton('admin/session')->isAllowed('admin');
+    }
 }
