@@ -14,6 +14,11 @@ order_verifier:
 order_verifier:
     build: docker/order_verifier
 
+phpcs:
+    build: .
+    dockerfile: ./docker/phpcs/Dockerfile
+    command: "run-phpcs --severity=10"
+
 v19php53:
   build:
     path: .
