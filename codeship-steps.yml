@@ -1,5 +1,7 @@
 - type: serial
   steps:
+    - service: phpcs
+      command: run-phpcs --severity=10
     - service: v19php53
       command: install-magento-then configure-pricewaiter-then run-codeship-tests
     - service: functional_tests_v19php53
