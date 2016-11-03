@@ -84,6 +84,11 @@ class PriceWaiter_NYPWidget_Controller_Endpoint_Request
      */
     public function isSignatureValid($signature, $secret)
     {
+        // NOTE: Never let an empty secret be used.
+        if (trim($secret) === '') {
+            return false;
+        }
+
         $headers = array(
             PriceWaiter_NYPWidget_Controller_Endpoint::API_KEY_HEADER => $this->getApiKey(),
             PriceWaiter_NYPWidget_Controller_Endpoint::REQUEST_ID_HEADER => $this->getId(),

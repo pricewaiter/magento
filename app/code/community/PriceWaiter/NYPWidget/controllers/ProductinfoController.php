@@ -143,6 +143,11 @@ class PriceWaiter_NYPWidget_ProductinfoController
 
         $secret = Mage::helper('nypwidget')->getSecret();
 
+        if (trim($secret) === '') {
+            // Don't allow a blank secret to validate.
+            return false
+        }
+
         $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $secret, false);
 
         if (function_exists('hash_equals')) {
