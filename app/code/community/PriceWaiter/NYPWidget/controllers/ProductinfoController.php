@@ -145,7 +145,7 @@ class PriceWaiter_NYPWidget_ProductinfoController
 
         if (trim($secret) === '') {
             // Don't allow a blank secret to validate.
-            return false
+            return false;
         }
 
         $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $secret, false);
