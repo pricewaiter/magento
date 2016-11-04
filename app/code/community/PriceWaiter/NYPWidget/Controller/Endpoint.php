@@ -201,5 +201,6 @@ abstract class PriceWaiter_NYPWidget_Controller_Endpoint extends Mage_Core_Contr
     protected function silentNotFound(Mage_Core_Controller_Response_Http $httpResponse)
     {
         $httpResponse->setHttpResponseCode(404);
+        $this->norouteAction();
     }
 }
