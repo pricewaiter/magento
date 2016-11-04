@@ -2,7 +2,7 @@
 <package>
     <name>nypwidget</name>
     <version>3.0.0</version>
-    <stability>alpha</stability>
+    <stability>stable</stability>
     <license uri="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</license>
     <channel>community</channel>
     <extends/>
