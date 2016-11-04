@@ -117,6 +117,7 @@
                     <pricewaiter>
                         <class>nypwidget/total_quote</class>
                         <after>discount,subtotal</after>
+                        <before>grand_total</before>
                     </pricewaiter>
                 </totals>
             </quote>
