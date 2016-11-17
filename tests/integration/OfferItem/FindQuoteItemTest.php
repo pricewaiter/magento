@@ -240,6 +240,141 @@ class Integration_OfferItem_FindQuoteItemTest extends Integration_AbstractProduc
         $this->assertEmpty($quoteItem->getParentItemId(), 'Quote item found is not a child item');
     }
 
+    public function testFindWithMatchingCustomOptions()
+    {
+        $this->runCustomOptionsTest(
+            array(
+                '3' => 'monogram me!', // monogram (+$20.00)
+                '2' => '1', // model 1 +$59.00
+            ),
+            array(
+                '3' => 'monogram me!', // monogram (+$20.00)
+                '2' => '1', // model 1 +$59.00
+            ),
+            true
+        );
+    }
+
+    public function testFindWithNoCustomOptions()
+    {
+        $this->runCustomOptionsTest(
+            array(),
+            array(),
+            true
+        );
+    }
+
+    public function testDontFindWhenQuoteItemIsMissingCustomOptions()
+    {
+        $this->runCustomOptionsTest(
+            array(
+                '3' => 'monogram me!', // monogram (+$20.00)
+                '2' => '1', // model 1 +$59.00
+            ),
+            array(),
+            false
+        );
+    }
+
+    public function testDontFindWhenQuoteItemHasCustomOptionsOfferItemDoesnt()
+    {
+        $this->runCustomOptionsTest(
+            array(),
+            array(
+                '3' => 'monogram me!', // monogram (+$20.00)
+                '2' => '1', // model 1 +$59.00
+            ),
+            false
+        );
+    }
+
+    public function testFindWhenOfferItemHasBlankMonogramCustomOption() {
+        $this->runCustomOptionsTest(
+            array(
+                '3' => '', // monogram (+$20.00)
+            ),
+            array(),
+            true
+        );
+    }
+
+    public function testFindWhenQuoteItemHasBlankMonogramCustomOption() {
+        $this->runCustomOptionsTest(
+            array(),
+            array(
+                '3' => '', // monogram (+$20.00)
+            ),
+            true
+        );
+    }
+
+    public function testFindWhenOfferItemHasBlankModelCustomOption()
+    {
+        $this->runCustomOptionsTest(
+            array(
+                '2' => '', // model 1 +$59.00
+            ),
+            array(),
+            true
+        );
+    }
+
+
+    public function testFindWhenQuoteItemHasBlankModelCustomOption()
+    {
+        $this->runCustomOptionsTest(
+            array(),
+            array(
+                '2' => '', // model 1 +$59.00
+            ),
+            true
+        );
+    }
+    public function runCustomOptionsTest(array $offerItemOptions, array $quoteItemOptions, $shouldFind)
+    {
+        $id = '410'; // Chelsea Tee (has custom options)
+        $product = $this->getProduct($id, 'configurable');
+
+        // Add to cart form (with no custom options)
+        $baseAddToCartForm = array(
+            'product' => $id,
+            'super_attribute' => array(
+                '92' => '27', // Color: Blue
+                '180' => '79', // Size: M
+            ),
+        );
+
+        // When Offer was made on something with a custom option
+        // But quote item has *no* custom options
+        $offerItem = new PriceWaiter_NYPWidget_Model_Offer_Item(array(
+            'quantity' => array('min' => 1, 'max' => 1),
+            'metadata' => array(
+                '_magento_product_configuration' => http_build_query(array_merge(
+                    $baseAddToCartForm,
+                    array(
+                        'options' => $offerItemOptions,
+                    )
+                )),
+            ),
+        ));
+
+        $quoteItemAddToCart = array_merge($baseAddToCartForm, array(
+            'options' => $quoteItemOptions,
+        ));
+        $quote = $this->createQuote($product, $quoteItemAddToCart);
+
+        $quoteItems = $quote->getAllItems();
+        $this->assertGreaterThan(0, count($quoteItems));
+
+        $quoteItem = $offerItem->findQuoteItem($quoteItems);
+
+        if ($shouldFind) {
+            $this->assertNotEmpty($quoteItem, 'Quote item should not have been found');
+        } else {
+            $this->assertEmpty($quoteItem, 'No quote item should have been found');
+        }
+    }
+
     protected function createOfferItem(Mage_Catalog_Model_Product $product, $addToCartForm = null, $qty = 1)
     {
         if (!$addToCartForm) {

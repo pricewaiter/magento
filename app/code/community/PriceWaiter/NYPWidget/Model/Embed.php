@@ -56,6 +56,53 @@ class PriceWaiter_NYPWidget_Model_Embed
     }
 
     /**
+     * Builds a variable describing the custom options configuration for $product.
+     * @param  Mage_Catalog_Model_Product $product
+     * @return Array
+     */
+    public function buildCustomOptionsVar(Mage_Catalog_Model_Product $product)
+    {
+        $options = $product->getOptions();
+        $result = array();
+
+        foreach($options as $opt) {
+            $jsonOpt = array(
+                'id' => $opt->getId(),
+                'type' => $opt->getType(),
+                'title' => $opt->getTitle(),
+                'required' => !!$opt->getIsRequire(),
+            );
+
+            $sku = $opt->getSku();
+            if ($sku !== null && $sku !== '') {
+                $jsonOpt['sku'] = $opt->getSku();
+            }
+
+            $values = $opt->getValues();
+            if ($values) {
+                $jsonOpt['values'] = array();
+                foreach($values as $v) {
+                    $jsonValue = array(
+                        'id' => $v->getId(),
+                        'title' => $v->getTitle(),
+                    );
+
+                    $sku = $v->getSku();
+                    if ($sku !== null && $sku !== '') {
+                        $jsonValue['sku'] = $v->getSku();
+                    }
+
+                    $jsonOpt['values'][] = $jsonValue;
+                }
+            }
+
+            $result[] = $jsonOpt;
+        }
+
+        return $result;
+    }
+
+    /**
      * @param  Mage_Catalog_Model_Product $product
      * @return Array|false A variable mapping simple product ids to skus, or false if not available.
      */
@@ -250,6 +297,12 @@ class PriceWaiter_NYPWidget_Model_Embed
 
             // Provide detailed information about product categories
             $vars['PriceWaiterCategories'] = $this->buildCategoriesVar($product, $store);
+
+            // Provide data about custom options (SKU modifiers + labels, mostly)
+            $custom = $this->buildCustomOptionsVar($product);
+            if ($custom) {
+                $vars['PriceWaiterCustomOptions'] = $custom;
+            }
         }
 
         return $vars;

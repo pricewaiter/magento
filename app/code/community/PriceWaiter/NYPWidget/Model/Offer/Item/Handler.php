@@ -116,6 +116,29 @@ class PriceWaiter_NYPWidget_Model_Offer_Item_Handler
     }
 
     /**
+     * @param  Mage_Catalog_Model_Product $product
+     * @return Array a simple array of [custom option id => value] for $product
+     */
+    protected function buildCustomOptionArray(Mage_Catalog_Model_Product $product)
+    {
+        $result = array();
+
+        /** @var Mage_Catalog_Model_Product_Option $opt */
+        foreach($product->getOptions() as $opt) {
+            $code = 'option_' . $opt->getId();
+            $customOption = $product->getCustomOption($code);
+
+            if (!$customOption) {
+                continue;
+            }
+
+            $result[$opt->getId()] = $customOption->getValue();
+        }
+
+        return $result;
+    }
+
+    /**
      * Tests that the products referred to by $childQuoteItems exactly
      * matches the products in $childProducts.
      * Used for matching quote items for non-simple products that
@@ -156,6 +179,22 @@ class PriceWaiter_NYPWidget_Model_Offer_Item_Handler
         return empty($diff);
     }
 
+    protected function productCustomOptionsMatch(
+        Mage_Catalog_Model_Product $productA,
+        Mage_Catalog_Model_Product $productB
+    )
+    {
+        $customOptionsA = $this->buildCustomOptionArray($productA);
+        $customOptionsB = $this->buildCustomOptionArray($productB);
+
+        if (count($customOptionsA) !== count($customOptionsB)) {
+            return false;
+        }
+
+        $diff = array_diff_assoc($customOptionsA, $customOptionsB);
+        return empty($diff);
+    }
+
     /**
      * @param  Mage_Sales_Model_Quote_Item $quoteItem
      * @param  Mage_Catalog_Model_Product  $parent   Parent product
@@ -178,6 +217,15 @@ class PriceWaiter_NYPWidget_Model_Offer_Item_Handler
 
         $isSameProduct = $quoteItem->getProductId() == $parent->getId();
         if (!$isSameProduct) {
+            return false;
+        }
+
+        $customOptionsMatch = $this->productCustomOptionsMatch(
+            $parent,
+            $quoteItem->getProduct()
+        );
+
+        if (!$customOptionsMatch) {
             return false;
         }
 

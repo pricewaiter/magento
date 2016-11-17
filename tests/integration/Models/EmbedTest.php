@@ -155,4 +155,111 @@ class Integration_Models_EmbedTest
         $this->assertObjectNotHasAttribute('country', $opts);
     }
 
+    public function testCustomOptionsVar()
+    {
+        $id = '410'; // Chelsea Tee w/ extra options
+        $productWithCustomOptions = $this->getProduct($id, 'configurable');
+
+        $embed = Mage::getModel('nypwidget/embed')
+            ->setStore(Mage::app()->getStore())
+            ->setProduct($productWithCustomOptions);
+
+        $vars = $embed->getJavascriptVariables();
+        $this->assertArrayHasKey('PriceWaiterCustomOptions', $vars);
+
+        $this->assertEquals(
+            array(
+                array(
+                    'id' => '3',
+                    'type' => 'area',
+                    'title' => 'monogram',
+                    'required' => false,
+                ),
+                array(
+                    'id' => '2',
+                    'type' => 'drop_down',
+                    'title' => 'Test Custom Options',
+                    'required' => false,
+                    'values' => array(
+                        array(
+                            'id' => '1',
+                            'title' => 'model 1',
+                        ),
+                        array(
+                            'id' => '2',
+                            'title' => 'model 2',
+                        ),
+                    ),
+                ),
+            ),
+            $vars['PriceWaiterCustomOptions']
+        );
+    }
+
+    public function testCustomOptionsVarWithSkus()
+    {
+        // Add skus to options and ensure that it is included in the resulting var.
+        $id = '410'; // Chelsea Tee w/ extra options
+        $productWithCustomOptions = $this->getProduct($id, 'configurable');
+
+        $productWithCustomOptions->getOptionById('3')->setSku('foo');
+        $productWithCustomOptions->getOptionById('2')
+            ->getValueById('1')
+            ->setSku('model-one');
+
+        $productWithCustomOptions->getOptionById('2')
+            ->getValueById('2')
+            ->setSku('model-two');
+
+        $embed = Mage::getModel('nypwidget/embed')
+            ->setStore(Mage::app()->getStore())
+            ->setProduct($productWithCustomOptions);
+
+        $vars = $embed->getJavascriptVariables();
+        $this->assertArrayHasKey('PriceWaiterCustomOptions', $vars);
+
+        $this->assertEquals(
+            array(
+                array(
+                    'id' => '3',
+                    'type' => 'area',
+                    'title' => 'monogram',
+                    'required' => false,
+                    'sku' => 'foo',
+                ),
+                array(
+                    'id' => '2',
+                    'type' => 'drop_down',
+                    'title' => 'Test Custom Options',
+                    'required' => false,
+                    'values' => array(
+                        array(
+                            'id' => '1',
+                            'title' => 'model 1',
+                            'sku' => 'model-one',
+                        ),
+                        array(
+                            'id' => '2',
+                            'title' => 'model 2',
+                            'sku' => 'model-two',
+                        ),
+                    ),
+                ),
+            ),
+            $vars['PriceWaiterCustomOptions']
+        );
+
+    }
+
+    public function testNoCustomOptionsVarForProductWithNoCustomOptions()
+    {
+        $product = $this->getSimpleProduct();
+
+        $embed = Mage::getModel('nypwidget/embed')
+            ->setStore(Mage::app()->getStore())
+            ->setProduct($product);
+
+        $vars = $embed->getJavascriptVariables();
+        $this->assertArrayNotHasKey('PriceWaiterCustomOptions', $vars);
+    }
 }
