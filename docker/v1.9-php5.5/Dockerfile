@@ -22,14 +22,12 @@ ENV PRICEWAITER_DIR=$MODMAN_DIR/pricewaiter
 RUN mkdir -p MODMAN_DIR && chown -R www-data:www-data MODMAN_DIR && \
     mkdir -p PRICEWAITER_DIR && chown -R www-data:www-data PRICEWAITER_DIR
 
-# Do composer install first to avoid having to re-do it every time a source file changes
-
 WORKDIR $PRICEWAITER_DIR
 
+# Do composer install first to avoid having to re-do it every time a source file changes
 COPY composer.json composer.lock ./
 RUN composer install
 
-# Finally, copy all other files into the image...
 COPY . ./
 
 # And get our extension linked in correctly

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd /usr/src
+
+npm run lint
+
 RETRY_DELAY=3
 
 # Ensure that Magento server is up and reachable
@@ -20,6 +24,7 @@ do
 
     if [ $CURL_RESULT == 7 ]; then
         # NOTE: curl uses 7 to indicate "connection refused". Which we want to retry on.
+        echo "Magento not ready yet. Waiting ${RETRY_DELAY}s"
         sleep $RETRY_DELAY
     fi
 
@@ -30,6 +35,5 @@ do
 done
 
 # ...then run mocha
-cd /usr/src
 npm start
 exit $?

@@ -1,5 +1,5 @@
 # Docker image that provides a simple HTTP app that emulates the PriceWaiter order validator
-FROM node:5
+FROM node:6
 
 ENV PORT 80
 EXPOSE 80

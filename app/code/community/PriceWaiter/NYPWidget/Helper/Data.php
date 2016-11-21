@@ -4,21 +4,17 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
 {
     const PRICEWAITER_API_URL = 'https://api.pricewaiter.com';
     const PRICEWAITER_RETAILER_URL = 'https://retailer.pricewaiter.com';
+    const PRICEWAITER_WIDGET_URL = 'https://widget.pricewaiter.com';
 
+    const XML_PATH_API_KEY = 'pricewaiter/configuration/api_key';
+    const XML_PATH_BUTTON_ENABLED = 'pricewaiter/configuration/enabled';
+    const XML_PATH_CONVERSION_TOOLS_ENABLED = 'pricewaiter/conversion_tools/enabled';
     const XML_PATH_DEFAULT_ORDER_STATUS = 'pricewaiter/orders/default_status';
-
-    private $_product = false;
-    private $_buttonEnabled = null;
-    private $_conversionToolsEnabled = null;
-
-    private $_widgetUrl = 'https://widget.pricewaiter.com';
-
-    public function __construct()
-    {
-        if (!!getenv('PRICEWAITER_WIDGET_URL')) {
-            $this->_widgetUrl = getenv('PRICEWAITER_WIDGET_URL');
-        }
-    }
+    const XML_PATH_DISABLE_BY_CUSTOMER_GROUP = 'pricewaiter/customer_groups/disable';
+    const XML_PATH_BUTTON_DISABLED_CUSTOMER_GROUPS = 'pricewaiter/customer_groups/group_select';
+    const XML_PATH_CONVERSION_TOOLS_DISABLED_CUSTOMER_GROUPS = 'pricewaiter/conversion_tools/customer_group_disable';
+    const XML_PATH_DISABLED_BY_CATEGORY = 'pricewaiter/categories/disable_by_category';
+    const XML_PATH_SECRET = 'pricewaiter/configuration/api_secret';
 
     /**
      * @return String URL of the PriceWaiter API.
@@ -74,6 +70,21 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * @param  Mage_Core_Model_Store|number|null $store
+     * @return String|false  API key or false if not configured.
+     */
+    public function getPriceWaiterApiKey($store = null)
+    {
+        $apiKey = Mage::getStoreConfig(self::XML_PATH_API_KEY, $store);
+        return $apiKey ? (string)$apiKey : false;
+    }
+
+    public function getPriceWaiterSettingsUrl()
+    {
+        return $this->getRetailerUrl();
+    }
+
+    /**
      * @return String The URL of the PriceWaiter Retailer area.
      */
     public function getRetailerUrl()
@@ -87,218 +98,21 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         return self::PRICEWAITER_RETAILER_URL;
     }
 
-    public function isEnabledForStore()
+    /**
+     * Returns the secret token used when communicating with PriceWaiter.
+     * @return {String} Secret token
+     */
+    public function getSecret($store = null)
     {
-        // Is the pricewaiter widget enabled for this store and an API Key has been set.
-        if (Mage::getStoreConfig('pricewaiter/configuration/enabled')
-            && Mage::getStoreConfig('pricewaiter/configuration/api_key')
-        ) {
-            return true;
+        $token = Mage::getStoreConfig(self::XML_PATH_SECRET, $store);
+
+        if (is_null($token) || $token == '') {
+            $token = bin2hex(openssl_random_pseudo_bytes(24));
+            $config = Mage::getModel('core/config');
+            $config->saveConfig(self::XML_PATH_SECRET, $token);
         }
 
-        return false;
-    }
-
-    // Set the values of $_buttonEnabled and $_conversionToolsEnabled
-    private function _setEnabledStatus()
-    {
-        if ($this->_buttonEnabled != null && $this->_conversionToolsEnabled != null) {
-            return true;
-        }
-
-        if (Mage::getStoreConfig('pricewaiter/configuration/enabled')) {
-            $this->_buttonEnabled = true;
-        }
-
-        if (Mage::getStoreConfig('pricewaiter/conversion_tools/enabled')) {
-            $this->_conversionToolsEnabled = true;
-        }
-
-        $product = $this->_getProduct();
-
-        // Is the PriceWaiter widget enabled for this category
-        $category = Mage::registry('current_category');
-        if (is_object($category)) {
-            $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category);
-            if (!$nypcategory->isActive()) {
-                $this->_buttonEnabled = false;
-            }
-            if (!$nypcategory->isConversionToolsEnabled()) {
-                $this->_conversionToolsEnabled = false;
-            }
-        } else {
-            // We end up here if we are visiting the product page without being
-            // "in a category". Basically, we arrived via a search page.
-            // The logic here checks to see if there are any categories that this
-            // product belongs to that enable the PriceWaiter widget. If not, return false.
-            $categories = $product->getCategoryIds();
-            $categoryActive = false;
-            $categoryCTActive = false;
-            foreach ($categories as $categoryId) {
-                unset($currentCategory);
-                unset($nypcategory);
-                $currentCategory = Mage::getModel('catalog/category')->load($categoryId);
-                $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($currentCategory);
-                if ($nypcategory->isActive()) {
-                    if ($nypcategory->isConversionToolsEnabled()) {
-                        $categoryCTActive = true;
-                    }
-                    $categoryActive = true;
-                    break;
-                }
-            }
-            if (!$categoryActive) {
-                $this->_buttonEnabled = false;
-            }
-
-            if (!$categoryCTActive) {
-                $this->_conversionToolsEnabled = false;
-            }
-
-        }
-
-        // Is PriceWaiter enabled for this Customer Group
-        $disable = Mage::getStoreConfig('pricewaiter/customer_groups/disable');
-        if ($disable) {
-            // An admin has chosen to disable the PriceWaiter widget by customer group.
-            $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
-            $customerGroups = Mage::getStoreConfig('pricewaiter/customer_groups/group_select');
-            $customerGroups = preg_split('/,/', $customerGroups);
-
-            if (in_array($customerGroupId, $customerGroups)) {
-                $this->_buttonEnabled = false;
-            }
-        }
-
-        // Are Conversion Tools  enabled for this Customer Group
-        $disableCT = Mage::getStoreConfig('pricewaiter/conversion_tools/customer_group_disable');
-        if ($disableCT) {
-            // An admin has chosen to disable the Conversion Tools by customer group.
-            $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
-            $customerGroups = Mage::getStoreConfig('pricewaiter/conversion_tools/group_select');
-            $customerGroups = preg_split('/,/', $customerGroups);
-
-            if (in_array($customerGroupId, $customerGroups)) {
-                $this->_conversionToolsEnabled = false;
-            }
-        }
-    }
-
-    public function isConversionToolsEnabled()
-    {
-        $this->_setEnabledStatus();
-
-        return $this->_conversionToolsEnabled;
-    }
-
-    public function isButtonEnabled()
-    {
-        $this->_setEnabledStatus();
-
-        return $this->_buttonEnabled;
-    }
-
-    public function getPriceWaiterSettingsUrl()
-    {
-        return $this->getRetailerUrl();
-    }
-
-    public function getWidgetUrl()
-    {
-        if ($this->isEnabledForStore()) {
-            return $this->_widgetUrl . '/script/'
-                . Mage::getStoreConfig('pricewaiter/configuration/api_key')
-                . ".js";
-        }
-
-        return $this->_widgetUrl . '/nyp/script/widget.js';
-    }
-
-
-    public function getProductPrice($product)
-    {
-        $productPrice = 0;
-
-        if ($product->getId()) {
-            if ($product->getTypeId() != 'grouped') {
-                $productPrice = $product->getFinalPrice();
-            }
-        }
-
-        return $productPrice;
-    }
-
-    private function safeGetAttributeText($product, $code) {
-        $value = $product->getData($code);
-
-        // prevent Magento from rendering "No" when nothing is selected.
-        if (!$value) {
-            return false;
-        }
-
-        $resource = $product->getResource();
-        if (!$resource) {
-            return false;
-        }
-
-        $attr = $resource->getAttribute($code);
-        if (!$attr) {
-            return false;
-        }
-
-        $frontend = $attr->getFrontend();
-        if (!$frontend) {
-            return false;
-        }
-
-        return $frontend->getValue($product);
-    }
-
-    public function getProductBrand($product) {
-
-        // prefer brand, but fallback to manufacturer attribute
-        $brand = $product->getData('brand');
-
-        if (!$brand) {
-            $manufacturer = $this->safeGetAttributeText($product, 'manufacturer');
-            if ($manufacturer) {
-                $brand = $manufacturer;
-            }
-        }
-
-        // try looking up popular plugin for brand attribute
-        if (!$brand) {
-            $manufacturer = $this->safeGetAttributeText($product, 'c2c_brand');
-            if ($manufacturer) {
-                $brand = $manufacturer;
-            }
-        }
-
-        return $brand;
-    }
-
-    private function _getProduct()
-    {
-        if (!$this->_product) {
-            $this->_product = Mage::registry('current_product');
-        }
-
-        return $this->_product;
-    }
-
-    public function getGroupedProductInfo()
-    {
-        $product = $this->_getProduct();
-        $javascript = "var PriceWaiterGroupedProductInfo =  new Array();\n";
-
-        $associatedProducts = $product->getTypeInstance(true)->getAssociatedProducts($product);
-        foreach ($associatedProducts as $simpleProduct) {
-            $javascript .= "PriceWaiterGroupedProductInfo[" . $simpleProduct->getId() . "] = ";
-            $javascript .= "new Array('" . htmlentities($simpleProduct->getName()) . "', '"
-                . number_format($simpleProduct->getPrice(), 2) . "')\n";
-        }
-
-        return $javascript;
+        return $token;
     }
 
     /**
@@ -312,9 +126,8 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
         $stores = Mage::app()->getStores();
 
         foreach ($stores as $store) {
-
             $storeApiKey = Mage::getStoreConfig(
-                'pricewaiter/configuration/api_key',
+                self::XML_PATH_API_KEY,
                 $store->getId()
             );
 
@@ -327,189 +140,188 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Returns the secret token used when communicating with PriceWaiter.
-     * @return {String} Secret token
+     * @param  Mage_Core_Model_Store|number|null $store
+     * @return String|false The widget.js URL, or false if not available.
      */
-    public function getSecret()
+    public function getWidgetJsUrl($store = null)
     {
-        $token = Mage::getStoreConfig('pricewaiter/configuration/api_secret');
+        $apiKey = $this->getPriceWaiterApiKey($store);
 
-        if (is_null($token) || $token == '') {
-            $token = bin2hex(openssl_random_pseudo_bytes(24));
-            $config = Mage::getModel('core/config');
-
-            $config->saveConfig('pricewaiter/configuration/api_secret', $token);
-        }
-
-        return $token;
-    }
-
-    /**
-     * Returns a signature that can be added to the head of a PriceWaiter API response.
-     * @param {String} $responseBody The full body of the request to sign.
-     * @return {String} Signature that should be set as the X-PriceWaiter-Signature header.
-     */
-    public function getResponseSignature($responseBody)
-    {
-        $signature = 'sha256=' . hash_hmac('sha256', $responseBody, $this->getSecret(), false);
-        return $signature;
-    }
-
-    /**
-     * Validates that the current request came from PriceWaiter.
-     * @param {String} $signatureHeader Full value of the X-PriceWaiter-Signature header.
-     * @param {String} $requestBody Complete body of incoming request.
-     * @return {Boolean} Wehther the request actually came from PriceWaiter.
-     */
-    public function isPriceWaiterRequestValid($signatureHeader = null, $requestBody = null)
-    {
-        if ($signatureHeader === null || $requestBody === null) {
+        if (!$apiKey) {
             return false;
         }
 
-        $detected = 'sha256=' . hash_hmac('sha256', $requestBody, $this->getSecret(), false);
+        // Allow overriding widget js url via ENV
+        $url = getenv('PRICEWAITER_WIDGET_URL');
 
-        if (function_exists('hash_equals')) {
-            // Favor PHP's secure hash comparison function in 5.6 and up.
-            // For a robust drop-in compatibility shim, see: https://github.com/indigophp/hash-compat
-            return hash_equals($detected, $signatureHeader);
+        if (!$url) {
+            $url = self::PRICEWAITER_WIDGET_URL;
         }
 
-        return $detected === $signatureHeader;
+        $apiKey = rawurlencode($apiKey);
+        return "{$url}/script/$apiKey.js";
     }
 
     /**
-     * Finds the Product that matches the given options and SKU
-     * @param {String} $sku SKU of the product
-     * @param {Array} $productOptions An array of options for the product, name => value
-     * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
-     * @throws  PriceWaiter_NYPWidget_Exception_Product_NotFound If no product can be found.
+     * @param  array  $categories An array of categories (or category ids).
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean Whether the button is enabled for *at least one* of the given categories.
      */
-    public function getProductWithOptions($sku, $productOptions)
+    public function isButtonEnabledForAnyCategory(array $categories, $store = null)
     {
-        $product = Mage::getModel('catalog/product')->getCollection()
-            ->addAttributeToFilter('sku', $sku)
-            ->addAttributeToSelect('*')
-            ->getFirstItem();
+        return $this->isFeatureEnabledForAnyCategory(
+            $categories,
+            $store,
+            'isActive' // e.g. $nypcategory->isActive()
+        );
+    }
 
-        $additionalCost = null;
+    /**
+     * @param  $customerGroup
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean
+     */
+    public function isButtonEnabledForCustomerGroup($customerGroup, $store = null)
+    {
+        return $this->isFeatureEnabledForCustomerGroup(
+            $customerGroup,
+            $store,
+            self::XML_PATH_BUTTON_DISABLED_CUSTOMER_GROUPS
+        );
+    }
+        /**
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean Whether the PW button is enabled for the given store.
+     */
+    public function isButtonEnabledForStore($store = null)
+    {
+        $enabled = !!Mage::getStoreConfig(self::XML_PATH_BUTTON_ENABLED, $store);
+        $apiKey = Mage::getStoreConfig(self::XML_PATH_API_KEY, $store);
 
-        if ($product->getTypeId() == 'configurable') {
-            // Do configurable product specific stuff
-            $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+        return $enabled && $apiKey;
+    }
 
-            // Find our product based on attributes
-            foreach ($attrs as $attr) {
-                if (array_key_exists($attr['label'], $productOptions)) {
-                    foreach ($attr['values'] as $value) {
-                        if ($value['label'] == $productOptions[$attr['label']]) {
-                            $valueIndex = $value['value_index'];
-                            // If this attribute has a price assosciated with it, add it to the price later
-                            if ($value['pricing_value'] != '') {
-                                $additionalCost += $value['pricing_value'];
-                            }
-                            break;
-                        }
-                    }
-                    unset($productOptions[$attr['label']]);
-                    $productOptions[$attr['attribute_id']] = $valueIndex;
+    /**
+     * @param  $customerGroup
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean
+     */
+    public function isConversionToolsEnabledForCustomerGroup($customerGroup, $store = null)
+    {
+        return $this->isFeatureEnabledForCustomerGroup(
+            $customerGroup,
+            $store,
+            self::XML_PATH_CONVERSION_TOOLS_DISABLED_CUSTOMER_GROUPS
+        );
+    }
+
+    /**
+     * @param  array  $categories An array of categories (or category ids).
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean Whether the conversion tools are enabled for *at least one* of the given categories.
+     */
+    public function isConversionToolsEnabledForAnyCategory(array $categories, $store = null)
+    {
+        return $this->isFeatureEnabledForAnyCategory(
+            $categories,
+            $store,
+            'isConversionToolsEnabled' // e.g. $nypcategory->isConversionToolsEnabled()
+        );
+    }
+
+    /**
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @return boolean Whether the PW conversion tools are enabled for the given store.
+     */
+    public function isConversionToolsEnabledForStore($store = null)
+    {
+        $enabled = !!Mage::getStoreConfig(self::XML_PATH_CONVERSION_TOOLS_ENABLED, $store);
+        $apiKey = Mage::getStoreConfig(self::XML_PATH_API_KEY, $store);
+
+        return $enabled && $apiKey;
+    }
+
+    /**
+     * @param  array   $categories
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @param  string $categoryGetter
+     * @return boolean
+     */
+    protected function isFeatureEnabledForAnyCategory(
+        array $categories,
+        $store,
+        $categoryGetter
+    )
+    {
+        $store = Mage::app()->getStore($store);
+
+        // See if we're even doing "disable by category"
+        // This helps avoid recursive category lookups...
+        $areDisablingByCategory = Mage::getStoreConfig(self::XML_PATH_DISABLED_BY_CATEGORY, $store);
+        if (!$areDisablingByCategory) {
+            return true;
+        }
+
+        // Resolve the $categories array into a an actual
+        // array of Mage_Catalog_Model_Category instances
+        $resolvedCategories = array();
+        foreach ($categories as $cat) {
+            if (is_object($cat)) {
+                $resolvedCategories[] = $cat;
+            } else if (is_numeric($cat)) {
+                // Load category by id
+                $cat = Mage::getModel('catalog/category')->load($cat);
+                if ($cat->getId()) {
+                    $resolvedCategories[] = $cat;
                 }
             }
+        }
 
-            $parentProduct = $product;
-            $product = $product->getTypeInstance()->getProductByAttributes($productOptions, $product);
+        $enabled = false;
 
-            if (!$product) {
-                throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+        foreach($resolvedCategories as $category) {
+            // We store category config in a parallel model.
+            $nypcategory = Mage::getModel('nypwidget/category')->loadByCategory($category, $store->getId());
+            if ($nypcategory->$categoryGetter()) {
+                return true;
             }
-
-            $product->load($product->getId());
         }
 
-        if ($additionalCost) {
-            $product->setPrice($product->getPrice() + $additionalCost);
-        }
-
-        return $product;
+        return false;
     }
 
-    public function getGroupedQuantity($productConfiguration)
+    /**
+     * @param  object|number  $customerGroup
+     * @param  Mage_Core_Model_Store|number|null  $store
+     * @param  string  $xmlPath       Path to the setting that holds the customer group ids.
+     * @return boolean
+     */
+    protected function isFeatureEnabledForCustomerGroup(
+        $customerGroup,
+        $store,
+        $xmlPath
+    )
     {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $quantities = array();
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $quantities[] = $associatedProduct->getStockItem()->getQty();
+        $anyDisabledByCustomerGroup = Mage::getStoreConfig(self::XML_PATH_DISABLE_BY_CUSTOMER_GROUP, $store);
+
+        if (!$anyDisabledByCustomerGroup) {
+            // Not using "disable by customer group" feature
+            return true;
         }
 
-        return min($quantities);
-    }
+        $id = is_object($customerGroup) ?
+            $customerGroup->getId() :
+            $customerGroup;
 
-    public function getGroupedFinalPrice($productConfiguration)
-    {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $finalPrice = 0;
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $finalPrice += ($associatedProduct->getFinalPrice() * $productConfiguration['super_group'][$associatedProductId]);
+        $customerGroupIds = Mage::getStoreConfig($xmlPath, $store);
+        $customerGroupIds = explode(',', $customerGroupIds);
+
+        // $customerGroupIds contains ids of groups for which feature is *disabled*
+
+        if (in_array($id, $customerGroupIds)) {
+            return false;
         }
-        return $finalPrice;
-    }
-
-    public function getGroupedCost($productConfiguration)
-    {
-        $associatedProductIds = array_keys($productConfiguration['super_group']);
-        $costs = array();
-        foreach ($associatedProductIds as $associatedProductId) {
-            $associatedProduct = Mage::getModel('catalog/product')->load($associatedProductId);
-            $costs[] = $associatedProduct->getData('cost');
-        }
-
-        return min($costs);
-    }
-
-    public function setHeaders()
-    {
-        $magentoEdition = 'Magento ' . Mage::getEdition();
-        $magentoVersion = Mage::getVersion();
-        $extensionVersion = Mage::getConfig()->getNode()->modules->PriceWaiter_NYPWidget->version;
-        Mage::app()->getResponse()->setHeader('X-Platform', $magentoEdition, true);
-        Mage::app()->getResponse()->setHeader('X-Platform-Version', $magentoVersion, true);
-        Mage::app()->getResponse()->setHeader('X-Platform-Extension-Version', $extensionVersion, true);
 
         return true;
-    }
-
-    public function getCategoriesAsJSON($product)
-    {
-        $categorization = array();
-        $assignedCategories = $product->getCategoryCollection()
-            ->addAttributeToSelect('name');
-
-        $baseUrl = Mage::app()->getStore()->getBaseUrl();
-
-        // Find the path (parents) of each category, and add their information
-        // to the categorization array
-        foreach ($assignedCategories as $assignedCategory) {
-            $parentCategories = array();
-            $path = $assignedCategory->getPath();
-            $parentIds = explode('/', $path);
-            array_shift($parentIds); // We don't care about the root category
-
-            $categoryModel = Mage::getModel('catalog/category');
-            foreach($parentIds as $parentCategoryId) {
-                $parentCategory = $categoryModel->load($parentCategoryId);
-                $parentCategoryUrl = preg_replace('/^\//', '', $parentCategory->getUrlPath());
-
-                $parentCategories[] = array(
-                    'name' => $parentCategory->getName(),
-                    'url' => $baseUrl . '/' . $parentCategoryUrl
-                );
-            }
-
-            $categorization[] = $parentCategories;
-        }
-
-        return json_encode($categorization);
     }
 }

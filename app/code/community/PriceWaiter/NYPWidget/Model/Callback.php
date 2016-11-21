@@ -393,7 +393,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $productSku = $request['product_sku'];
         $productOptions = $this->buildProductOptionsArray($request);
 
-        $product = $this->getHelper()->getProductWithOptions($productSku, $productOptions);
+        $product = $this->getProductWithOptions($productSku, $productOptions);
 
         return $product->getId() ? $product : false;
     }
@@ -431,6 +431,47 @@ class PriceWaiter_NYPWidget_Model_Callback
             $safeUrl,
             $safeUrl
         );
+    }
+
+    /**
+     * Finds the Product that matches the given options and SKU
+     * @param {String} $sku SKU of the product
+     * @param {Array} $productOptions An array of options for the product, name => value
+     * @return {Object} Returns Mage_Catalog_Model_Product of product that matches options.
+     * @throws  PriceWaiter_NYPWidget_Exception_Product_NotFound If no product can be found.
+     */
+    public function getProductWithOptions($sku, $productOptions)
+    {
+        $product = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToFilter('sku', $sku)
+            ->addAttributeToSelect('*')
+            ->getFirstItem();
+
+        if (!$product->getId()) {
+            throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+        }
+
+        // NOTE: If buyer was looking at a configurable product,
+        //       SKU *should* be set to that of the simple product generated
+        //       based on their configuration. It $product is configurable,
+        //       it indicates that either:
+        //
+        //         1. SKU of child product was not properly resolved client-side
+        //            before offer was submitted.
+        //
+        //         - or -
+        //
+        //         2. Something is messed up with SKUs in this store.
+        if ($product->getTypeId() == 'configurable') {
+            $product = $this->resolveConfigurableProductForOrderWrite(
+                $product,
+                $productOptions
+            );
+        }
+
+        $this->applyCustomOptionPricesToProduct($product, $productOptions);
+
+        return $product;
     }
 
     /**
@@ -662,6 +703,55 @@ class PriceWaiter_NYPWidget_Model_Callback
     }
 
     /**
+     * For any custom options in use, modify the product's price accordingly.
+     * @param  Mage_Catalog_Model_Product $product
+     * @param  array                      $productOptions
+     */
+    protected function applyCustomOptionPricesToProduct(
+        Mage_Catalog_Model_Product $product,
+        array $productOptions
+    )
+    {
+        // Check if any values in $productOptions map to custom options
+        // available on the product.
+        $options = $product->getOptions();
+
+        $amountToAdd = 0;
+
+        foreach($options as $opt) {
+            if (!array_key_exists($opt->getTitle(), $productOptions)) {
+                continue;
+            }
+
+            $productOptionValue = $productOptions[$opt->getTitle()];
+
+            // If the option changes the *price* of the product, attempt to
+            // get that change reflected. If this fails, order *total* will
+            // still be accurate, but the applied PriceWaiter discount will be
+            // wonky.
+            // This is not 100% accurate--it's possible that option names could
+            // change or be tweaked on the client side. But it's good enough
+            //
+
+            // 1. Apply any price that this *option* alone has
+            $amountToAdd += $opt->getPrice(true);
+
+            // 2. If the option has values, see if any of them are selected
+            //    and apply their price changes.
+            foreach($opt->getValues() as $v) {
+                if ($v->getTitle() === $productOptionValue) {
+                    $amountToAdd += $v->getPrice(true);
+                    break;
+                }
+            };
+        }
+
+        // Apply custom option price changes all in one go
+        // (to avoid them interfering with each other)
+        $product->setPrice($product->getPrice() + $amountToAdd);
+    }
+
+    /**
      * @internal
      * @param  Mage_Sales_Model_Order $order
      */
@@ -765,6 +855,66 @@ class PriceWaiter_NYPWidget_Model_Callback
             ->setPricewaiterId($request['pricewaiter_id'])
             ->setOrderId($order->getId())
             ->save();
+    }
+
+    /**
+     * Attempts to look up a simple product based on a configurable product + a
+     * hash of PriceWaiter product options.
+     */
+    protected function resolveConfigurableProductForOrderWrite(
+        Mage_Catalog_Model_Product $product,
+        array &$productOptions
+    )
+    {
+        if ($product->getTypeId() !== 'configurable') {
+            return $product;
+        }
+
+        $attrs = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+        $attributesForLookup = array();
+        $additionalCost = 0;
+
+        // Resolve product options into attribute id/value pairs
+        foreach ($attrs as $attr) {
+            if (!array_key_exists($attr['label'], $productOptions)) {
+                // No product option value exists for this attribute.
+                // This will most likely make the lookup fail.
+                continue;
+            }
+
+            $productOptionValue = $productOptions[$attr['label']];
+            $valueIndex = null;
+
+            // Find the corresponding attribute value
+            foreach ($attr['values'] as $value) {
+                if ($value['label'] === $productOptionValue) {
+                    $valueIndex = $value['value_index'];
+                    // If this attribute has a price assosciated with it, add it to the price later
+                    if ($value['pricing_value']) {
+                        $additionalCost += $value['pricing_value'];
+                    }
+                    break;
+                }
+            }
+
+            if ($valueIndex !== null) {
+                // We found a corresponding attribute to look for
+                $attributesForLookup[$attr['attribute_id']] = $valueIndex;
+            }
+        }
+
+        $simpleProduct = $product
+            ->getTypeInstance()
+            ->getProductByAttributes($attributesForLookup, $product);
+
+        if (!$product || !$product->getId()) {
+            throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
+        }
+
+        $product->load($product->getId());
+        $product->setPrice($product->getPrice() + $additionalCost);
+
+        return $product;
     }
 
     /**

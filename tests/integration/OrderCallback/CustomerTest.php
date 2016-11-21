@@ -36,12 +36,12 @@ class Integration_OrderCallback_CustomerTest
         $store = $order->getStore();
         $this->assertEquals($store->getWebsiteId(), $customer->getWebsiteId(), 'customer created for correct website');
 
-        $map = array(
+        $map = [
             'buyer_email' => 'getEmail',
             'buyer_name' => 'getName',
             'buyer_first_name' => 'getFirstname',
             'buyer_last_name' => 'getLastname',
-        );
+        ];
         foreach($map as $key => $getter) {
             $this->assertEquals($request[$key], $customer->$getter(), "$key = $getter()");
         }

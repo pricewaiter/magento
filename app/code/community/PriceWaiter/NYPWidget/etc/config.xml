@@ -3,7 +3,7 @@
 
     <modules>
         <PriceWaiter_NYPWidget>
-            <version>2.5.5</version>
+            <version>3.0.0</version>
         </PriceWaiter_NYPWidget>
     </modules>
 
@@ -22,6 +22,12 @@
                     <order>
                         <table>nypwidget_orders</table>
                     </order>
+                    <deal>
+                        <table>nypwidget_deal</table>
+                    </deal>
+                    <deal_usage>
+                        <table>nypwidget_deal_usage</table>
+                    </deal_usage>
                 </entities>
             </nypwidget_mysql4>
             <nypwidget_category>
@@ -84,7 +90,38 @@
                     </catalog_category_prepare_save_pricewaiter>
                 </observers>
             </catalog_category_prepare_save>
+            <customer_logout>
+                <observers>
+                    <customer_logout_pricewaiter>
+                        <type>model</type>
+                        <class>nypwidget/observer</class>
+                        <method>handleCustomerLogout</method>
+                        <args></args>
+                    </customer_logout_pricewaiter>
+                </observers>
+            </customer_logout>
+            <sales_model_service_quote_submit_success>
+                <observers>
+                    <sales_model_service_quote_submit_success_pricewaiter>
+                        <type>model</type>
+                        <class>nypwidget/observer</class>
+                        <method>tieOrderToPriceWaiterDeals</method>
+                        <args></args>
+                    </sales_model_service_quote_submit_success_pricewaiter>
+                </observers>
+            </sales_model_service_quote_submit_success>
         </events>
+        <sales>
+            <quote>
+                <totals>
+                    <pricewaiter>
+                        <class>nypwidget/total_quote</class>
+                        <after>discount,subtotal</after>
+                        <before>grand_total</before>
+                    </pricewaiter>
+                </totals>
+            </quote>
+        </sales>
     </global>
 
     <frontend>
@@ -103,6 +140,13 @@
                     <frontName>pricewaiter</frontName>
                 </args>
             </nypwidget>
+            <pricewaiter_deal>
+                <use>standard</use>
+                <args>
+                    <module>PriceWaiter_NYPWidget</module>
+                    <frontName>_dealpw</frontName>
+                </args>
+            </pricewaiter_deal>
         </routers>
     </frontend>
 

@@ -8,6 +8,6 @@
     "express": "^4.13.4"
   },
   "scripts": {
-    "start": "node --harmony index.js"
+    "start": "node index.js"
   }
 }
