@@ -9,9 +9,9 @@ class PriceWaiter_NYPWidget_PingController extends PriceWaiter_NYPWidget_Control
      * Versions of request data this controller supports.
      * @var Array
      */
-    protected $supportedVersions = [
+    protected $supportedVersions = array(
         '2016-03-01',
-    ];
+    );
 
     public function processRequest(PriceWaiter_NYPWidget_Controller_Endpoint_Request $request)
     {

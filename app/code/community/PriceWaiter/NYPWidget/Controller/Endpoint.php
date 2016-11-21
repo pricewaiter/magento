@@ -27,7 +27,7 @@ abstract class PriceWaiter_NYPWidget_Controller_Endpoint extends Mage_Core_Contr
      * Set to the set of version numbers that this endpoint can process.
      * @var array
      */
-    protected $supportedVersions = [];
+    protected $supportedVersions = array();
 
     /**
      * Content type in which responses are sent.
