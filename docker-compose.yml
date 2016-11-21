@@ -6,6 +6,16 @@ mysql:
 order_verifier:
     build: docker/order_verifier
 
+phpcs:
+    build: .
+    dockerfile: ./docker/phpcs/Dockerfile
+    # NOTE: This container is in here for `docker-compose run` purposes.
+    command: /bin/sh -c "echo 'This is a run-only container. It will just sit here.'; while (true); do sleep 100; done"
+    volumes:
+        - ./app:/usr/src/ext/src/app
+        - ./js:/usr/src/ext/src/js
+        - ./skin:/usr/src/ext/src/skin
+
 phpmyadmin:
     build: docker/phpmyadmin
     ports:

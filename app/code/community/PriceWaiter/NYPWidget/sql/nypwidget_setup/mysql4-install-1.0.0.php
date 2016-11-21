@@ -49,4 +49,3 @@ CREATE TABLE {$this->getTable('nypwidget_category')} (
 //         ->updateAttributes(array($product->getId()), array('nypwidget_enabled' => 1), 0);
 // }
 
-?>

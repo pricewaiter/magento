@@ -1,0 +1,6 @@
+#!/bin/sh
+
+$PHPCS_CMD \
+    --standard=MEQP1 \
+    /usr/src/ext/src \
+    $@

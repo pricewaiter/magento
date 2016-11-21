@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Run the code beautifier against the source.
+$PHPCBF_CMD \
+    --standard=MEQP1 \
+    /usr/src/ext/src \
+    $@

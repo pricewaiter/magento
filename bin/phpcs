@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs PHP Code Sniffer (phpcs) against the source tree
+
+docker-compose run \
+    --rm \
+    -T \
+    phpcs \
+    run-phpcs --colors $@
