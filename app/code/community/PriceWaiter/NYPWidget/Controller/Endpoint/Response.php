@@ -25,7 +25,7 @@ class PriceWaiter_NYPWidget_Controller_Endpoint_Response
     private $_statusCode = 200;
     private $_bodyJson = null;
 
-    public function __construct($statusCode = 200, $body = [])
+    public function __construct($statusCode = 200, $body = array())
     {
         $this->_statusCode = $statusCode;
         $this->_body = $body;

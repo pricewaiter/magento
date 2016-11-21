@@ -22,9 +22,9 @@ class PriceWaiter_NYPWidget_DebugController extends PriceWaiter_NYPWidget_Contro
     /**
      * @var Array
      */
-    protected $supportedVersions = [
+    protected $supportedVersions = array(
         '2016-03-01',
-    ];
+    );
 
     public function processRequest(PriceWaiter_NYPWidget_Controller_Endpoint_Request $request)
     {
