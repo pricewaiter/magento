@@ -27,8 +27,8 @@ system(
     $code
 );
 
-# 3. Squash merge 2.5.5 onto our temporary branch
-system('git merge -X theirs --squash 2.5.5');
+# 3. Squash merge master onto our temporary branch
+system('git merge -X theirs --squash master');
 
 # 3a. Remove files that don't make sense to push publically.
 system('git mv -f README-public.md README.md');
@@ -71,5 +71,5 @@ if ($resp === 'y' || $resp === 'Y') {
     echo "Ok, forget it then.\n";
 }
 
-# 4. Switch back to 2.5.5 + remove temp branch
-system('git checkout 2.5.5');
+# 4. Switch back to master + remove temp branch
+system('git checkout master');
