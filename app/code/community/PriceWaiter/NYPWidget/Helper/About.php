@@ -40,7 +40,11 @@ class PriceWaiter_NYPWidget_Helper_About extends Mage_Core_Helper_Abstract
      */
     public function getPlatform()
     {
-        return 'Magento ' . Mage::getEdition();
+        if (method_exists(Mage, 'getEdition')) {
+            return 'Magento ' . Mage::getEdition();
+        } else {
+            return 'Magento Pre-1.7';
+        }
     }
 
     /**
