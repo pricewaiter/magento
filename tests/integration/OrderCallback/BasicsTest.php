@@ -68,6 +68,10 @@ class Integration_OrderCallback_Basics
     {
         list($request, $order) = $args;
         $this->doAddressTest('shipping', $request, $order);
+
+        $address = $order->getShippingAddress();
+        $regionId = $address->getData('region_id');
+        $this->assertEquals(49, $regionId);
     }
 
     /**
@@ -77,6 +81,10 @@ class Integration_OrderCallback_Basics
     {
         list($request, $order) = $args;
         $this->doAddressTest('billing', $request, $order);
+
+        $address = $order->getBillingAddress();
+        $regionId = $address->getData('region_id');
+        $this->assertEquals(49, $regionId);
     }
 
     public function doAddressTest($type, Array $request, Mage_Sales_Model_Order $order)

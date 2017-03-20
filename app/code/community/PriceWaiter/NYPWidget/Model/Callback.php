@@ -109,11 +109,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         $regionModel = Mage::getModel('directory/region')
             ->loadByCode($state, $country);
 
-        if (!$regionModel->getId()) {
-            throw new PriceWaiter_NYPWidget_Exception_InvalidRegion($state, $country);
-        }
-
-        return Mage::getModel('sales/order_address')
+        $order = Mage::getModel('sales/order_address')
             // System data
             ->setStoreId($store->getId())
             ->setAddressType(self::$magentoAddressTypes[$type])
@@ -134,13 +130,18 @@ class PriceWaiter_NYPWidget_Model_Callback
                 $request["buyer_{$type}_address3"],
             )))
             ->setCity($request["buyer_{$type}_city"])
-            ->setRegionId($regionModel->getId())
             ->setPostcode($request["buyer_{$type}_zip"])
             ->setCountryId($country)
 
             // Phone numbers
             ->setTelephone($request["buyer_{$type}_phone"])
             ->setFax('');
+
+        if ($regionModel->getId()) {
+            $order = $order->setRegionId($regionModel->getId());
+        }
+
+        return $order;
     }
 
     /**
