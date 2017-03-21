@@ -16,6 +16,8 @@ class PriceWaiter_NYPWidget_Model_Embed
     protected $_isConversionToolsEnabled = null;
     protected $_scriptTags = null;
 
+    const IMAGE_WIDTH = 800;
+
     /**
      * Build a variable describing *all* categories product is part of.
      * @param  Mage_Catalog_Model_Product $product
@@ -198,9 +200,15 @@ class PriceWaiter_NYPWidget_Model_Embed
             $result->brand = $brand;
         }
 
-        $image = $product->getImageUrl();
+        $imageHelper = Mage::helper('catalog/image');
+        $image = (string)$imageHelper->init($product, 'image')->resize(self::IMAGE_WIDTH);
         if ($image) {
             $result->image = $image;
+        } else {
+            $image = $product->getImageUrl();
+            if ($image) {
+                $result->image = $image;
+            }
         }
 
         // If possible, set the base price.
