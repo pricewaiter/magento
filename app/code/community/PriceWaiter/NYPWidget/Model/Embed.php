@@ -354,14 +354,8 @@ class PriceWaiter_NYPWidget_Model_Embed
      */
     public function getProductBrand(Mage_Catalog_Model_Product $product)
     {
-        // prefer brand, but fallback to manufacturer attribute
-        $brand = $product->getData('brand');
-
-        if ($brand) {
-            return $brand;
-        }
-
         $attributesToTry = array(
+            'brand',
             'manufacturer',
             'c2c_brand',
         );
