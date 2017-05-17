@@ -219,7 +219,8 @@ class Integration_Models_QuoteTotalTest extends Integration_AbstractProductTest
         $deal = $this->createDeal($product, '$5 off 1');
 
         $quote = $this->createQuote($product);
-        $quote->setAppliedRuleIds('1,2,3,4')->save();
+        // TODO: Use custom fixtures, not rules from sample data
+        $quote->setAppliedRuleIds('6,7,9')->save();
         $quote->collectTotals();
 
         $addr = $quote->getShippingAddress();
@@ -228,7 +229,26 @@ class Integration_Models_QuoteTotalTest extends Integration_AbstractProductTest
             ->setPriceWaiterDeals(array($deal))
             ->collect($addr);
 
-        $this->assertEquals(0, $addr->getDiscountAmount());
+        $this->assertEquals(0, $addr->getDiscountAmount(), 'No discount because rules affect more than just shipping');
+    }
+
+    public function testStillAppliesWhenSalesRulesAffectShipping()
+    {
+        $product = $this->getSimpleProduct();
+        $deal = $this->createDeal($product, '$5 off 1');
+
+        $quote = $this->createQuote($product);
+        // TODO: Use custom fixtures, not rules from sample data
+        $quote->setAppliedRuleIds('14')->save();
+        $quote->collectTotals();
+
+        $addr = $quote->getShippingAddress();
+
+        $totals = Mage::getModel('nypwidget/total_quote')
+            ->setPriceWaiterDeals(array($deal))
+            ->collect($addr);
+
+        $this->assertEquals(-5, $addr->getDiscountAmount(), 'Discount applied because rules only affect shipping');
     }
 
     public function testStillAppliesOtherDealWhenFirstOneIsNoGood()

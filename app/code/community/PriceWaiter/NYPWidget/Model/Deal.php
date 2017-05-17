@@ -41,7 +41,12 @@ class PriceWaiter_NYPWidget_Model_Deal extends Mage_Core_Model_Abstract
         $body = $request->getBody();
 
         if (!empty($body->test)) {
-            throw new PriceWaiter_NYPWidget_Exception_NoTestDeals();
+            // Allow test deals in development
+            if (getenv('MAGE_MODE') === 'developer') {
+                Mage::log("Allowing test PriceWaiter deal: " . $body->id);
+            } else {
+                throw new PriceWaiter_NYPWidget_Exception_NoTestDeals();
+            }
         }
 
         $this->setId($body->id);

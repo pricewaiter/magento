@@ -427,23 +427,36 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
         }
 
         // Things that stop us from performing collection:
-        // 1. Quote has salesrules applied
-        // 2. (Probably redundant) quote has coupon_code
-
-        // TODO: More nuance here.
+        // 1. Quote has coupon code applied
+        // 2. Quote has salesrules applied which affect more than just shipping
 
         $quote = $addr->getQuote();
 
-        $hasSalesRules = !empty($quote->getAppliedRuleIds());
-        if ($hasSalesRules) {
+        // (1) Don't allow when there is a coupon code
+        $hasCouponCode = !empty($quote->getCouponCode());
+        if ($hasCouponCode) {
+            Mage::getSingleton('core/session')->addNotice(
+                'Your offer discount could not be applied because there is a coupon code in use.'
+            );
             return false;
         }
 
-        // This is probably redundant, a coupon code *should* result in an
-        // applied sales rule id (above), but just in case...
-        $hasCouponCode = !empty($quote->getCouponCode());
-        if ($hasCouponCode) {
-            return false;
+        // (2) Don't allow if the sales rule applies to _more than shipping only_
+        $ruleIds = $quote->getAppliedRuleIds();
+        if (!empty($ruleIds)) {
+            $helper = Mage::helper('nypwidget/rule');
+            $ruleCollection = Mage::getModel('salesrule/rule')
+                ->getCollection()
+                ->addFieldToFilter('rule_id', array('in' => $ruleIds));
+
+            foreach ($ruleCollection as $rule) {
+                if (!$helper->ruleAppliesToShippingOnly($rule)) {
+                    Mage::getSingleton('core/session')->addNotice(
+                        'Your offer discount could not be applied because of an existing promotion.'
+                    );
+                    return false;
+                }
+            }
         }
 
         return true;
