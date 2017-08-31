@@ -31,11 +31,18 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
     {
         parent::collect($address);
 
-        if (!$this->shouldCollectAddress($address)) {
+        $deals = $this->getPriceWaiterDeals();
+
+        // shouldCollectAddress adds session notices about discounts
+        // if we are not eligible due to coupon codes or card discounts
+        // avoid showing those notices if there are no deals
+        if (!count($deals)) {
             return $this;
         }
 
-        $deals = $this->getPriceWaiterDeals();
+        if (!$this->shouldCollectAddress($address)) {
+            return $this;
+        }
 
         // In case of collision, favor more recent deals over less recent.
         usort($deals, array(__CLASS__, 'sortDealsRecentFirst'));
@@ -433,12 +440,31 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
         $quote = $addr->getQuote();
 
         // (1) Don't allow when there is a coupon code
-        $hasCouponCode = !empty($quote->getCouponCode());
+        $couponCode = $quote->getCouponCode();
+        $hasCouponCode = !empty($couponCode);
         if ($hasCouponCode) {
             Mage::getSingleton('core/session')->addNotice(
                 'Your offer discount could not be applied because there is a coupon code in use.'
             );
             return false;
+        }
+
+        // (2) Don't allow if the sales rule applies to _more than shipping only_
+        $ruleIds = $quote->getAppliedRuleIds();
+        if (!empty($ruleIds)) {
+            $helper = Mage::helper('nypwidget/rule');
+            $ruleCollection = Mage::getModel('salesrule/rule')
+                ->getCollection()
+                ->addFieldToFilter('rule_id', array('in' => $ruleIds));
+
+            foreach ($ruleCollection as $rule) {
+                if (!$helper->ruleAppliesToShippingOnly($rule)) {
+                    Mage::getSingleton('core/session')->addNotice(
+                        'Your offer discount could not be applied because of an existing promotion.'
+                    );
+                    return false;
+                }
+            }
         }
 
         // (2) Don't allow if the sales rule applies to _more than shipping only_
