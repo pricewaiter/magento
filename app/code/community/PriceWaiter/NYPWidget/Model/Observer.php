@@ -32,6 +32,14 @@ class PriceWaiter_NYPWidget_Model_Observer
     }
 
     /**
+     * Called when the PriceWaiter configuration page is saved.
+     */
+    public function handleConfigurationSave()
+    {
+        Mage::helper('nypwidget')->clearCache();
+    }
+
+    /**
      * Called when the customer logs out.
      * @param  Varien_Event_Observer $observer
      */

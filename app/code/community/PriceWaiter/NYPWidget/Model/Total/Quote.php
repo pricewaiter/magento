@@ -467,24 +467,6 @@ class PriceWaiter_NYPWidget_Model_Total_Quote
             }
         }
 
-        // (2) Don't allow if the sales rule applies to _more than shipping only_
-        $ruleIds = $quote->getAppliedRuleIds();
-        if (!empty($ruleIds)) {
-            $helper = Mage::helper('nypwidget/rule');
-            $ruleCollection = Mage::getModel('salesrule/rule')
-                ->getCollection()
-                ->addFieldToFilter('rule_id', array('in' => $ruleIds));
-
-            foreach ($ruleCollection as $rule) {
-                if (!$helper->ruleAppliesToShippingOnly($rule)) {
-                    Mage::getSingleton('core/session')->addNotice(
-                        'Your offer discount could not be applied because of an existing promotion.'
-                    );
-                    return false;
-                }
-            }
-        }
-
         return true;
     }
 

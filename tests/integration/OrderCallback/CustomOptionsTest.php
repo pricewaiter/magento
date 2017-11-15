@@ -39,7 +39,7 @@ class Integration_OrderCallback_CustomOptions
         $this->assertNotEmpty($item, 'order has an item');
 
         $this->assertEquals(
-            '154.00',
+            '75.00',
             $item->getPrice()
         );
     }

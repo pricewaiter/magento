@@ -31,6 +31,16 @@ class PriceWaiter_NYPWidget_Model_Callback
      */
     protected $passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+    private function getProductListPrice(Mage_Catalog_Model_Product $product)
+    {
+        $price = $product->getFinalPrice();
+        if ($price) {
+            return $price;
+        }
+
+        return $product->getPrice();
+    }
+
     /**
      * @internal Adds items to the given order and calculates final total.
      * @param Mage_Sales_Model_Order       $order
@@ -70,7 +80,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         // various amount fields present on the order item.
         $amounts = $this->calculateOrderItemAmounts(
             $request,
-            $product->getPrice(),
+            $this->getProductListPrice($product),
             array($store, 'roundPrice')
         );
         foreach($amounts as $key => $value) {
@@ -202,7 +212,7 @@ class PriceWaiter_NYPWidget_Model_Callback
             throw new PriceWaiter_NYPWidget_Exception_Product_NotFound();
         }
 
-        $amounts = $this->calculateOrderAmounts($request, $product->getPrice(), array($store, 'roundPrice'));
+        $amounts = $this->calculateOrderAmounts($request, $this->getProductListPrice($product), array($store, 'roundPrice'));
 
         foreach($amounts as $key => $value) {
             $order->setData($key, $value);
@@ -749,7 +759,7 @@ class PriceWaiter_NYPWidget_Model_Callback
 
         // Apply custom option price changes all in one go
         // (to avoid them interfering with each other)
-        $product->setPrice($product->getPrice() + $amountToAdd);
+        $product->setPrice($this->getProductListPrice($product) + $amountToAdd);
     }
 
     /**
@@ -913,7 +923,7 @@ class PriceWaiter_NYPWidget_Model_Callback
         }
 
         $product->load($product->getId());
-        $product->setPrice($product->getPrice() + $additionalCost);
+        $product->setPrice($this->getProductListPrice($product) + $additionalCost);
 
         return $product;
     }

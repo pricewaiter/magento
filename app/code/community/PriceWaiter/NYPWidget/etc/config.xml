@@ -3,7 +3,7 @@
 
     <modules>
         <PriceWaiter_NYPWidget>
-            <version>3.0.5</version>
+            <version>3.0.6</version>
         </PriceWaiter_NYPWidget>
     </modules>
 
@@ -80,6 +80,16 @@
                     </adminhtml_catalog_category_tabs_pricewaiter>
                 </observers>
             </adminhtml_catalog_category_tabs>
+            <admin_system_config_changed_section_pricewaiter>
+                <observers>
+                    <admin_system_config_changed_section_pricewaiter>
+                        <type>model</type>
+                        <class>nypwidget/observer</class>
+                        <method>handleConfigurationSave</method>
+                        <args></args>
+                    </admin_system_config_changed_section_pricewaiter>
+                </observers>
+            </admin_system_config_changed_section_pricewaiter>
             <catalog_category_prepare_save>
                 <observers>
                     <catalog_category_prepare_save_pricewaiter>

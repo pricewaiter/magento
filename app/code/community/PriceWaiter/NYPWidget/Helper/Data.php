@@ -16,6 +16,18 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_DISABLED_BY_CATEGORY = 'pricewaiter/categories/disable_by_category';
     const XML_PATH_SECRET = 'pricewaiter/configuration/api_secret';
 
+    const CACHE_TAG = 'pricewaiter_configuration';
+
+    /**
+     * Clears any caches dependent on PriceWaiter config data.
+     */
+    public function clearCache()
+    {
+        Mage::app()->cleanCache(array(
+            self::CACHE_TAG,
+        ));
+    }
+
     /**
      * @return String URL of the PriceWaiter API.
      */

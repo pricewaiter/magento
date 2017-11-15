@@ -22,8 +22,8 @@ RUN git clone https://github.com/magento/marketplace-eqp.git && \
     composer install && \
     cd ..
 
-ENV PHPCS_CMD="php marketplace-eqp/vendor/squizlabs/php_codesniffer/scripts/phpcs"
-ENV PHPCBF_CMD="php marketplace-eqp/vendor/squizlabs/php_codesniffer/scripts/phpcbf"
+ENV PHPCS_CMD="php marketplace-eqp/vendor/bin/phpcs"
+ENV PHPCBF_CMD="php marketplace-eqp/vendor/bin/phpcbf"
 
 # Set installed_paths, per README
 RUN $PHPCS_CMD --config-set installed_paths /usr/src/ext/marketplace-eqp
@@ -35,4 +35,3 @@ COPY js src/js
 COPY skin src/skin
 
 CMD [ "run-phpcs" ]
-
