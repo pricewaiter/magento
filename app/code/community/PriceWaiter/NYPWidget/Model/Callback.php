@@ -339,11 +339,69 @@ class PriceWaiter_NYPWidget_Model_Callback
             ->setFirstname($request['buyer_first_name'])
             ->setLastname($request['buyer_last_name']);
 
+        $this->setCustomerAddress($request, $customer, 'billing');
+        $this->setCustomerAddress($request, $customer, 'shipping');
+
         $customer->save();
 
         $this->sendWelcomeEmail($customer, $store);
 
         return $customer;
+    }
+
+    private function setCustomerAddress($request, $customer, $type)
+    {
+        if ($type === 'billing') {
+            $address = $customer->getPrimaryBillingAddress();
+        } else {
+            $address = $customer->getPrimaryShippingAddress();
+        }
+
+        if (!$address instanceof Mage_Customer_Model_Address) {
+            $address = Mage::getModel('customer/address');
+        }
+
+        $address->setFirstname($request['buyer_first_name']);
+        $address->setLastname($request['buyer_last_name']);
+        $address->setCity($request["buyer_{$type}_city"]);
+
+        $state = $request["buyer_{$type}_state"];
+        $country = $request["buyer_{$type}_country"];
+
+        // Resolve state + country into a Mage_Directory_Model_Region
+        $regionModel = Mage::getModel('directory/region')
+            ->loadByCode($request["buyer_{$type}_state"], $request["buyer_{$type}_country"]);
+
+        if ($regionModel->getId()) {
+            $address->setRegionId($regionModel->getId());
+        }
+
+        $address->setCountryId($request["buyer_{$type}_country"]);
+        $address->setPostcode($request["buyer_{$type}_zip"]);
+        $address->setStreet(array_filter(array(
+            $request["buyer_{$type}_address"],
+            $request["buyer_{$type}_address2"],
+            $request["buyer_{$type}_address3"],
+        )));
+
+        if (isset($request["buyer_{$type}_phone"])) {
+            $address->setTelephone($request["buyer_{$type}_phone"]);
+        }
+
+        if (!$address->getId()) {
+            if ($type === 'billing') {
+                $address->setIsDefaultBilling(true);
+                if ($customer->getDefaultBilling()) {
+                    $customer->setData('default_billing', '');
+                }
+            } else {
+                $address->setIsDefaultShipping(true);
+                if ($customer->getDefaultShipping()) {
+                    $customer->setData('default_shipping', '');
+                }
+            }
+            $customer->addAddress($address);
+        }
     }
 
     /**
