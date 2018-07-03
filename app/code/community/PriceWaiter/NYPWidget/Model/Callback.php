@@ -33,6 +33,27 @@ class PriceWaiter_NYPWidget_Model_Callback
 
     private function getProductListPrice(Mage_Catalog_Model_Product $product)
     {
+        $parents = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
+
+        // if there is a parent configurable product, lookup the price by configuring that
+        if (count($parents)) {
+            $parent = Mage::getModel('catalog/product')->load($parents[0]);
+
+            $confAttributes = $parent->getTypeInstance(true)->getConfigurableAttributesAsArray($parent);
+            $pdtOptValues   = array();
+            foreach ($confAttributes as $attribute) {
+                $attrCode    = $attribute['attribute_code'];
+                $attrId      = $attribute['attribute_id'];
+                $optionValue = $product->getData($attrCode);
+                $pdtOptValues[$attrId] = $optionValue;
+            }
+            $parent->addCustomOption('attributes', serialize($pdtOptValues));
+            $price = $parent->getFinalPrice();
+            if ($price) {
+                return $price;
+            }
+        }
+
         $price = $product->getFinalPrice();
         if ($price) {
             return $price;
