@@ -1,5 +1,6 @@
 <?php
 
+/** @var PriceWaiter_NYPWidget_Model_Resource_Eav_Mysql4_Setup $installer */
 $installer = $this;
 $installer->startSetup();
 
@@ -112,12 +113,15 @@ $dealsTable = $connection
     )
     // Add an index for quick lookup when applying deals
     ->addIndex(
-        $installer->getIdxName(array(
-            'pricewaiter_buyer_id',
-            'revoked',
-            'order_id',
-            'expires_at',
-        )),
+        $installer->getIdxName(
+            $installer->getTable('nypwidget/deal'),
+            array(
+                'pricewaiter_buyer_id',
+                'revoked',
+                'order_id',
+                'expires_at',
+            )
+        ),
         array(
             'pricewaiter_buyer_id',
             'revoked',
@@ -130,7 +134,10 @@ $dealsTable = $connection
     )
     // Index on just order_id for quicker order listing
     ->addIndex(
-        $installer->getIdxName(array('order_id')),
+        $installer->getIdxName(
+            $installer->getTable('nypwidget/deal'),
+            array('order_id')
+        ),
         array('order_id'),
         array(
             'type' => Varien_Db_Adapter_Interface::INDEX_TYPE_INDEX,
@@ -174,10 +181,13 @@ $dealUsageTable = $connection
         Varien_Db_Ddl_Table::ACTION_CASCADE
     )
     ->addIndex(
-        $installer->getIdxName(array(
-            'deal_id',
-            'quote_id',
-        )),
+        $installer->getIdxName(
+            $installer->getTable('nypwidget/deal_usage'),
+            array(
+                'deal_id',
+                'quote_id',
+            )
+        ),
         array(
             'deal_id',
             'quote_id',

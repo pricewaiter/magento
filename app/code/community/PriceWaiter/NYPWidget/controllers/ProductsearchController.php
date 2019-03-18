@@ -37,7 +37,6 @@ class PriceWaiter_NYPWidget_ProductsearchController
                 ->addAttributeToSelect('*')
                 ->addAttributeToFilter($field, array('like' => '%'.$search.'%'))
                 ->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
-                ->addFieldToFilter('visibility', array(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH))
                 ->load();
 
             $embed = Mage::getModel('nypwidget/embed');

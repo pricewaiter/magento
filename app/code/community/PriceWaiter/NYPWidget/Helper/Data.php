@@ -56,6 +56,11 @@ class PriceWaiter_NYPWidget_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getOfferUrl($id)
     {
+        if (preg_match('/pwmarket_(\d+)/', $id, $matches)) {
+            error_log(print_r($matches, 1));
+            return "https://market.pricewaiter.com/seller/orders/" . $matches[1];
+        }
+
         $url = $this->getRetailerUrl();
         $url = rtrim($url, '/');
         $url .= '/offers/' . rawurlencode($id);
